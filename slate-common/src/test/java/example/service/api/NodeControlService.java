@@ -1,4 +1,4 @@
-package api;
+package example.service.api;
 
 import slatepowered.reco.rpc.RemoteAPI;
 import slatepowered.slate.model.NamedRemote;
