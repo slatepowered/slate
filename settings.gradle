@@ -1,3 +1,4 @@
 rootProject.name = 'slate'
 include 'slate-common'
+include 'slate-master'
 
