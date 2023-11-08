@@ -20,12 +20,13 @@ public class RPCService extends RPCManager implements Service {
 
     public static final ServiceTag<RPCService> TAG = ServiceTag.local(RPCService.class);
 
-    public RPCService(Channel localChannel) {
+    public RPCService(ProvidedChannel localChannel) {
         super(localChannel);
+        this.communicationProvider = localChannel.provider();
+    }
 
-        if (!(localChannel instanceof ProvidedChannel))
-            throw new UnsupportedOperationException("idk channel isnt a ProvidedChannel or smth");
-        this.communicationProvider = ((ProvidedChannel)localChannel).provider();
+    public CommunicationProvider<?> getCommunicationProvider() {
+        return communicationProvider;
     }
 
 }

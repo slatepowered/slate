@@ -41,7 +41,7 @@ public abstract class RemoteServiceTag<T extends Service & RemoteAPI> implements
     @Override
     public T create(ServiceManager manager) {
         RPCService rpcService = manager.getService(RPCService.class);
-        return rpcService.bindRemote(rpcService.communicationProvider.channel(remoteName), getServiceClass());
+        return rpcService.bindRemote(rpcService.getCommunicationProvider().channel(remoteName), getServiceClass());
     }
 
 }
