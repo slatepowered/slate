@@ -3,12 +3,11 @@ package slatepowered.slate.model;
 import lombok.Builder;
 import slatepowered.reco.CommunicationProvider;
 import slatepowered.reco.ProvidedChannel;
-import slatepowered.reco.rpc.RPCManager;
 import slatepowered.slate.security.NetworkRPCSecurityManager;
 import slatepowered.slate.service.Service;
 import slatepowered.slate.service.ServiceManager;
 import slatepowered.slate.service.ServiceResolver;
-import slatepowered.slate.service.ServiceTag;
+import slatepowered.slate.service.ServiceKey;
 import slatepowered.slate.service.remote.RPCService;
 
 import java.util.HashMap;
@@ -87,7 +86,7 @@ public abstract class Network implements ServiceResolver {
     /* ServiceResolver impl */
 
     @Override
-    public <T extends Service> ServiceTag<T> qualifyServiceTag(ServiceTag<T> tag) throws UnsupportedOperationException {
+    public <T extends Service> ServiceKey<T> qualifyServiceTag(ServiceKey<T> tag) throws UnsupportedOperationException {
         return tag;
     }
 

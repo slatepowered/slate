@@ -8,7 +8,7 @@ package slatepowered.slate.service;
  *
  * @param <T> The service instance type.
  */
-public interface ServiceTag<T extends Service> {
+public interface ServiceKey<T extends Service> {
 
     /**
      * Get the service class. This is the base
@@ -27,8 +27,17 @@ public interface ServiceTag<T extends Service> {
      */
     void register(ServiceManager manager, T service);
 
-    static <T extends Service> ServiceTag<T> local(Class<T> tClass) {
-        return new ServiceTag<T>() {
+    /**
+     * Used to get the tag for retrieving the local instance.
+     *
+     * @return The local tag, can be this.
+     */
+    default ServiceKey<T> toLocal() {
+        return this;
+    }
+
+    static <T extends Service> ServiceKey<T> local(Class<T> tClass) {
+        return new ServiceKey<T>() {
             @Override
             public Class<T> getServiceClass() {
                 return tClass;
@@ -47,8 +56,8 @@ public interface ServiceTag<T extends Service> {
             @Override
             public boolean equals(Object obj) {
                 if (obj == this) return true;
-                if (!(obj instanceof ServiceTag)) return false;
-                return tClass == ((ServiceTag<?>)obj).getServiceClass();
+                if (!(obj instanceof ServiceKey)) return false;
+                return tClass == ((ServiceKey<?>)obj).getServiceClass();
             }
         };
     }

@@ -1,11 +1,10 @@
 package slatepowered.slate.service.remote;
 
-import slatepowered.reco.Channel;
 import slatepowered.reco.CommunicationProvider;
 import slatepowered.reco.ProvidedChannel;
 import slatepowered.reco.rpc.RPCManager;
 import slatepowered.slate.service.Service;
-import slatepowered.slate.service.ServiceTag;
+import slatepowered.slate.service.ServiceKey;
 
 /**
  * Provides an {@link RPCManager} to all services
@@ -18,7 +17,7 @@ public class RPCService extends RPCManager implements Service {
      */
     protected final CommunicationProvider<?> communicationProvider;
 
-    public static final ServiceTag<RPCService> TAG = ServiceTag.local(RPCService.class);
+    public static final ServiceKey<RPCService> TAG = ServiceKey.local(RPCService.class);
 
     public RPCService(ProvidedChannel localChannel) {
         super(localChannel);

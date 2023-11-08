@@ -4,7 +4,7 @@ import slatepowered.slate.security.SecurityObject;
 import slatepowered.slate.service.Service;
 import slatepowered.slate.service.ServiceManager;
 import slatepowered.slate.service.ServiceResolver;
-import slatepowered.slate.service.ServiceTag;
+import slatepowered.slate.service.ServiceKey;
 
 public abstract class Node implements NetworkObject, ServiceResolver, SecurityObject {
 
@@ -50,7 +50,7 @@ public abstract class Node implements NetworkObject, ServiceResolver, SecurityOb
     }
 
     @Override
-    public <T extends Service> T getService(ServiceTag<T> tag) throws UnsupportedOperationException {
+    public <T extends Service> T getService(ServiceKey<T> tag) throws UnsupportedOperationException {
         T service = serviceManager.getService(tag);
         return service == null ? ServiceResolver.super.getService(tag) : service;
     }

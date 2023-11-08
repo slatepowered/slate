@@ -4,10 +4,10 @@ package slatepowered.slate.service;
  * Dynamically creates the service for the given service
  * manager when queried.
  *
- * @see ServiceTag
+ * @see ServiceKey
  * @param <T>
  */
-public interface DynamicServiceTag<T extends Service> extends ServiceTag<T> {
+public interface DynamicServiceKey<T extends Service> extends ServiceKey<T> {
 
     /**
      * Dynamically create the service for the given service manager.
