@@ -1,0 +1,110 @@
+group 'com.github.slatepowered.slate'
+
+buildscript {
+    repositories {
+        maven { url "https://maven.minecraftforge.net" }
+        maven { url "https://repo.spongepowered.org/repository/maven-public/" }
+        maven { url "https://plugins.gradle.org/m2/" }
+        maven { url "https://jitpack.io" }
+        mavenCentral()
+    }
+}
+
+allprojects {
+    buildscript {
+        repositories {
+            maven { url = 'https://maven.minecraftforge.net' }
+            maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
+            maven { url = 'https://plugins.gradle.org/m2/' }
+            maven { url = 'https://jitpack.io' }
+            mavenCentral()
+        }
+    }
+}
+
+afterEvaluate {
+    task("publishToMavenLocal") {
+        for (Project proj : subprojects) {
+            dependsOn(proj.tasks.getByName("publishToMavenLocal"))
+        }
+    }
+}
+
+subprojects {
+    apply plugin: "java"
+    apply plugin: "maven-publish"
+    apply plugin: "java-library"
+
+    ext {
+        VERU_COMMIT = "1d6bfb4"
+        RECO_COMMIT = "a1fdb04"
+    }
+
+    group = rootProject.group
+
+    /* Java Compile Settings */
+    compileJava.options.encoding = 'UTF-8'
+
+    tasks.withType(JavaCompile) {
+        options.encoding = 'UTF-8'
+    }
+
+    java {
+        // By default, build for java 8
+        sourceCompatibility = 8
+        targetCompatibility = 8
+
+        withSourcesJar()
+        withJavadocJar()
+    }
+
+    repositories {
+        mavenCentral()
+        mavenLocal()
+
+        maven { url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
+        maven { url = 'https://oss.sonatype.org/content/repositories/snapshots' }
+        maven { url = 'https://oss.sonatype.org/content/repositories/central' }
+        maven { url = 'https://jitpack.io' }
+    }
+
+    task("install") {
+        dependsOn(tasks.getByName("publishToMavenLocal"))
+    }
+
+    /* Maven Publications */
+    publishing {
+        publications {
+            maven(MavenPublication) {
+                groupId = project.group as String
+                artifactId = project.name
+                version = project.version as String
+                from components.java
+            }
+        }
+    }
+
+    repositories {
+        mavenCentral()
+        maven { url = "https://jitpack.io" }
+    }
+
+    dependencies {
+        /* Lombok (java 8 is a pain otherwise) */
+        compileOnly 'org.projectlombok:lombok:1.18.30'
+        annotationProcessor 'org.projectlombok:lombok:1.18.30'
+
+        testCompileOnly 'org.projectlombok:lombok:1.18.30'
+        testAnnotationProcessor 'org.projectlombok:lombok:1.18.30'
+    }
+
+    /* JUnit */
+    dependencies {
+        testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.0")
+        testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.7.0")
+    }
+
+    tasks.test {
+        useJUnitPlatform()
+    }
+}
