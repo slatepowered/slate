@@ -16,7 +16,7 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Represents a Slate network.
  */
-public abstract class Network implements ServiceProvider {
+public abstract class Network<N extends Node> implements ServiceProvider {
 
     /**
      * The communication provider.
@@ -34,19 +34,12 @@ public abstract class Network implements ServiceProvider {
     protected final ServiceManager serviceManager;
 
     /**
-     * The virtual master node.
-     */
-    protected final Node master;
-
-    /**
      * All nodes by name.
      */
-    protected final Map<String, Node> nodeMap = new HashMap<>();
+    protected final Map<String, N> nodeMap = new HashMap<>();
 
-    public Network(CommunicationProvider<? extends ProvidedChannel> communicationProvider,
-                   Node master) {
+    public Network(CommunicationProvider<? extends ProvidedChannel> communicationProvider) {
         this.communicationProvider = communicationProvider;
-        this.master = master;
 
         this.rpcManager = new RPCService(communicationProvider);
         rpcManager.setInboundSecurityManager(new NetworkRPCSecurityManager(this));
@@ -86,9 +79,7 @@ public abstract class Network implements ServiceProvider {
      *
      * @return The master.
      */
-    public Node master() {
-        return master;
-    }
+    public abstract N master();
 
     /**
      * Get a pre-registered node by name.
@@ -99,9 +90,9 @@ public abstract class Network implements ServiceProvider {
      * @param name The name.
      * @return The node or null if absent.
      */
-    public Node getNode(String name) {
+    public N getNode(String name) {
         if ("master".equals(name))
-            return master;
+            return master();
         return nodeMap.get(name);
     }
 
@@ -116,7 +107,7 @@ public abstract class Network implements ServiceProvider {
         return CompletableFuture.completedFuture(getNode(name));
     }
 
-    public Network registerNode(Node node) {
+    public Network<N> registerNode(N node) {
         nodeMap.put(node.getName(), node);
         return this;
     }

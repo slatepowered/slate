@@ -58,13 +58,18 @@ public class Example {
         final String RMQ_VHOST = "/";
 
         // create network and communication provider for the master node
-        Network networkOnMaster = new Network(new RMQProvider("master", KryoSerializer.standard())
-                .connect(RMQ_HOST, RMQ_PORT, RMQ_USER, RMQ_PASSWORD, RMQ_VHOST), null) { };
-        networkOnMaster.registerNode(new Node("other", networkOnMaster, new String[] { "other" }) { });
+        Network<Node> networkOnMaster = new Network<Node>(new RMQProvider("master", KryoSerializer.standard())
+                .connect(RMQ_HOST, RMQ_PORT, RMQ_USER, RMQ_PASSWORD, RMQ_VHOST)) {@Override public Node master() { return null; }};
+        networkOnMaster.registerNode(new Node("other", networkOnMaster) {
+            @Override
+            public String[] getTags() {
+                return new String[] { "node", "*" };
+            }
+        });
 
         // create network and communication provider for the other node
-        Network networkOnOther = new Network(new RMQProvider("other", KryoSerializer.standard())
-                .connect(RMQ_HOST, RMQ_PORT, RMQ_USER, RMQ_PASSWORD, RMQ_VHOST), null) { };
+        Network<Node> networkOnOther = new Network<Node>(new RMQProvider("other", KryoSerializer.standard())
+                .connect(RMQ_HOST, RMQ_PORT, RMQ_USER, RMQ_PASSWORD, RMQ_VHOST)) {@Override public Node master() { return null; }};
 
         // invoke methods
         Example instance = new Example();

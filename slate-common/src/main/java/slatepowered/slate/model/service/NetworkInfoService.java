@@ -1,4 +1,4 @@
-package slatepowered.slate.api;
+package slatepowered.slate.model.service;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

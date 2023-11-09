@@ -12,9 +12,9 @@ public class NetworkRPCSecurityManager implements InboundSecurityManager {
     /**
      * The network to find the nodes from.
      */
-    protected final Network network;
+    protected final Network<?> network;
 
-    public NetworkRPCSecurityManager(Network network) {
+    public NetworkRPCSecurityManager(Network<?> network) {
         this.network = network;
     }
 

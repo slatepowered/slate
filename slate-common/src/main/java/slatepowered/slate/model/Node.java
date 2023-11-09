@@ -28,28 +28,17 @@ public abstract class Node implements NetworkObject, ServiceProvider, SecurityOb
     /**
      * The network this node is a part of.
      */
-    protected final Network network;
+    protected final Network<Node> network;
 
     /**
      * The service manager for this node.
      */
     protected final ServiceManager serviceManager;
 
-    /**
-     * The security groups for this node.
-     */
-    protected final String[] tags;
-
-    /**
-     * All components attached to this node.
-     */
-    protected final List<NodeComponent> components = new ArrayList<>();
-
-    public Node(String name, Network network, String[] tags) {
+    public Node(String name, Network<Node> network) {
         this.name = name;
         this.network = network;
         this.serviceManager = new ServiceManager(network.serviceManager());
-        this.tags = ArrayUtil.concat(new String[] { "node" }, tags);
     }
 
     public String getName() {
@@ -62,7 +51,7 @@ public abstract class Node implements NetworkObject, ServiceProvider, SecurityOb
      * @return The network instance.
      */
     @Override
-    public Network getNetwork() {
+    public Network<?> getNetwork() {
         return network;
     }
 
@@ -71,36 +60,13 @@ public abstract class Node implements NetworkObject, ServiceProvider, SecurityOb
      *
      * @return The tags.
      */
-    public String[] getTags() {
-        return tags;
-    }
-
-    /**
-     * Get all components attached to this node.
-     *
-     * @return The components.
-     */
-    public List<NodeComponent> getComponents() {
-        return components;
-    }
-
-    /**
-     * Find all components which are assignable to the given class.
-     *
-     * @param kl The class.
-     * @param <T> The value type.
-     * @return The list of components.
-     */
-    @SuppressWarnings("unchecked")
-    public <T extends NodeComponent> Subset<T> findComponents(Class<T> kl) {
-        return (Subset<T>) Subset.filter(components, c -> kl.isAssignableFrom(c.getClass()));
-    }
+    public abstract String[] getTags();
 
     /* SecurityObject impl */
 
     @Override
     public String[] getSecurityGroups() {
-        return tags;
+        return getTags();
     }
 
     /* ServiceResolver impl */
@@ -135,20 +101,6 @@ public abstract class Node implements NetworkObject, ServiceProvider, SecurityOb
     @Override
     public Channel getChannel() {
         return network.getCommunicationProvider().channel(remoteChannelName());
-    }
-
-    /**
-     * Create a virtual node representing the master.
-     *
-     * @return The master node.
-     */
-    public static Node remoteMaster(Network network) {
-        return new Node("master", network, new String[] { "master", "*" }) {
-            @Override
-            public String remoteChannelName() {
-                return "master";
-            }
-        };
     }
 
 }
