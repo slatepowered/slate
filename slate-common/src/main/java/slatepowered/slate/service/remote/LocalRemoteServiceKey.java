@@ -7,10 +7,19 @@ import slatepowered.slate.service.ServiceKey;
 
 public interface LocalRemoteServiceKey<T extends Service & RemoteAPI> extends ServiceKey<T> {
 
+    static <T extends Service & RemoteAPI> LocalRemoteServiceKey<T> key(Class<T> tClass) {
+        return new LocalRemoteServiceKey<T>() {
+            @Override
+            public Class<T> getServiceClass() {
+                return tClass;
+            }
+        };
+    }
+
     @Override
     default void register(ServiceManager manager, T service) {
         // register the service instance as a handler locally
-        manager.getService(RPCService.TAG).register(service);
+        manager.getService(RPCService.KEY).register(service);
     }
 
 }

@@ -1,4 +1,4 @@
-package example.service.api;
+package example.slatepowered.slate.service;
 
 import slatepowered.reco.rpc.RemoteAPI;
 import slatepowered.reco.rpc.event.RemoteEvent;

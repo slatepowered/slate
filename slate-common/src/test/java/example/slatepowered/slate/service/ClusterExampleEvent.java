@@ -1,17 +1,21 @@
-package example.service.api;
+package example.slatepowered.slate.service;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
-import slatepowered.reco.rpc.event.ObjectEventPayload;
+import lombok.NoArgsConstructor;
+import slatepowered.reco.rpc.event.ObjectEvent;
 
 @Data
-public class ClusterExampleEvent implements ObjectEventPayload {
+@NoArgsConstructor
+@AllArgsConstructor
+public class ClusterExampleEvent implements ObjectEvent {
 
-    private final String clusterName;
-    private final int action;
+    private String clusterName;
+    private int action;
 
     @Override
     public Object getRemoteObjectUID() {
         return clusterName;
     }
-    
+
 }

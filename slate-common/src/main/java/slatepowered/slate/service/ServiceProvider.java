@@ -9,7 +9,7 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
-public interface ServiceResolver {
+public interface ServiceProvider {
 
     Map<Class<?>, MethodHandle> TAG_METHOD_CACHE = new HashMap<>();
 
@@ -19,7 +19,7 @@ public interface ServiceResolver {
      *
      * @return The service resolver.
      */
-    ServiceResolver parentServiceResolver();
+    ServiceProvider parentServiceResolver();
 
     /**
      * Checks and qualifies the given service key,
@@ -30,11 +30,11 @@ public interface ServiceResolver {
      * @param key The service key.
      * @throws UnsupportedOperationException If the given service key can not be qualified
      */
-    <T extends Service> ServiceKey<T> qualifyServiceTag(ServiceKey<T> key) throws UnsupportedOperationException;
+    <T extends Service> ServiceKey<T> qualifyServiceKey(ServiceKey<T> key) throws UnsupportedOperationException;
 
     /**
      * Get the service by the given key, this key will be
-     * passed through the {@link #qualifyServiceTag(ServiceKey)}
+     * passed through the {@link #qualifyServiceKey(ServiceKey)}
      * method before being resolved by the network service manager.
      *
      * @param key The service key.
@@ -42,7 +42,20 @@ public interface ServiceResolver {
      * @throws UnsupportedOperationException If the given service key can not be qualified
      */
     default <T extends Service> T getService(ServiceKey<T> key) throws UnsupportedOperationException {
-        return this.parentServiceResolver().getService(qualifyServiceTag(key));
+        return this.parentServiceResolver().getService(qualifyServiceKey(key));
+    }
+
+    /**
+     * Attempts to locally register the given service with
+     * the given key.
+     *
+     * @param key The key.
+     * @param service The service instance.
+     * @param <T> The service type.
+     */
+    default <T extends Service> ServiceProvider register(ServiceKey<T> key, T service) {
+        this.parentServiceResolver().register(qualifyServiceKey(key), service);
+        return this;
     }
 
     @SuppressWarnings("unchecked")
@@ -74,7 +87,7 @@ public interface ServiceResolver {
 
                     m = MethodHandles.lookup().unreflectGetter(rm);
                     TAG_METHOD_CACHE.put(tClass, m);
-                } catch (NoSuchMethodException ignored) {
+                } catch (NoSuchFieldException ignored) {
 
                 } catch (Throwable t) {
                     Throwables.sneakyThrow(t);

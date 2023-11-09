@@ -7,7 +7,7 @@ import java.util.Map;
  * Locally manages local, remote and dynamic services for
  * the current runtime environment.
  */
-public class ServiceManager implements ServiceResolver {
+public class ServiceManager implements ServiceProvider {
 
     /** The parent service manager. */
     private final ServiceManager parent;
@@ -72,12 +72,12 @@ public class ServiceManager implements ServiceResolver {
     }
 
     @Override
-    public <T extends Service> ServiceKey<T> qualifyServiceTag(ServiceKey<T> key) throws UnsupportedOperationException {
+    public <T extends Service> ServiceKey<T> qualifyServiceKey(ServiceKey<T> key) throws UnsupportedOperationException {
         return key;
     }
 
     @Override
-    public ServiceResolver parentServiceResolver() {
+    public ServiceProvider parentServiceResolver() {
         return parent;
     }
 

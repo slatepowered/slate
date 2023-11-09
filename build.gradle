@@ -36,8 +36,8 @@ subprojects {
     apply plugin: "java-library"
 
     ext {
-        VERU_COMMIT = "1d6bfb4"
-        RECO_COMMIT = "6554205"
+        VERU_COMMIT = "9678004838"
+        RECO_COMMIT = "0b84658b10"
     }
 
     group = rootProject.group
@@ -46,6 +46,10 @@ subprojects {
     compileJava.options.encoding = 'UTF-8'
 
     tasks.withType(JavaCompile) {
+        options.encoding = 'UTF-8'
+    }
+
+    tasks.withType(Javadoc) {
         options.encoding = 'UTF-8'
     }
 

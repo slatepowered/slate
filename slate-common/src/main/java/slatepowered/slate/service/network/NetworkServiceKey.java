@@ -3,6 +3,7 @@ package slatepowered.slate.service.network;
 import slatepowered.reco.rpc.RemoteAPI;
 import slatepowered.slate.service.Service;
 import slatepowered.slate.service.ServiceKey;
+import slatepowered.slate.service.remote.LocalRemoteServiceKey;
 import slatepowered.slate.service.remote.RemoteServiceKey;
 
 /**
@@ -34,7 +35,7 @@ public class NetworkServiceKey<T extends Service & RemoteAPI> extends RemoteServ
     NetworkServiceKey(Class<T> serviceClass, String provider) {
         this.serviceClass = serviceClass;
         this.provider = provider;
-        this.localKey = ServiceKey.local(serviceClass);
+        this.localKey = LocalRemoteServiceKey.key(serviceClass);
         forRemote(provider);
     }
 

@@ -1,6 +1,5 @@
-package example.service.api;
+package example.slatepowered.slate.service;
 
-import slatepowered.reco.rpc.event.ObjectEventPayload;
 import slatepowered.reco.rpc.event.RemoteEvent;
 import slatepowered.reco.rpc.objects.ObjectMethod;
 import slatepowered.reco.rpc.objects.RemoteObject;
@@ -34,8 +33,8 @@ public interface RemoteCluster extends RemoteObject<ExampleService> {
      * to, which only handles events for this specific object (determined
      * by the UID).
      *
-     * This only works if the event implements {@link slatepowered.reco.rpc.event.ObjectEventPayload}
-     * because the {@link ObjectEventPayload#getRemoteObjectUID()} method is
+     * This only works if the event implements {@link slatepowered.reco.rpc.event.ObjectEvent}
+     * because the {@link slatepowered.reco.rpc.event.ObjectEvent#getRemoteObjectUID()} method is
      * used to determine the UID of the object the event is about which is then
      * matched to this object when the event is received locally.
      */

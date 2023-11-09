@@ -17,7 +17,7 @@ public class RPCService extends RPCManager implements Service {
      */
     protected final CommunicationProvider<?> communicationProvider;
 
-    public static final ServiceKey<RPCService> TAG = ServiceKey.local(RPCService.class);
+    public static final ServiceKey<RPCService> KEY = ServiceKey.local(RPCService.class);
 
     public RPCService(ProvidedChannel localChannel) {
         super(localChannel);
