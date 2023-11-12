@@ -7,6 +7,8 @@ import slatepowered.slate.model.ClusterManagedNode;
 import slatepowered.slate.model.ClusterNetwork;
 import slatepowered.slate.model.Node;
 import slatepowered.slate.model.NodeComponent;
+import slatepowered.slate.model.action.NodeAllocationAdapter;
+import slatepowered.slate.model.action.NodeInitializeAdapter;
 import slatepowered.slate.model.services.NetworkInfoService;
 import slatepowered.slate.packages.LocalPackage;
 import slatepowered.slate.packages.PackageAttachment;
@@ -37,7 +39,7 @@ public class ClusterInstance extends ClusterNetwork {
     public ClusterInstance(Cluster cluster, CommunicationProvider<? extends ProvidedChannel> communicationProvider) {
         super(communicationProvider);
         this.cluster = cluster;
-        this.directory = Paths.get("./instances/", String.valueOf(System.currentTimeMillis() ^ System.nanoTime()));
+        this.directory = cluster.getDirectory().resolve("instances").resolve(String.valueOf(System.currentTimeMillis() ^ System.nanoTime()));
 
         // register the cluster services
         serviceManager.register(PackageManager.KEY, cluster.getLocalPackageManager());
@@ -103,10 +105,14 @@ public class ClusterInstance extends ClusterNetwork {
                     // install packages
                     PackageManager packageManager = cluster.getPackageManager();
                     node.findComponents(PackageAttachment.class).forEach(packageAttachment -> {
-                        packageManager.findOrInstallPackage(packageAttachment.getPackageKey()).whenComplete((localPackage, throwable) -> {
+                        packageManager.findOrInstallPackage(packageAttachment.getSourcePackage()).whenComplete((localPackage, throwable) -> {
                             packageAttachment.install(packageManager, node, localNodeAllocation.getDirectory(), localPackage);
                         });
                     });
+
+                    // execute other allocation components
+                    node.findComponents(NodeAllocationAdapter.class).forEach(adapter ->
+                            adapter.initialize(packageManager, node, localNodeAllocation.getDirectory()));
 
                     return new NodeAllocation(node.getName(), /* todo: components to add */ new ArrayList<>());
                 } catch (Throwable e) {

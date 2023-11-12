@@ -1,6 +1,7 @@
 package slatepowered.slate.packages;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import slatepowered.slate.model.ManagedNode;
@@ -11,15 +12,19 @@ import java.nio.file.Path;
 /**
  * Determines the way a package is installed onto a node.
  */
-@Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public abstract class PackageAttachment implements SharedNodeComponent {
 
     /**
      * The package to attach to the node.
      */
-    protected PackageKey packageKey;
+    protected PackageKey fromPackage;
+
+    public PackageKey getSourcePackage() {
+        return fromPackage;
+    }
 
     /**
      * Installs the package to the given node, this is

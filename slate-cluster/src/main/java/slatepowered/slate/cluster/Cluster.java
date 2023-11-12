@@ -6,6 +6,7 @@ import slatepowered.slate.allocation.ClusterAllocationChecker;
 import slatepowered.slate.allocation.LocalNodeAllocation;
 import slatepowered.slate.packages.PackageManager;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,6 +40,11 @@ public class Cluster {
     private final ClusterAllocationChecker allocationChecker;
 
     /**
+     * The working/data directory for this cluster.
+     */
+    private final Path directory;
+
+    /**
      * Get the local package manager.
      *
      * @return The manager.
@@ -64,8 +70,18 @@ public class Cluster {
         return allocationChecker;
     }
 
+    /**
+     * Get all node allocations/creations on this cluster,
+     * irregardless of the instance/network it belongs to.
+     *
+     * @return The allocations.
+     */
     public List<LocalNodeAllocation> getAllocations() {
         return allocations;
+    }
+
+    public Path getDirectory() {
+        return directory;
     }
 
 }
