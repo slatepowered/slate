@@ -1,18 +1,13 @@
 package slatepowered.slate.model;
 
 import slatepowered.reco.Channel;
-import slatepowered.veru.collection.Subset;
 import slatepowered.slate.security.SecurityObject;
 import slatepowered.slate.service.Service;
+import slatepowered.slate.service.ServiceKey;
 import slatepowered.slate.service.ServiceManager;
 import slatepowered.slate.service.ServiceProvider;
-import slatepowered.slate.service.ServiceKey;
 import slatepowered.slate.service.network.NodeBoundServiceKey;
 import slatepowered.slate.service.remote.RemoteServiceKey;
-import slatepowered.veru.collection.ArrayUtil;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Represents a node in the network which is built on

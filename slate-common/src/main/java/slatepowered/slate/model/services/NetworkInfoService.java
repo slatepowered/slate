@@ -1,4 +1,4 @@
-package slatepowered.slate.model.service;
+package slatepowered.slate.model.services;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -30,7 +30,6 @@ public interface NetworkInfoService extends Service, RemoteAPI {
         private String name;    // The name of the node
         private String parent;  // The parent node of the node
         private String[] tags;  // The tags/security groups on this node
-        private String cluster; // The cluster the node is allocated on
     }
 
     /**

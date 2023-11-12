@@ -6,8 +6,10 @@ import slatepowered.slate.model.NodeComponent;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * A component which handles creation of a component.
+ * A component which handles destruction of a component.
  */
-public interface NodeCreateAdapter extends NodeComponent {
-    CompletableFuture<Void> create(ManagedNode node);
+public interface NodeDestroyAdapter extends NodeComponent {
+
+    CompletableFuture<Void> destroy(ManagedNode node);
+
 }

@@ -97,6 +97,15 @@ public abstract class Network<N extends Node> implements ServiceProvider {
     }
 
     /**
+     * Get all cached/registered nodes by name.
+     *
+     * @return The mutable node map.
+     */
+    public Map<String, N> getNodeMap() {
+        return nodeMap;
+    }
+
+    /**
      * Fetches the node as a {@link Node} object by name,
      * and caches it.
      *

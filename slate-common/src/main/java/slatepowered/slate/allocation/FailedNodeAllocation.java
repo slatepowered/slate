@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 public class FailedNodeAllocation implements NodeAllocationResult {
 
     /** The error which occurred. */
-    private Exception error;
+    private Throwable error;
 
     @Override
     public boolean isSuccessful() {

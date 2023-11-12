@@ -1,11 +1,15 @@
 package slatepowered.slate.allocation;
 
 import slatepowered.reco.rpc.RemoteAPI;
+import slatepowered.reco.rpc.function.Allow;
 import slatepowered.slate.model.ManagedNode;
-import slatepowered.slate.model.MasterManagedNode;
 import slatepowered.slate.model.NodeComponent;
 import slatepowered.slate.model.SharedNodeComponent;
-import slatepowered.slate.model.action.NodeCreateAdapter;
+import slatepowered.slate.model.action.NodeInitializeAdapter;
+import slatepowered.slate.model.action.NodeDestroyAdapter;
+import slatepowered.slate.service.Service;
+import slatepowered.slate.service.ServiceKey;
+import slatepowered.slate.service.remote.LocalRemoteServiceKey;
 import slatepowered.veru.misc.Throwables;
 
 import java.util.List;
@@ -16,7 +20,9 @@ import java.util.logging.Logger;
  * Determines how a node is allocated and created on a cluster
  * or other type of host.
  */
-public interface NodeAllocator extends NodeCreateAdapter, RemoteAPI {
+public interface NodeAllocator extends NodeInitializeAdapter, NodeDestroyAdapter, RemoteAPI, Service {
+
+    ServiceKey<NodeAllocator> KEY = LocalRemoteServiceKey.key(NodeAllocator.class);
 
     Logger LOGGER = Logger.getLogger("NodeAllocator");
 
@@ -26,31 +32,44 @@ public interface NodeAllocator extends NodeCreateAdapter, RemoteAPI {
      *
      * @return Whether it could allocate a node.
      */
+    @Allow("all")
     Boolean canAllocate(String parent, String[] tags);
 
-    CompletableFuture<Boolean> canAllocateAsync(String parent, String[] tags);
+    default CompletableFuture<Boolean> canAllocateAsync(String parent, String[] tags) {
+        return null;
+    }
 
     /**
-     * Attempts to allocate the node with the given data on
+     * Attempts to allocate/create the node with the given data on
      * this node allocator.
      *
      * @param request The request.
      * @return The result of the allocation.
      */
+    @Allow("master")
     NodeAllocationResult allocate(NodeAllocationRequest request);
 
-    CompletableFuture<NodeAllocationResult> allocateAsync(NodeAllocationRequest request);
+    default CompletableFuture<NodeAllocationResult> allocateAsync(NodeAllocationRequest request) {
+        return null;
+    }
+
+    /**
+     * Destroy the node by the given name on this allocator.
+     *
+     * @param name The name of the node to destroy.
+     */
+    void destroy(String name);
+
+    default CompletableFuture<Void> destroyAsync(String name) {
+        return null;
+    }
 
     @Override
     default CompletableFuture<Void> create(ManagedNode node) {
-        if (!(node instanceof MasterManagedNode))
-            throw new IllegalArgumentException("Can only make allocation requests with master managed nodes");
-        MasterManagedNode mNode = (MasterManagedNode) node;
+        final List<SharedNodeComponent> sharedNodeComponents = node.listComponents(SharedNodeComponent.class);
+        final NodeAllocationRequest allocationRequest = new NodeAllocationRequest(node.getParent().getName(), node.getName(), node.getTags(), sharedNodeComponents);
 
-        final List<SharedNodeComponent> sharedNodeComponents = node.findComponents(SharedNodeComponent.class).collect();
-        final NodeAllocationRequest allocationRequest = new NodeAllocationRequest(mNode.getParent().getName(), node.getName(), node.getTags(), sharedNodeComponents);
-
-        return canAllocateAsync(mNode.getParent().getName(), mNode.getTags())
+        return canAllocateAsync(node.getParent().getName(), node.getTags())
                 .thenApply(b -> {
                     if (b) {
                         // allocate node and add result as component
@@ -78,6 +97,14 @@ public interface NodeAllocator extends NodeCreateAdapter, RemoteAPI {
                             }
                         });
                     }
+
+                    return null;
                 });
     }
+
+    @Override
+    default CompletableFuture<Void> destroy(ManagedNode node) {
+        return destroyAsync(node.getName());
+    }
+
 }

@@ -9,7 +9,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class CreationResult {
+public class InitializationResult {
     /** Whether the creation was successful. */
     private boolean success;
 
