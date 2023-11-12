@@ -5,9 +5,6 @@ import slatepowered.reco.rpc.event.RemoteEvent;
 import slatepowered.reco.serializer.KryoSerializer;
 import slatepowered.slate.model.Network;
 import slatepowered.slate.model.Node;
-import slatepowered.slate.service.Service;
-import slatepowered.slate.service.ServiceKey;
-import slatepowered.slate.service.ServiceManager;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -58,8 +55,8 @@ public class Example {
         final String RMQ_VHOST = "/";
 
         // create network and communication provider for the master node
-        Network<Node> networkOnMaster = new Network<Node>(new RMQProvider("master", KryoSerializer.standard())
-                .connect(RMQ_HOST, RMQ_PORT, RMQ_USER, RMQ_PASSWORD, RMQ_VHOST)) {@Override public Node master() { return null; }};
+        Network<Node> networkOnMaster = new Network<Node>(name, new RMQProvider("master", KryoSerializer.standard())
+                .connect(RMQ_HOST, RMQ_PORT, RMQ_USER, RMQ_PASSWORD, RMQ_VHOST).bind("example")) {@Override public Node master() { return null; }};
         networkOnMaster.registerNode(new Node("other", networkOnMaster) {
             @Override
             public String[] getTags() {
@@ -68,8 +65,8 @@ public class Example {
         });
 
         // create network and communication provider for the other node
-        Network<Node> networkOnOther = new Network<Node>(new RMQProvider("other", KryoSerializer.standard())
-                .connect(RMQ_HOST, RMQ_PORT, RMQ_USER, RMQ_PASSWORD, RMQ_VHOST)) {@Override public Node master() { return null; }};
+        Network<Node> networkOnOther = new Network<Node>(name, new RMQProvider("other", KryoSerializer.standard())
+                .connect(RMQ_HOST, RMQ_PORT, RMQ_USER, RMQ_PASSWORD, RMQ_VHOST).bind("example")) {@Override public Node master() { return null; }};
 
         // invoke methods
         Example instance = new Example();

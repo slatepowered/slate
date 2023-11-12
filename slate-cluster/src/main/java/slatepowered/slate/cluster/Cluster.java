@@ -2,9 +2,13 @@ package slatepowered.slate.cluster;
 
 import lombok.Builder;
 import lombok.Getter;
+import slatepowered.reco.rpc.RPCManager;
 import slatepowered.slate.allocation.ClusterAllocationChecker;
 import slatepowered.slate.allocation.LocalNodeAllocation;
+import slatepowered.slate.communication.CommunicationKey;
+import slatepowered.slate.communication.CommunicationStrategy;
 import slatepowered.slate.packages.PackageManager;
+import slatepowered.veru.misc.Throwables;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -40,9 +44,39 @@ public class Cluster {
     private final ClusterAllocationChecker allocationChecker;
 
     /**
+     * The communication strategy.
+     */
+    private final CommunicationStrategy<CommunicationKey> communicationStrategy;
+
+    // the communication provider for clusterDeclares
+    private RPCManager clusterDeclareRPC;
+
+    /**
      * The working/data directory for this cluster.
      */
     private final Path directory;
+
+    /**
+     * Starts and initializes this cluster.
+     */
+    public void start() {
+        try {
+            clusterDeclareRPC = communicationStrategy
+                    .createRPCManager(CommunicationKey.clusterDeclare());
+
+            clusterDeclareRPC.register(new ClusterInstancesAPI() {
+                @Override
+                public void declareClusterInstance(CommunicationKey communicationKey) {
+                    ClusterInstance instance = instance()
+                            .communicationStrategy(communicationStrategy)
+                            .communicationKey(communicationKey)
+                            .build();
+                }
+            });
+        } catch (Throwable t) {
+            Throwables.sneakyThrow(t);
+        }
+    }
 
     /**
      * Get the local package manager.

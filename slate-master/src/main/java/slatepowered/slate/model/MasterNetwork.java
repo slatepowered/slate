@@ -1,7 +1,7 @@
 package slatepowered.slate.model;
 
-import slatepowered.reco.CommunicationProvider;
-import slatepowered.reco.ProvidedChannel;
+import slatepowered.slate.communication.CommunicationKey;
+import slatepowered.slate.communication.CommunicationStrategy;
 
 /**
  * The master managed implementation of {@link Network}.
@@ -11,8 +11,8 @@ public class MasterNetwork extends Network<MasterManagedNode> {
     /** The master node. */
     private final MasterNode masterNode = new MasterNode("master", this);
 
-    public MasterNetwork(CommunicationProvider<? extends ProvidedChannel> communicationProvider) {
-        super(communicationProvider);
+    public MasterNetwork(CommunicationKey communicationKey, CommunicationStrategy<CommunicationKey> communicationStrategy) {
+        super(communicationKey, communicationStrategy);
     }
 
     @Override

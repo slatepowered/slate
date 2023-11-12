@@ -1,4 +1,4 @@
-package slatepowered.slate.model.action;
+package slatepowered.slate.action;
 
 import slatepowered.slate.model.ManagedNode;
 import slatepowered.slate.model.NodeComponent;

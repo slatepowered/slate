@@ -1,23 +1,20 @@
 package slatepowered.slate.cluster;
 
-import slatepowered.reco.CommunicationProvider;
-import slatepowered.reco.ProvidedChannel;
 import slatepowered.slate.allocation.*;
+import slatepowered.slate.communication.CommunicationKey;
+import slatepowered.slate.communication.CommunicationStrategy;
 import slatepowered.slate.model.ClusterManagedNode;
 import slatepowered.slate.model.ClusterNetwork;
 import slatepowered.slate.model.Node;
 import slatepowered.slate.model.NodeComponent;
-import slatepowered.slate.model.action.NodeAllocationAdapter;
-import slatepowered.slate.model.action.NodeInitializeAdapter;
-import slatepowered.slate.model.services.NetworkInfoService;
-import slatepowered.slate.packages.LocalPackage;
+import slatepowered.slate.action.NodeAllocationAdapter;
+import slatepowered.slate.network.NetworkInfoService;
 import slatepowered.slate.packages.PackageAttachment;
 import slatepowered.slate.packages.PackageManager;
 import slatepowered.veru.misc.Throwables;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,8 +33,8 @@ public class ClusterInstance extends ClusterNetwork {
      */
     private final Path directory;
 
-    public ClusterInstance(Cluster cluster, CommunicationProvider<? extends ProvidedChannel> communicationProvider) {
-        super(communicationProvider);
+    public ClusterInstance(Cluster cluster, CommunicationKey communicationKey, CommunicationStrategy<CommunicationKey> communicationStrategy) {
+        super(communicationKey, communicationStrategy);
         this.cluster = cluster;
         this.directory = cluster.getDirectory().resolve("instances").resolve(String.valueOf(System.currentTimeMillis() ^ System.nanoTime()));
 
@@ -53,6 +50,12 @@ public class ClusterInstance extends ClusterNetwork {
 
     public Cluster getCluster() {
         return cluster;
+    }
+
+    @Override
+    protected void handleOnClose() {
+        // destroy this instance
+        cluster.getInstances().remove(this);
     }
 
     // first check registered nodes, otherwise
@@ -149,19 +152,25 @@ public class ClusterInstance extends ClusterNetwork {
     public static class ClusterInstanceBuilder {
 
         private final Cluster cluster;
-        private CommunicationProvider<?> communicationProvider;
+        private CommunicationKey communicationKey;
+        private CommunicationStrategy<CommunicationKey> communicationStrategy;
 
         public ClusterInstanceBuilder(Cluster cluster) {
             this.cluster = cluster;
         }
 
-        public ClusterInstanceBuilder communicationProvider(CommunicationProvider<?> communicationProvider) {
-            this.communicationProvider = communicationProvider;
+        public ClusterInstanceBuilder communicationKey(CommunicationKey communicationKey) {
+            this.communicationKey = communicationKey;
+            return this;
+        }
+
+        public ClusterInstanceBuilder communicationStrategy(CommunicationStrategy<CommunicationKey> communicationStrategy) {
+            this.communicationStrategy = communicationStrategy;
             return this;
         }
 
         public ClusterInstance build() {
-            return new ClusterInstance(cluster, communicationProvider);
+            return new ClusterInstance(cluster, communicationKey, communicationStrategy);
         }
 
     }

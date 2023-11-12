@@ -1,9 +1,10 @@
-package slatepowered.slate.model.services;
+package slatepowered.slate.network;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import slatepowered.reco.rpc.RemoteAPI;
+import slatepowered.reco.rpc.event.RemoteEvent;
 import slatepowered.slate.service.Service;
 import slatepowered.slate.service.network.NetworkServiceKey;
 import slatepowered.veru.data.Pair;
@@ -55,6 +56,12 @@ public interface NetworkInfoService extends Service, RemoteAPI {
         return null;
     }
 
-
+    /**
+     * Called when the network is about to close so all
+     * services should be shut down.
+     *
+     * @return The remote event.
+     */
+    RemoteEvent<Void> onClose();
 
 }

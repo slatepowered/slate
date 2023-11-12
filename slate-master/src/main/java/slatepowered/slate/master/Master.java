@@ -1,10 +1,11 @@
 package slatepowered.slate.master;
 
-import slatepowered.reco.CommunicationProvider;
-import slatepowered.reco.ProvidedChannel;
+import slatepowered.reco.rpc.event.RemoteEvent;
+import slatepowered.slate.communication.CommunicationKey;
+import slatepowered.slate.communication.CommunicationStrategy;
 import slatepowered.slate.model.MasterManagedNode;
 import slatepowered.slate.model.MasterNetwork;
-import slatepowered.slate.model.services.NetworkInfoService;
+import slatepowered.slate.network.NetworkInfoService;
 import slatepowered.veru.data.Pair;
 
 import java.util.Collection;
@@ -15,9 +16,18 @@ import java.util.stream.Collectors;
  */
 public class Master extends MasterNetwork {
 
-    Master(CommunicationProvider<? extends ProvidedChannel> communicationProvider) {
-        super(communicationProvider);
+    Master(CommunicationKey communicationKey, CommunicationStrategy<CommunicationKey> communicationStrategy) {
+        super(communicationKey, communicationStrategy);
+    }
 
+    /**
+     * Closes the network, this should destroy all services.
+     */
+    public void close() {
+        rpcManager.invokeRemoteEvent(NetworkInfoService.class, "onClose", null);
+    }
+
+    {
         // create default services
         serviceManager.register(NetworkInfoService.key(), new NetworkInfoService() {
             @Override
@@ -32,6 +42,11 @@ public class Master extends MasterNetwork {
                 MasterManagedNode node = Master.this.getNode(name);
                 return new NodeInfo(node.getName(), node.getParent().getName(), node.getTags());
             }
+
+            @Override
+            public RemoteEvent<Void> onClose() {
+                return null;
+            }
         });
     }
 
@@ -40,15 +55,21 @@ public class Master extends MasterNetwork {
      */
     public static class MasterBuilder {
 
-        private CommunicationProvider<?> communicationProvider;
+        private CommunicationKey communicationKey;
+        private CommunicationStrategy<CommunicationKey> communicationStrategy;
 
-        public MasterBuilder communicationProvider(CommunicationProvider<?> communicationProvider) {
-            this.communicationProvider = communicationProvider;
+        public MasterBuilder communicationKey(CommunicationKey communicationKey) {
+            this.communicationKey = communicationKey;
+            return this;
+        }
+
+        public MasterBuilder communicationStrategy(CommunicationStrategy<CommunicationKey> communicationStrategy) {
+            this.communicationStrategy = communicationStrategy;
             return this;
         }
 
         public Master build() {
-            return new Master(communicationProvider);
+            return new Master(communicationKey, communicationStrategy);
         }
 
     }
