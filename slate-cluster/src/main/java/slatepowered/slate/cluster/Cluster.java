@@ -46,7 +46,7 @@ public class Cluster {
     /**
      * The communication strategy.
      */
-    private final CommunicationStrategy<CommunicationKey> communicationStrategy;
+    private final CommunicationStrategy communicationStrategy;
 
     // the communication provider for clusterDeclares
     private RPCManager clusterDeclareRPC;
@@ -62,9 +62,9 @@ public class Cluster {
     public void start() {
         try {
             clusterDeclareRPC = communicationStrategy
-                    .createRPCManager(CommunicationKey.clusterDeclare());
+                    .getRPCManager(CommunicationKey.clusterDeclare());
 
-            clusterDeclareRPC.register(new ClusterInstancesAPI() {
+            clusterDeclareRPC.register(new ClusterInstantiationAPI() {
                 @Override
                 public void declareClusterInstance(CommunicationKey communicationKey) {
                     ClusterInstance instance = instance()

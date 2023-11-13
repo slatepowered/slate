@@ -16,6 +16,12 @@ public class Logging {
         DEBUG = Boolean.parseBoolean(System.getProperty("slate.debug", "false"));
     }
 
+    /**
+     * Get the consistently configured logger for the given name.
+     *
+     * @param name The name.
+     * @return The logger.
+     */
     public static Logger getLogger(String name) {
         return Logger.getLogger(name);
     }

@@ -25,7 +25,7 @@ public abstract class Network<N extends Node> implements ServiceProvider {
     /**
      * The communication strategy.
      */
-    protected final CommunicationStrategy<?> communicationStrategy;
+    protected final CommunicationStrategy communicationStrategy;
 
     /**
      * The communication key.
@@ -56,7 +56,7 @@ public abstract class Network<N extends Node> implements ServiceProvider {
     protected final Callback<Void> onCloseEvent = Callback.multi();
 
     @SuppressWarnings("unchecked")
-    public <CK extends CommunicationKey> Network(CK communicationKey, CommunicationStrategy<CK> communicationStrategy) {
+    public Network(CommunicationKey communicationKey, CommunicationStrategy communicationStrategy) {
         this.communicationKey = communicationKey;
 
         // register communication strategy and
@@ -64,7 +64,7 @@ public abstract class Network<N extends Node> implements ServiceProvider {
         this.communicationStrategy = communicationStrategy;
 
         try {
-            this.communicationProvider = communicationStrategy.createCommunicationProvider(communicationKey);
+            this.communicationProvider = communicationStrategy.getCommunicationProvider(communicationKey);
         } catch (Throwable t) {
             throw new IllegalStateException("Failed to initialize communication provider", t);
         }
@@ -88,6 +88,10 @@ public abstract class Network<N extends Node> implements ServiceProvider {
         return communicationKey;
     }
 
+    public CommunicationStrategy getCommunicationStrategy() {
+        return communicationStrategy;
+    }
+
     /**
      * Get the network's local service manager.
      *
@@ -104,15 +108,6 @@ public abstract class Network<N extends Node> implements ServiceProvider {
      */
     public CommunicationProvider<? extends ProvidedChannel> getCommunicationProvider() {
         return communicationProvider;
-    }
-
-    /**
-     * Get the RPC manager used locally.
-     *
-     * @return The RPC manager.
-     */
-    public RPCService getRPCManager() {
-        return rpcManager;
     }
 
     /**

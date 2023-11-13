@@ -3,13 +3,36 @@ package slatepowered.slate.communication;
 import slatepowered.reco.CommunicationProvider;
 import slatepowered.reco.rpc.RPCManager;
 import slatepowered.slate.model.Network;
+import slatepowered.veru.misc.Throwables;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Implements communication between and inside a network.
- *
- * @param <K> The communication key.
  */
-public abstract class CommunicationStrategy<K extends CommunicationKey> {
+public abstract class CommunicationStrategy {
+
+    /* Caches */
+    protected final Map<CommunicationKey, CommunicationProvider<?>> cachedProviders = new HashMap<>();
+    protected final Map<CommunicationKey, RPCManager> cachedRPCManagers = new HashMap<>();
+
+    /**
+     * Gets or creates a communication provider bound to the given communication key.
+     *
+     * @param key The communication key.
+     * @return The communication provider.
+     */
+    public CommunicationProvider<?> getCommunicationProvider(CommunicationKey key) {
+        return cachedProviders.computeIfAbsent(key, __ -> {
+            try {
+                return createCommunicationProvider(key);
+            } catch (Throwable t) {
+                Throwables.sneakyThrow(t);
+                throw new AssertionError();
+            }
+        });
+    }
 
     /**
      * Creates a communication provider bound to the given communication key.
@@ -17,10 +40,16 @@ public abstract class CommunicationStrategy<K extends CommunicationKey> {
      * @param key The communication key.
      * @return The communication provider.
      */
-    public abstract CommunicationProvider<?> createCommunicationProvider(K key) throws Exception;
+    protected abstract CommunicationProvider<?> createCommunicationProvider(CommunicationKey key) throws Exception;
 
-    public RPCManager createRPCManager(K key) throws Exception {
-        return new RPCManager(createCommunicationProvider(key));
+    /**
+     * Get or create an RPC manager for the given communication key.
+     *
+     * @param key The key.
+     * @return The RPC manager.
+     */
+    public RPCManager getRPCManager(CommunicationKey key) {
+        return cachedRPCManagers.computeIfAbsent(key, __ -> new RPCManager(getCommunicationProvider(key)));
     }
 
     /**
@@ -29,6 +58,6 @@ public abstract class CommunicationStrategy<K extends CommunicationKey> {
      * @param network The network.
      * @return The communication key.
      */
-    public abstract K getKey(Network<?> network);
+    public abstract CommunicationKey getKey(Network<?> network);
 
 }

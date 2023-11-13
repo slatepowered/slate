@@ -34,6 +34,11 @@ public class NodeBuilder {
      */
     protected String[] tags;
 
+    /**
+     * The channel name override.
+     */
+    protected String channelName;
+
     public NodeBuilder tags(String[] tags) {
         this.tags = tags;
         return this;
@@ -47,6 +52,17 @@ public class NodeBuilder {
      */
     public NodeBuilder attach(NodeComponent component) {
         components.add(component);
+        return this;
+    }
+
+    /**
+     * Set the communication channel name override for this node.
+     *
+     * @param channelName The channel name.
+     * @return This.
+     */
+    public NodeBuilder channelName(String channelName) {
+        this.channelName = channelName;
         return this;
     }
 
@@ -71,6 +87,11 @@ public class NodeBuilder {
             @Override
             public String[] getTags() {
                 return tags;
+            }
+
+            @Override
+            public String remoteChannelName() {
+                return channelName != null ? channelName : super.remoteChannelName();
             }
         };
 

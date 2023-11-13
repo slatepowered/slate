@@ -12,7 +12,7 @@ public class MasterNetwork extends Network<MasterManagedNode> {
     /** The master node. */
     private final MasterNode masterNode = new MasterNode("master", this);
 
-    public MasterNetwork(CommunicationKey communicationKey, CommunicationStrategy<CommunicationKey> communicationStrategy) {
+    public MasterNetwork(CommunicationKey communicationKey, CommunicationStrategy communicationStrategy) {
         super(communicationKey, communicationStrategy);
     }
 

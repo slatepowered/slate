@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
  */
 public class Master extends MasterNetwork {
 
-    Master(CommunicationKey communicationKey, CommunicationStrategy<CommunicationKey> communicationStrategy) {
+    Master(CommunicationKey communicationKey, CommunicationStrategy communicationStrategy) {
         super(communicationKey, communicationStrategy);
     }
 
@@ -56,14 +56,14 @@ public class Master extends MasterNetwork {
     public static class MasterBuilder {
 
         private CommunicationKey communicationKey;
-        private CommunicationStrategy<CommunicationKey> communicationStrategy;
+        private CommunicationStrategy communicationStrategy;
 
         public MasterBuilder communicationKey(CommunicationKey communicationKey) {
             this.communicationKey = communicationKey;
             return this;
         }
 
-        public MasterBuilder communicationStrategy(CommunicationStrategy<CommunicationKey> communicationStrategy) {
+        public MasterBuilder communicationStrategy(CommunicationStrategy communicationStrategy) {
             this.communicationStrategy = communicationStrategy;
             return this;
         }

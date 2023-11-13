@@ -6,7 +6,7 @@ import slatepowered.slate.communication.CommunicationKey;
 /**
  * API to communicate with a cluster (not cluster instance).
  */
-public interface ClusterInstancesAPI extends RemoteAPI {
+public interface ClusterInstantiationAPI extends RemoteAPI {
 
     /**
      * Declares a cluster instance for this network.

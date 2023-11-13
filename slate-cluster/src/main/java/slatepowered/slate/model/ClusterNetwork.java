@@ -1,7 +1,5 @@
 package slatepowered.slate.model;
 
-import slatepowered.reco.CommunicationProvider;
-import slatepowered.reco.ProvidedChannel;
 import slatepowered.slate.communication.CommunicationKey;
 import slatepowered.slate.communication.CommunicationStrategy;
 
@@ -13,17 +11,17 @@ public class ClusterNetwork extends Network<Node> {
     /**
      * The master node.
      */
-    private final ClusterManagedNode masterNode;
+    private final Node masterNode;
 
-    public ClusterNetwork(CommunicationKey communicationKey, CommunicationStrategy<CommunicationKey> communicationStrategy) {
+    public ClusterNetwork(CommunicationKey communicationKey, CommunicationStrategy communicationStrategy) {
         super(communicationKey, communicationStrategy);
 
         // create the master node
-        this.masterNode = new ClusterManagedNode(null, "master", this, null, new String[] { "*", "all", "master" }) { };
+        this.masterNode = Node.masterNode(this);
     }
 
     @Override
-    public ClusterManagedNode master() {
+    public Node master() {
         return masterNode;
     }
 

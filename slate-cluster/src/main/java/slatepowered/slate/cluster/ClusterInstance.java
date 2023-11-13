@@ -33,7 +33,7 @@ public class ClusterInstance extends ClusterNetwork {
      */
     private final Path directory;
 
-    public ClusterInstance(Cluster cluster, CommunicationKey communicationKey, CommunicationStrategy<CommunicationKey> communicationStrategy) {
+    public ClusterInstance(Cluster cluster, CommunicationKey communicationKey, CommunicationStrategy communicationStrategy) {
         super(communicationKey, communicationStrategy);
         this.cluster = cluster;
         this.directory = cluster.getDirectory().resolve("instances").resolve(String.valueOf(System.currentTimeMillis() ^ System.nanoTime()));
@@ -153,7 +153,7 @@ public class ClusterInstance extends ClusterNetwork {
 
         private final Cluster cluster;
         private CommunicationKey communicationKey;
-        private CommunicationStrategy<CommunicationKey> communicationStrategy;
+        private CommunicationStrategy communicationStrategy;
 
         public ClusterInstanceBuilder(Cluster cluster) {
             this.cluster = cluster;
@@ -164,7 +164,7 @@ public class ClusterInstance extends ClusterNetwork {
             return this;
         }
 
-        public ClusterInstanceBuilder communicationStrategy(CommunicationStrategy<CommunicationKey> communicationStrategy) {
+        public ClusterInstanceBuilder communicationStrategy(CommunicationStrategy communicationStrategy) {
             this.communicationStrategy = communicationStrategy;
             return this;
         }

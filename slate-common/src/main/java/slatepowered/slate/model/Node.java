@@ -91,12 +91,32 @@ public abstract class Node implements NetworkObject, ServiceProvider, SecurityOb
 
     @Override
     public String remoteChannelName() {
-        return "node." + name;
+        return name;
     }
 
     @Override
     public Channel getChannel() {
         return network.getCommunicationProvider().channel(remoteChannelName());
+    }
+
+    //////////////////////////////////////////////////
+
+    @SuppressWarnings("unchecked")
+    public static Node masterNode(Network<?> network) {
+        return new Node("master", (Network<Node>) network) {
+            // the tags on this node
+            final String[] tags = new String[] { "*", "master" };
+
+            @Override
+            public String[] getTags() {
+                return tags;
+            }
+
+            @Override
+            public String remoteChannelName() {
+                return "master";
+            }
+        };
     }
 
 }
