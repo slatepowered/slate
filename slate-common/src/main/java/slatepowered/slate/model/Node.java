@@ -46,8 +46,9 @@ public abstract class Node implements NetworkObject, ServiceProvider, SecurityOb
      * @return The network instance.
      */
     @Override
-    public Network<?> getNetwork() {
-        return network;
+    @SuppressWarnings("unchecked")
+    public <N extends Node, N2 extends Network<N>> N2 getNetwork() {
+        return (N2) network;
     }
 
     /**

@@ -16,7 +16,7 @@ import java.util.function.Function;
  */
 public abstract class MasterManagedNode extends ManagedNode {
 
-    public MasterManagedNode(MasterManagedNode parent, String name, Network<Node> network, List<NodeComponent> components) {
+    public MasterManagedNode(MasterManagedNode parent, String name, MasterNetwork network, List<NodeComponent> components) {
         super(parent, name, network, components);
     }
 
@@ -63,6 +63,8 @@ public abstract class MasterManagedNode extends ManagedNode {
                 return;
             }
 
+            MasterNetwork masterNetwork = getNetwork();
+            masterNetwork.onNodeInitialize(this);
             LOGGER.info("Successfully initialized node(" + this.name + ")");
         });
 
@@ -83,12 +85,8 @@ public abstract class MasterManagedNode extends ManagedNode {
                 err.printStackTrace();
             }
 
-            // unregister this node
-            network.nodeMap.remove(this.name);
-            if (parent instanceof ManagedNode) {
-                ((ManagedNode)parent).children.remove(this.name);
-            }
-
+            MasterNetwork masterNetwork = getNetwork();
+            masterNetwork.destroyNode(this);
             LOGGER.info("Destroyed node(" + this.name + ")");
         });
 

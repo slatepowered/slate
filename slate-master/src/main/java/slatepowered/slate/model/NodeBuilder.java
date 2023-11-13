@@ -56,7 +56,7 @@ public class NodeBuilder {
      * @return The built node.
      */
     public MasterManagedNode build() {
-        MasterManagedNode node = new MasterManagedNode(parent, name, parent.network, components) {
+        MasterManagedNode node = new MasterManagedNode(parent, name, parent.getNetwork(), components) {
             {
                 // register this node to the network
                 network.registerNode(this);

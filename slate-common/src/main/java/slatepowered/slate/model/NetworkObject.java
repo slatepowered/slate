@@ -11,6 +11,6 @@ public interface NetworkObject {
      *
      * @return The network.
      */
-    Network getNetwork();
+    <N extends Node, N2 extends Network<N>> N2 getNetwork();
 
 }

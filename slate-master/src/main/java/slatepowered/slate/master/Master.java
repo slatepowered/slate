@@ -25,6 +25,11 @@ public class Master extends MasterNetwork {
      */
     public void close() {
         rpcManager.invokeRemoteEvent(NetworkInfoService.class, "onClose", null);
+
+        // finally, close the communication provider
+        // this basically closes the network until
+        // a whole new network instance is created
+        communicationProvider.close();
     }
 
     {
@@ -41,11 +46,6 @@ public class Master extends MasterNetwork {
             public NodeInfo fetchNodeInfo(String name) {
                 MasterManagedNode node = Master.this.getNode(name);
                 return new NodeInfo(node.getName(), node.getParent().getName(), node.getTags());
-            }
-
-            @Override
-            public RemoteEvent<Void> onClose() {
-                return null;
             }
         });
     }

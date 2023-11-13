@@ -62,6 +62,27 @@ public interface NetworkInfoService extends Service, RemoteAPI {
      *
      * @return The remote event.
      */
-    RemoteEvent<Void> onClose();
+    default RemoteEvent<Void> onClose() {
+        return null;
+    }
+
+    /**
+     * Called when a node is created/initialized. This event is only called
+     * after a node successfully initializes.
+     *
+     * @return The remote event.
+     */
+    default RemoteEvent<NodeInfo> onNodeInitialize() {
+        return null;
+    }
+
+    /**
+     * Called when a node is destroyed.
+     *
+     * @return The remote event.
+     */
+    default RemoteEvent<String> onNodeDestroy() {
+        return null;
+    }
 
 }

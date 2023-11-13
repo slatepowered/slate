@@ -6,6 +6,9 @@ import slatepowered.reco.serializer.KryoSerializer;
 import slatepowered.slate.model.Network;
 import slatepowered.slate.model.Node;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 
 public class Example {
@@ -25,11 +28,13 @@ public class Example {
                 Imagine an actual, working implementation here.
              */
 
+            Map<String, Integer> clusterNodeCounts = new HashMap<>();
+
             @Override public void log(String msg) { System.out.println("Logged Remotely: " + msg); }
             @Override public CompletableFuture<Void> logAsync(String msg) { return null; }
             @Override public RemoteEvent<ClusterExampleEvent> onClusterEvent() { return null; }
             @Override public RemoteCluster getCluster(String name) { return null; }
-            @Override public int getNodeCount(String clusterName) { return clusterName.hashCode() % 10; }
+            @Override public int getNodeCount(String clusterName) { return clusterNodeCounts.compute(clusterName, (__, old) -> old == null ? new Random().nextInt(10) : old + 1); }
         });
     }
 
@@ -55,8 +60,7 @@ public class Example {
         final String RMQ_VHOST = "/";
 
         // create network and communication provider for the master node
-        Network<Node> networkOnMaster = new Network<Node>(name, new RMQProvider("master", KryoSerializer.standard())
-                .connect(RMQ_HOST, RMQ_PORT, RMQ_USER, RMQ_PASSWORD, RMQ_VHOST).bind("example")) {@Override public Node master() { return null; }};
+        Network<Node> networkOnMaster = null; // todo
         networkOnMaster.registerNode(new Node("other", networkOnMaster) {
             @Override
             public String[] getTags() {
@@ -65,8 +69,7 @@ public class Example {
         });
 
         // create network and communication provider for the other node
-        Network<Node> networkOnOther = new Network<Node>(name, new RMQProvider("other", KryoSerializer.standard())
-                .connect(RMQ_HOST, RMQ_PORT, RMQ_USER, RMQ_PASSWORD, RMQ_VHOST).bind("example")) {@Override public Node master() { return null; }};
+        Network<Node> networkOnOther = null;
 
         // invoke methods
         Example instance = new Example();
