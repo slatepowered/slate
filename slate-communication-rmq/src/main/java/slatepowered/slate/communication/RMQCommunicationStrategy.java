@@ -19,8 +19,7 @@ public class RMQCommunicationStrategy extends CommunicationStrategy {
      */
     private final Channel rmqChannel;
 
-    public RMQCommunicationStrategy(String localName, Channel rmqChannel) {
-        super(localName);
+    public RMQCommunicationStrategy(Channel rmqChannel) {
         this.rmqChannel = rmqChannel;
     }
 
@@ -40,6 +39,12 @@ public class RMQCommunicationStrategy extends CommunicationStrategy {
                 .bind(((RMQCommunicationKey)key).getExchangeName());
     }
 
+    @Override
+    public RMQCommunicationStrategy localName(String localName) {
+        super.localName(localName);
+        return this;
+    }
+
     /**
      * The strategy builder.
      */
@@ -55,9 +60,10 @@ public class RMQCommunicationStrategy extends CommunicationStrategy {
 
         private RMQCommunicationStrategy build() {
             try {
-                return new RMQCommunicationStrategy(localName, rmqChannel == null ?
+                return new RMQCommunicationStrategy(rmqChannel == null ?
                         RMQProvider.makeConnection(host, port, username, password, virtualHost) :
-                        rmqChannel);
+                        rmqChannel)
+                        .localName(localName);
             } catch (Exception e) {
                 throw new RuntimeException("Failed to create RabbitMQ communication strategy", e);
             }

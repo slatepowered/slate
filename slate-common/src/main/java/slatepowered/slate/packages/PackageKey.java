@@ -23,13 +23,4 @@ public interface PackageKey {
      */
     String getProvider();
 
-    /**
-     * Locally install this package to the given
-     * directory.
-     *
-     * @param path The directory to install it to.
-     * @return The future.
-     */
-    CompletableFuture<LocalPackage> installLocally(Path path);
-
 }

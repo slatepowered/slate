@@ -1,4 +1,4 @@
-package slatepowered.slate.packages.impl;
+package slatepowered.slate.packages.attachment;
 
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;

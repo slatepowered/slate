@@ -17,7 +17,7 @@ public abstract class ClusterManagedNode extends ManagedNode {
      */
     protected final String[] tags;
 
-    public ClusterManagedNode(Node parent, String name, Network<?> network, List<NodeComponent> components, String[] tags) {
+    public ClusterManagedNode(Node parent, String name, Network network, List<NodeComponent> components, String[] tags) {
         super(parent, name, network, components);
         this.tags = tags;
     }

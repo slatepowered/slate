@@ -1,8 +1,7 @@
-package slatepowered.slate.packages.impl;
+package slatepowered.slate.packages.attachment;
 
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import slatepowered.slate.model.ManagedNode;
 import slatepowered.slate.packages.LocalPackage;

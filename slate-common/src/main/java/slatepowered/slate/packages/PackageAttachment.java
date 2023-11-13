@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 import slatepowered.slate.model.ManagedNode;
 import slatepowered.slate.model.SharedNodeComponent;
 
@@ -14,7 +15,7 @@ import java.nio.file.Path;
  */
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
+@SuperBuilder
 public abstract class PackageAttachment implements SharedNodeComponent {
 
     /**

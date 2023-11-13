@@ -1,12 +1,18 @@
 package slatepowered.slate.master;
 
+import slatepowered.slate.cluster.IntegratedCluster;
+import slatepowered.slate.cluster.IntegratedClusterInstance;
 import slatepowered.slate.communication.CommunicationKey;
 import slatepowered.slate.communication.CommunicationStrategy;
 import slatepowered.slate.model.MasterManagedNode;
 import slatepowered.slate.model.MasterNetwork;
 import slatepowered.slate.network.NetworkInfoService;
+import slatepowered.slate.packages.PackageKey;
+import slatepowered.slate.packages.PackageManager;
 import slatepowered.veru.data.Pair;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
@@ -15,8 +21,52 @@ import java.util.stream.Collectors;
  */
 public class Master extends MasterNetwork {
 
-    Master(CommunicationKey communicationKey, CommunicationStrategy communicationStrategy) {
+    /**
+     * The working directory.
+     */
+    protected final Path directory;
+
+    /**
+     * The local package manager for locally managing packages.
+     */
+    protected final PackageManager localPackageManager;
+
+    /**
+     * The {@link slatepowered.slate.cluster.Cluster} impl of the integrated cluster.
+     */
+    protected final IntegratedCluster integratedClusterImpl;
+
+    /**
+     * The integrated cluster instance.
+     */
+    protected final IntegratedClusterInstance integratedClusterInstance;
+
+    Master(Path directory, CommunicationKey communicationKey, CommunicationStrategy communicationStrategy) {
         super(communicationKey, communicationStrategy);
+        this.directory = directory;
+
+        localPackageManager = new PackageManager(directory.resolve("packages"));
+
+        integratedClusterImpl = new IntegratedCluster("master.integrated-cluster", this);
+        integratedClusterInstance = new IntegratedClusterInstance(integratedClusterImpl, communicationKey, communicationStrategy);
+    }
+
+    /**
+     * Get the integrated cluster instance for configuration.
+     *
+     * @return The integrated cluster instance.
+     */
+    public IntegratedClusterInstance getIntegratedCluster() {
+        return integratedClusterInstance;
+    }
+
+    /**
+     * Get the local package manager utilized by this master node.
+     *
+     * @return The package manager.
+     */
+    public PackageManager getLocalPackageManager() {
+        return localPackageManager;
     }
 
     /**
@@ -24,6 +74,9 @@ public class Master extends MasterNetwork {
      */
     public void close() {
         rpcManager.invokeRemoteEvent(NetworkInfoService.class, "onClose", null);
+
+        getIntegratedCluster().close();
+        getIntegratedCluster().getCluster().close();
 
         // finally, close the communication provider
         // this basically closes the network until
@@ -54,8 +107,14 @@ public class Master extends MasterNetwork {
      */
     public static class MasterBuilder {
 
+        private Path directory = Paths.get("./");
         private CommunicationKey communicationKey;
         private CommunicationStrategy communicationStrategy;
+
+        public MasterBuilder directory(Path directory) {
+            this.directory = directory;
+            return this;
+        }
 
         public MasterBuilder communicationKey(CommunicationKey communicationKey) {
             this.communicationKey = communicationKey;
@@ -68,7 +127,7 @@ public class Master extends MasterNetwork {
         }
 
         public Master build() {
-            return new Master(communicationKey, communicationStrategy);
+            return new Master(directory, communicationKey, communicationStrategy);
         }
 
     }

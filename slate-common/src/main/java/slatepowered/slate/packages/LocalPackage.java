@@ -1,13 +1,16 @@
 package slatepowered.slate.packages;
 
 import lombok.Data;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 import java.nio.file.Path;
 
 /**
  * A locally managed package for the contained package key.
  */
-@Data
+@Getter
+@RequiredArgsConstructor
 public class LocalPackage {
 
     /**
@@ -21,8 +24,22 @@ public class LocalPackage {
     private final PackageKey key;
 
     /**
+     * The resolved package key.
+     */
+    private ResolvedPackage resolvedKey;
+
+    /**
      * The directory of this package.
      */
     private final Path path;
+
+    public synchronized ResolvedPackage getResolvedKey() {
+        return resolvedKey;
+    }
+
+    public synchronized LocalPackage resolvedKey(ResolvedPackage resolvedKey) {
+        this.resolvedKey = resolvedKey;
+        return this;
+    }
 
 }

@@ -13,14 +13,15 @@ import java.util.Map;
  */
 public abstract class CommunicationStrategy {
 
-    protected final String localName; // the local channel name
+    protected String localName;
 
     /* Caches */
     protected final Map<CommunicationKey, CommunicationProvider<?>> cachedProviders = new HashMap<>();
     protected final Map<CommunicationKey, RPCManager> cachedRPCManagers = new HashMap<>();
 
-    protected CommunicationStrategy(String localName) {
+    public CommunicationStrategy localName(String localName) {
         this.localName = localName;
+        return this;
     }
 
     /**

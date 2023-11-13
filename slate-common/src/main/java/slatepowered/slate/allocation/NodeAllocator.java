@@ -1,5 +1,6 @@
 package slatepowered.slate.allocation;
 
+import slatepowered.reco.rpc.Local;
 import slatepowered.reco.rpc.RemoteAPI;
 import slatepowered.reco.rpc.function.Allow;
 import slatepowered.slate.model.ManagedNode;
@@ -65,6 +66,7 @@ public interface NodeAllocator extends NodeInitializeAdapter, NodeDestroyAdapter
     }
 
     @Override
+    @Local
     default CompletableFuture<Void> create(ManagedNode node) {
         final List<SharedNodeComponent> sharedNodeComponents = node.listComponents(SharedNodeComponent.class);
         final NodeAllocationRequest allocationRequest = new NodeAllocationRequest(node.getParent().getName(), node.getName(), node.getTags(), sharedNodeComponents);
@@ -103,6 +105,7 @@ public interface NodeAllocator extends NodeInitializeAdapter, NodeDestroyAdapter
     }
 
     @Override
+    @Local
     default CompletableFuture<Void> destroy(ManagedNode node) {
         return destroyAsync(node.getName());
     }

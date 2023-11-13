@@ -21,22 +21,27 @@ import java.util.List;
 /**
  * An instance of this cluster for a specific network.
  */
-public class ClusterInstance extends ClusterNetwork {
+public abstract class ClusterInstance extends ClusterNetwork {
 
     /**
      * The cluster.
      */
-    private final Cluster cluster;
+    protected final Cluster<?> cluster;
 
     /**
      * The directory for this cluster instance.
      */
-    private final Path directory;
+    protected final Path directory;
 
-    public ClusterInstance(Cluster cluster, CommunicationKey communicationKey, CommunicationStrategy communicationStrategy) {
+    /**
+     * Whether this instance is enabled.
+     */
+    private boolean enabled = true;
+
+    public ClusterInstance(Cluster<?> cluster, CommunicationKey communicationKey, CommunicationStrategy communicationStrategy) {
         super(communicationKey, communicationStrategy);
         this.cluster = cluster;
-        this.directory = cluster.getDirectory().resolve("instances").resolve(String.valueOf(System.currentTimeMillis() ^ System.nanoTime()));
+        this.directory = cluster.getInstanceDirectory(this);
 
         // register the cluster services
         serviceManager.register(PackageManager.KEY, cluster.getLocalPackageManager());
@@ -48,14 +53,26 @@ public class ClusterInstance extends ClusterNetwork {
         }
     }
 
-    public Cluster getCluster() {
-        return cluster;
+    /**
+     * Set if this cluster instance is enabled.
+     *
+     * When disabled a cluster instance will not accept allocation
+     * or destruction of nodes, essentially sitting idle.
+     *
+     * @param enabled Enable flag.
+     * @return This.
+     */
+    public ClusterInstance setEnabled(boolean enabled) {
+        this.enabled = enabled;
+        return this;
     }
 
-    @Override
-    protected void handleOnClose() {
-        // destroy this instance
-        cluster.getInstances().remove(this);
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public Cluster getCluster() {
+        return cluster;
     }
 
     // first check registered nodes, otherwise
@@ -78,105 +95,109 @@ public class ClusterInstance extends ClusterNetwork {
         return node;
     }
 
+    /**
+     * Closes this cluster instance.
+     */
+    public void close() {
+        cluster.closeInstance(this);
+    }
+
+    /**
+     * Get the allocation checker to check availability.
+     *
+     * @return The allocation checker.
+     */
+    protected ClusterAllocationChecker getAllocationChecker() {
+        return null;
+    }
+
+    /**
+     * Attempts to allocate and initialize a node following the given request.
+     *
+     * @param request The allocation request.
+     * @return The allocation result.
+     */
+    @SuppressWarnings("unchecked")
+    public NodeAllocationResult allocateAndInitializeNode(NodeAllocationRequest request) {
+        try {
+            NetworkInfoService networkInfoService = getService(NetworkInfoService.KEY);
+
+            // create node locally
+            ClusterManagedNode node = new ClusterManagedNode(
+                    fetchAndCreateNode(request.getParentNodeName()),
+                    request.getNodeName(),
+                    ClusterInstance.this,
+                    (List<NodeComponent>)(Object)request.getComponents(),
+                    request.getTags()
+            ) { };
+
+            // create allocation
+            LocalNodeAllocation localNodeAllocation = new LocalNodeAllocation(node, directory.resolve("nodes").resolve(node.getName()));
+            cluster.localAllocations.add(localNodeAllocation);
+            Files.createDirectories(localNodeAllocation.getDirectory());
+
+            // install packages
+            PackageManager packageManager = cluster.getLocalPackageManager();
+            node.findComponents(PackageAttachment.class).forEach(packageAttachment -> {
+                packageManager.findOrInstallPackage(packageAttachment.getSourcePackage()).whenComplete((localPackage, throwable) -> {
+                    packageAttachment.install(packageManager, node, localNodeAllocation.getDirectory(), localPackage);
+                });
+            });
+
+            // execute other allocation components
+            node.findComponents(NodeAllocationAdapter.class).forEach(adapter ->
+                    adapter.initialize(packageManager, node, localNodeAllocation.getDirectory()));
+
+            return new NodeAllocation(node.getName(), /* todo: components to add */ new ArrayList<>());
+        } catch (Throwable e) {
+            return new FailedNodeAllocation(e);
+        }
+    }
+
+    /**
+     * Locally destroys the given node on this cluster.
+     *
+     * @param node The node to destroy.
+     */
+    public void destroyNode(ClusterManagedNode node) {
+        try {
+            LocalNodeAllocation allocation = node.getAllocation();
+            cluster.localAllocations.remove(allocation);
+            allocation.destroy();
+
+            // unregister node
+            nodeMap.remove(node.getName());
+        } catch (Throwable e) {
+            Throwables.sneakyThrow(e);
+        }
+    }
+
     {
         // register the remote node allocation service
         serviceManager.register(NodeAllocator.KEY, new NodeAllocator() {
             @Override
             public Boolean canAllocate(String parent, String[] tags) {
-                return cluster.getAllocationChecker().canAllocate(cluster, ClusterInstance.this, parent, tags);
+                if (!isEnabled()) return false;
+                return getAllocationChecker().canAllocate(cluster, ClusterInstance.this, parent, tags);
             }
 
             @Override
-            @SuppressWarnings("unchecked")
             public NodeAllocationResult allocate(NodeAllocationRequest request) {
-                try {
-                    NetworkInfoService networkInfoService = getService(NetworkInfoService.KEY);
-
-                    // create node locally
-                    ClusterManagedNode node = new ClusterManagedNode(
-                            fetchAndCreateNode(request.getParentNodeName()),
-                            request.getNodeName(),
-                            ClusterInstance.this,
-                            (List<NodeComponent>)(Object)request.getComponents(),
-                            request.getTags()
-                    ) { };
-
-                    // create allocation
-                    LocalNodeAllocation localNodeAllocation = new LocalNodeAllocation(node, directory.resolve("nodes").resolve(node.getName()));
-                    Files.createDirectories(localNodeAllocation.getDirectory());
-
-                    // install packages
-                    PackageManager packageManager = cluster.getPackageManager();
-                    node.findComponents(PackageAttachment.class).forEach(packageAttachment -> {
-                        packageManager.findOrInstallPackage(packageAttachment.getSourcePackage()).whenComplete((localPackage, throwable) -> {
-                            packageAttachment.install(packageManager, node, localNodeAllocation.getDirectory(), localPackage);
-                        });
-                    });
-
-                    // execute other allocation components
-                    node.findComponents(NodeAllocationAdapter.class).forEach(adapter ->
-                            adapter.initialize(packageManager, node, localNodeAllocation.getDirectory()));
-
-                    return new NodeAllocation(node.getName(), /* todo: components to add */ new ArrayList<>());
-                } catch (Throwable e) {
-                    return new FailedNodeAllocation(e);
-                }
+                if (!isEnabled()) return new FailedNodeAllocation(new IllegalStateException("Cluster instance is not enabled"));
+                return allocateAndInitializeNode(request);
             }
 
             @Override
             public void destroy(String name) {
-                try {
-                    // find node
-                    Node n = getNode(name);
-                    if (!(n instanceof ClusterManagedNode))
-                        throw new IllegalStateException("Node `" + name + "` is not managed by this cluster");
+                if (!isEnabled()) return;
 
-                    ClusterManagedNode node = (ClusterManagedNode) n;
-                    LocalNodeAllocation allocation = node.getAllocation();
+                Node n = getNode(name);
+                if (!(n instanceof ClusterManagedNode))
+                    throw new IllegalStateException("Node `" + name + "` is not managed by this cluster");
 
-                    // destroy files
-                    Files.deleteIfExists(allocation.getDirectory());
-
-                    // unregister node
-                    nodeMap.remove(name);
-                } catch (Throwable e) {
-                    Throwables.sneakyThrow(e);
-                }
+                destroyNode((ClusterManagedNode) n);
             }
         });
-    }
-
-    /**
-     * Builds a {@link ClusterInstance}.
-     */
-    public static class ClusterInstanceBuilder {
-
-        private final Cluster cluster;
-        private CommunicationKey communicationKey;
-        private CommunicationStrategy communicationStrategy;
-
-        public ClusterInstanceBuilder(Cluster cluster) {
-            this.cluster = cluster;
-        }
-
-        public ClusterInstanceBuilder communicationKey(CommunicationKey communicationKey) {
-            this.communicationKey = communicationKey;
-            return this;
-        }
-
-        public ClusterInstanceBuilder communicationStrategy(CommunicationStrategy communicationStrategy) {
-            this.communicationStrategy = communicationStrategy;
-            return this;
-        }
-
-        public ClusterInstance build() {
-            return new ClusterInstance(cluster, communicationKey, communicationStrategy);
-        }
-
-    }
-
-    public static ClusterInstanceBuilder builder(Cluster cluster) {
-        return new ClusterInstanceBuilder(cluster);
     }
 
 }

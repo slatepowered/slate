@@ -2,4 +2,10 @@ version '1.0.0'
 
 dependencies {
     api project(":slate-common")
+    api project(":slate-cluster")
+
+    testImplementation project(":slate-communication-rmq")
+    testImplementation "com.github.slatepowered.reco:reco-core-rmq:${project.RECO_COMMIT}"
+    testImplementation "com.github.slatepowered.reco:reco-serializer-kryo:${project.RECO_COMMIT}"
+    testImplementation 'com.rabbitmq:amqp-client:5.16.0'
 }

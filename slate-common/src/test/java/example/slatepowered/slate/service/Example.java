@@ -1,8 +1,7 @@
 package example.slatepowered.slate.service;
 
-import slatepowered.reco.rmq.RMQProvider;
+import slatepowered.reco.rpc.RPCManager;
 import slatepowered.reco.rpc.event.RemoteEvent;
-import slatepowered.reco.serializer.KryoSerializer;
 import slatepowered.slate.model.Network;
 import slatepowered.slate.model.Node;
 
@@ -60,7 +59,7 @@ public class Example {
         final String RMQ_VHOST = "/";
 
         // create network and communication provider for the master node
-        Network<Node> networkOnMaster = null; // todo
+        Network networkOnMaster = null; // todo
         networkOnMaster.registerNode(new Node("other", networkOnMaster) {
             @Override
             public String[] getTags() {
@@ -69,7 +68,7 @@ public class Example {
         });
 
         // create network and communication provider for the other node
-        Network<Node> networkOnOther = null;
+        Network networkOnOther = null;
 
         // invoke methods
         Example instance = new Example();
@@ -77,8 +76,8 @@ public class Example {
         instance.runOnOtherNode(networkOnOther);
 
         // call cluster event
-        networkOnMaster.getRPCManager().invokeRemoteEvent(ExampleService.class, "onClusterEvent", new ClusterExampleEvent("aCluster", 0));
-        networkOnMaster.getRPCManager().invokeRemoteEvent(ExampleService.class, "onClusterEvent", new ClusterExampleEvent("veryImportantCluster", 1));
+        networkOnMaster.getSingleton(RPCManager.class).invokeRemoteEvent(ExampleService.class, "onClusterEvent", new ClusterExampleEvent("aCluster", 0));
+        networkOnMaster.getSingleton(RPCManager.class).invokeRemoteEvent(ExampleService.class, "onClusterEvent", new ClusterExampleEvent("veryImportantCluster", 1));
     }
 
 }

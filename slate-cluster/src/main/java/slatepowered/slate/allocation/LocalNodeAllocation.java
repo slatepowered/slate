@@ -38,8 +38,6 @@ public class LocalNodeAllocation {
      */
     public void destroy() {
         try {
-
-
             // destroy files
             Files.delete(directory);
         } catch (Throwable t) {

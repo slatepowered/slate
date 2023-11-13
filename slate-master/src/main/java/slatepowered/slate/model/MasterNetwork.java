@@ -7,7 +7,12 @@ import slatepowered.slate.network.NetworkInfoService;
 /**
  * The master managed implementation of {@link Network}.
  */
-public class MasterNetwork extends Network<MasterManagedNode> {
+public abstract class MasterNetwork extends Network {
+
+    @Override
+    public Node local() {
+        return master();
+    }
 
     /** The master node. */
     private final MasterNode masterNode = new MasterNode("master", this);

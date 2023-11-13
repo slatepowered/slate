@@ -16,11 +16,12 @@ import slatepowered.veru.functional.Callback;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Represents a Slate network.
  */
-public abstract class Network<N extends Node> implements ServiceProvider {
+public abstract class Network implements ServiceProvider {
 
     /**
      * The communication strategy.
@@ -50,7 +51,7 @@ public abstract class Network<N extends Node> implements ServiceProvider {
     /**
      * All nodes by name.
      */
-    protected final Map<String, N> nodeMap = new HashMap<>();
+    protected final Map<String, Node> nodeMap = new ConcurrentHashMap<>();
 
     /* Events */
     protected final Callback<Void> onCloseEvent = Callback.multi();
@@ -115,7 +116,14 @@ public abstract class Network<N extends Node> implements ServiceProvider {
      *
      * @return The master.
      */
-    public abstract N master();
+    public abstract Node master();
+
+    /**
+     * The node representing this local node.
+     *
+     * @return The local node.
+     */
+    public abstract Node local();
 
     /**
      * Get a pre-registered node by name.
@@ -126,10 +134,11 @@ public abstract class Network<N extends Node> implements ServiceProvider {
      * @param name The name.
      * @return The node or null if absent.
      */
-    public N getNode(String name) {
+    @SuppressWarnings("unchecked")
+    public <N extends Node> N getNode(String name) {
         if ("master".equals(name))
-            return master();
-        return nodeMap.get(name);
+            return (N) master();
+        return (N) nodeMap.get(name);
     }
 
     /**
@@ -137,7 +146,7 @@ public abstract class Network<N extends Node> implements ServiceProvider {
      *
      * @return The mutable node map.
      */
-    public Map<String, N> getNodeMap() {
+    public Map<String, Node> getNodeMap() {
         return nodeMap;
     }
 
@@ -152,7 +161,7 @@ public abstract class Network<N extends Node> implements ServiceProvider {
         return CompletableFuture.completedFuture(getNode(name));
     }
 
-    public Network<N> registerNode(N node) {
+    public Network registerNode(Node node) {
         nodeMap.put(node.getName(), node);
         return this;
     }

@@ -6,7 +6,7 @@ import slatepowered.slate.communication.CommunicationStrategy;
 /**
  * A network mirror instance managed by the local cluster.
  */
-public class ClusterNetwork extends Network<Node> {
+public abstract class ClusterNetwork extends Network {
 
     /**
      * The master node.
@@ -23,6 +23,11 @@ public class ClusterNetwork extends Network<Node> {
     @Override
     public Node master() {
         return masterNode;
+    }
+
+    @Override
+    public Node local() {
+        return null;
     }
 
 }

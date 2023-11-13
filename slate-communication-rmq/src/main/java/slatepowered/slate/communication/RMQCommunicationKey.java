@@ -9,6 +9,10 @@ import lombok.*;
 @AllArgsConstructor
 public class RMQCommunicationKey extends CommunicationKey {
 
+    public static RMQCommunicationKey named(String exchangeName) {
+        return new RMQCommunicationKey(exchangeName);
+    }
+
     /**
      * The exchange name.
      */

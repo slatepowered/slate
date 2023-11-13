@@ -23,14 +23,14 @@ public abstract class Node implements NetworkObject, ServiceProvider, SecurityOb
     /**
      * The network this node is a part of.
      */
-    protected final Network<Node> network;
+    protected final Network network;
 
     /**
      * The service manager for this node.
      */
     protected final ServiceManager serviceManager;
 
-    public Node(String name, Network<Node> network) {
+    public Node(String name, Network network) {
         this.name = name;
         this.network = network;
         this.serviceManager = new ServiceManager(network.serviceManager());
@@ -47,7 +47,7 @@ public abstract class Node implements NetworkObject, ServiceProvider, SecurityOb
      */
     @Override
     @SuppressWarnings("unchecked")
-    public <N extends Node, N2 extends Network<N>> N2 getNetwork() {
+    public <N extends Node, N2 extends Network> N2 getNetwork() {
         return (N2) network;
     }
 
@@ -102,8 +102,8 @@ public abstract class Node implements NetworkObject, ServiceProvider, SecurityOb
     //////////////////////////////////////////////////
 
     @SuppressWarnings("unchecked")
-    public static Node masterNode(Network<?> network) {
-        return new Node("master", (Network<Node>) network) {
+    public static Node masterNode(Network network) {
+        return new Node("master", (Network) network) {
             // the tags on this node
             final String[] tags = new String[] { "*", "master" };
 

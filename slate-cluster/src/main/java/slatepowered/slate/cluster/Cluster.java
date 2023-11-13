@@ -1,18 +1,19 @@
 package slatepowered.slate.cluster;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import slatepowered.reco.rpc.RPCManager;
+import lombok.RequiredArgsConstructor;
 import slatepowered.slate.allocation.ClusterAllocationChecker;
 import slatepowered.slate.allocation.LocalNodeAllocation;
 import slatepowered.slate.communication.CommunicationKey;
-import slatepowered.slate.communication.CommunicationStrategy;
 import slatepowered.slate.packages.PackageManager;
-import slatepowered.veru.misc.Throwables;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Locally manages clusters for any network which requests it,
@@ -20,102 +21,65 @@ import java.util.List;
  * any network.
  */
 @Getter
-@Builder
-public class Cluster {
+@RequiredArgsConstructor
+public abstract class Cluster<I extends ClusterInstance> {
+
+    protected final String name;
+    protected final Map<CommunicationKey, I> instanceMap = new HashMap<>();
+    protected final List<LocalNodeAllocation> localAllocations = new ArrayList<>();
 
     /**
-     * The local package manager.
+     * Get the local package manager for this cluster.
+     *
+     * @return The package manager.
      */
-    private final PackageManager packageManager;
+    public abstract PackageManager getLocalPackageManager();
 
     /**
-     * The cluster instances.
+     * Start this cluster' operations.
      */
-    private final List<ClusterInstance> instances = new ArrayList<>();
+    public abstract void start();
 
     /**
-     * All local node allocations.
+     * Close this cluster.
      */
-    private final List<LocalNodeAllocation> allocations = new ArrayList<>();
+    public abstract void close();
 
     /**
-     * The allocation checker.
+     * Get a cluster instance for the given communication key.
+     *
+     * @param key The communication key.
+     * @return The instance.
      */
-    private final ClusterAllocationChecker allocationChecker;
+    public abstract I createInstance(CommunicationKey key);
 
-    /**
-     * The communication strategy.
-     */
-    private final CommunicationStrategy communicationStrategy;
-
-    // the communication provider for clusterDeclares
-    private RPCManager clusterDeclareRPC;
-
-    /**
-     * The working/data directory for this cluster.
-     */
-    private final Path directory;
-
-    /**
-     * Starts and initializes this cluster.
-     */
-    public void start() {
-        try {
-            clusterDeclareRPC = communicationStrategy
-                    .getRPCManager(CommunicationKey.clusterDeclare());
-
-            clusterDeclareRPC.register(new ClusterInstantiationAPI() {
-                @Override
-                public void declareClusterInstance(CommunicationKey communicationKey) {
-                    ClusterInstance instance = instance()
-                            .communicationStrategy(communicationStrategy)
-                            .communicationKey(communicationKey)
-                            .build();
-                }
-            });
-        } catch (Throwable t) {
-            Throwables.sneakyThrow(t);
+    public I getOrCreateInstance(CommunicationKey key) {
+        I instance = getInstance(key);
+        if (instance == null) {
+            instanceMap.put(key, createInstance(key));
         }
+
+        return instance;
+    }
+
+    public I getInstance(CommunicationKey key) {
+        return instanceMap.get(key);
+    }
+
+    public void closeInstance(ClusterInstance instance) {
+        instanceMap.remove(instance.getCommunicationKey());
     }
 
     /**
-     * Get the local package manager.
+     * Get the path to the instance directory for the given instance.
      *
-     * @return The manager.
+     * @param instance The instance.
+     * @return The directory path.
      */
-    public PackageManager getLocalPackageManager() {
-        return packageManager;
-    }
+    public abstract Path getInstanceDirectory(ClusterInstance instance);
 
-    /**
-     * Get the instances managed by this cluster.
-     *
-     * @return The list of instances.
-     */
-    public List<ClusterInstance> getInstances() {
-        return instances;
-    }
-
-    public ClusterInstance.ClusterInstanceBuilder instance() {
-        return ClusterInstance.builder(this);
-    }
-
-    public ClusterAllocationChecker getAllocationChecker() {
-        return allocationChecker;
-    }
-
-    /**
-     * Get all node allocations/creations on this cluster,
-     * irregardless of the instance/network it belongs to.
-     *
-     * @return The allocations.
-     */
-    public List<LocalNodeAllocation> getAllocations() {
-        return allocations;
-    }
-
-    public Path getDirectory() {
-        return directory;
+    public List<LocalNodeAllocation> getLocalAllocations() {
+        return localAllocations;
     }
 
 }
