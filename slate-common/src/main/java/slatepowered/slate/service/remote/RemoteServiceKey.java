@@ -1,5 +1,6 @@
 package slatepowered.slate.service.remote;
 
+import slatepowered.reco.rpc.RPCManager;
 import slatepowered.reco.rpc.RemoteAPI;
 import slatepowered.slate.model.NamedRemote;
 import slatepowered.slate.service.DynamicServiceKey;
@@ -39,8 +40,8 @@ public abstract class RemoteServiceKey<T extends Service & RemoteAPI> implements
 
     @Override
     public T create(ServiceManager manager) {
-        RPCService rpcService = manager.getService(RPCService.class);
-        return rpcService.bindRemote(rpcService.getCommunicationProvider().channel(remoteName), getServiceClass());
+        RPCManager rpcManager = manager.getSingleton(RPCManager.class);
+        return rpcManager.bindRemote(rpcManager.getLocalChannel().provider().channel(remoteName), getServiceClass());
     }
 
 }

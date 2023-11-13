@@ -7,6 +7,8 @@ import slatepowered.reco.CommunicationProvider;
 import slatepowered.reco.rmq.RMQProvider;
 import slatepowered.reco.serializer.KryoSerializer;
 
+import java.nio.charset.StandardCharsets;
+
 /**
  * A communication strategy implementation which utilizes one RabbitMQ node.
  */

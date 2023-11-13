@@ -1,5 +1,8 @@
 package slatepowered.slate.service;
 
+import slatepowered.slate.service.singleton.SingletonContainer;
+import slatepowered.slate.service.singleton.SingletonKey;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -69,6 +72,10 @@ public class ServiceManager implements ServiceProvider {
         localServices.put(localKey, service);
         localKey.register(this, service);
         return this;
+    }
+
+    public <T> ServiceManager registerSingleton(Class<T> tClass, T value) {
+        return register(SingletonKey.of(tClass), new SingletonContainer<T>().value(value));
     }
 
     @Override

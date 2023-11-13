@@ -2,6 +2,7 @@ package slatepowered.slate.model;
 
 import slatepowered.reco.CommunicationProvider;
 import slatepowered.reco.ProvidedChannel;
+import slatepowered.reco.rpc.RPCManager;
 import slatepowered.slate.communication.CommunicationKey;
 import slatepowered.slate.communication.CommunicationStrategy;
 import slatepowered.slate.network.NetworkInfoService;
@@ -10,7 +11,6 @@ import slatepowered.slate.service.Service;
 import slatepowered.slate.service.ServiceManager;
 import slatepowered.slate.service.ServiceProvider;
 import slatepowered.slate.service.ServiceKey;
-import slatepowered.slate.service.remote.RPCService;
 import slatepowered.veru.functional.Callback;
 
 import java.util.HashMap;
@@ -40,7 +40,7 @@ public abstract class Network<N extends Node> implements ServiceProvider {
     /**
      * The remote procedure call manager.
      */
-    protected final RPCService rpcManager;
+    protected final RPCManager rpcManager;
 
     /**
      * The service manager for this network.
@@ -70,13 +70,13 @@ public abstract class Network<N extends Node> implements ServiceProvider {
         }
 
         // create the RPC manager/service
-        this.rpcManager = new RPCService(communicationProvider);
+        this.rpcManager = new RPCManager(communicationProvider);
         rpcManager.setInboundSecurityManager(new NetworkRPCSecurityManager(this));
 
         // create the service manager with
         // default services
         this.serviceManager = new ServiceManager()
-                .register(RPCService.KEY, rpcManager);
+                .registerSingleton(RPCManager.class, rpcManager);
 
         getService(NetworkInfoService.KEY).onClose().then(unused -> {
             onCloseEvent.call(null);

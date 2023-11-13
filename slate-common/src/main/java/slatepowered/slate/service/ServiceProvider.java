@@ -1,5 +1,6 @@
 package slatepowered.slate.service;
 
+import slatepowered.slate.service.singleton.SingletonKey;
 import slatepowered.veru.misc.Throwables;
 
 import java.lang.invoke.MethodHandle;
@@ -64,6 +65,7 @@ public interface ServiceProvider {
         // the given class
         try {
             MethodHandle m = TAG_METHOD_CACHE.get(tClass);
+            ServiceKey<?> key = null;
             if (m == null) {
                 try {
                     // try for method
@@ -92,19 +94,26 @@ public interface ServiceProvider {
                 } catch (Throwable t) {
                     Throwables.sneakyThrow(t);
                 }
-
-                // no method/field found
-                if (m == null)
-                    throw new NoSuchMethodException();
             }
 
-            return getService((ServiceKey<T>) m.invoke());
+            // no method/field found
+            if (m == null) {
+                throw new NoSuchMethodException();
+            }
+
+            key = (ServiceKey<?>) m.invoke();
+            return (T) getService(key);
         } catch (NoSuchMethodException e) {
             throw new IllegalArgumentException(tClass + " does not have a default `ServiceTag key()` method or `ServiceTag TAG` field");
         } catch (Throwable t) {
             Throwables.sneakyThrow(t);
             return null; // unreachable
         }
+    }
+
+    /** Get a singleton instance from the service manager. */
+    default <T> T getSingleton(Class<T> valueClass) {
+        return getService(SingletonKey.of(valueClass)).getValue();
     }
 
 }

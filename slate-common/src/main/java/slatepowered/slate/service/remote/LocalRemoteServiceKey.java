@@ -1,5 +1,6 @@
 package slatepowered.slate.service.remote;
 
+import slatepowered.reco.rpc.RPCManager;
 import slatepowered.reco.rpc.RemoteAPI;
 import slatepowered.slate.service.Service;
 import slatepowered.slate.service.ServiceManager;
@@ -19,7 +20,7 @@ public interface LocalRemoteServiceKey<T extends Service & RemoteAPI> extends Se
     @Override
     default void register(ServiceManager manager, T service) {
         // register the service instance as a handler locally
-        manager.getService(RPCService.KEY).register(service);
+        manager.getSingleton(RPCManager.class).register(service);
     }
 
 }

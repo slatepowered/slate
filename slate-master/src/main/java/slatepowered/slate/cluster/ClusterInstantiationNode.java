@@ -5,7 +5,6 @@ import slatepowered.slate.allocation.NodeAllocator;
 import slatepowered.slate.communication.CommunicationKey;
 import slatepowered.slate.model.ManagedNode;
 import slatepowered.slate.model.NodeComponent;
-import slatepowered.slate.service.remote.RPCService;
 
 /**
  * Node component which instantiates and attaches a cluster instance to this node.
@@ -15,7 +14,7 @@ public class ClusterInstantiationNode implements NodeComponent {
     @Override
     public boolean attached(ManagedNode node) {
         String clusterName = node.getName();
-        RPCManager rpcManager = node.getService(RPCService.KEY);
+        RPCManager rpcManager = node.getSingleton(RPCManager.class);
 
         RPCManager clusterDeclareRPC = node.getNetwork()
                 .getCommunicationStrategy()
