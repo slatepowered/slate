@@ -13,9 +13,15 @@ import java.util.Map;
  */
 public abstract class CommunicationStrategy {
 
+    protected final String localName; // the local channel name
+
     /* Caches */
     protected final Map<CommunicationKey, CommunicationProvider<?>> cachedProviders = new HashMap<>();
     protected final Map<CommunicationKey, RPCManager> cachedRPCManagers = new HashMap<>();
+
+    protected CommunicationStrategy(String localName) {
+        this.localName = localName;
+    }
 
     /**
      * Gets or creates a communication provider bound to the given communication key.
@@ -51,13 +57,5 @@ public abstract class CommunicationStrategy {
     public RPCManager getRPCManager(CommunicationKey key) {
         return cachedRPCManagers.computeIfAbsent(key, __ -> new RPCManager(getCommunicationProvider(key)));
     }
-
-    /**
-     * Get a consistent communication key for the given network.
-     *
-     * @param network The network.
-     * @return The communication key.
-     */
-    public abstract CommunicationKey getKey(Network<?> network);
 
 }

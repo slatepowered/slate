@@ -10,10 +10,12 @@ public class CommunicationKey {
         public int hashCode() {
             return 6969;
         }
+
+        private static final ClusterDeclareCommunicationKey KEY = new ClusterDeclareCommunicationKey();
     }
 
     public static ClusterDeclareCommunicationKey clusterDeclare() {
-        return new ClusterDeclareCommunicationKey();
+        return ClusterDeclareCommunicationKey.KEY;
     }
 
 }

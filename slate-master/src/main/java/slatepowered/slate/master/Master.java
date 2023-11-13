@@ -1,6 +1,5 @@
 package slatepowered.slate.master;
 
-import slatepowered.reco.rpc.event.RemoteEvent;
 import slatepowered.slate.communication.CommunicationKey;
 import slatepowered.slate.communication.CommunicationStrategy;
 import slatepowered.slate.model.MasterManagedNode;

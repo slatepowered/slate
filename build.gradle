@@ -37,7 +37,7 @@ subprojects {
 
     ext {
         VERU_COMMIT = "62de596e63" // todo bump
-        RECO_COMMIT = "9655b0b"
+        RECO_COMMIT = "c78730f"
     }
 
     group = rootProject.group
