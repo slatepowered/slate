@@ -36,8 +36,8 @@ subprojects {
     apply plugin: "java-library"
 
     ext {
-        VERU_COMMIT = "64aefb6" // todo bump
-        RECO_COMMIT = "c78730f"
+        VERU_COMMIT = "f1e899b"
+        RECO_COMMIT = "e6d4807"
     }
 
     group = rootProject.group

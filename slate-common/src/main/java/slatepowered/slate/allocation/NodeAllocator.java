@@ -13,6 +13,7 @@ import slatepowered.slate.service.ServiceKey;
 import slatepowered.slate.service.remote.LocalRemoteServiceKey;
 import slatepowered.veru.misc.Throwables;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Logger;
@@ -37,7 +38,7 @@ public interface NodeAllocator extends NodeInitializeAdapter, NodeDestroyAdapter
     Boolean canAllocate(String parent, String[] tags);
 
     default CompletableFuture<Boolean> canAllocateAsync(String parent, String[] tags) {
-        return null;
+        return CompletableFuture.completedFuture(canAllocate(parent, tags));
     }
 
     /**
@@ -51,7 +52,7 @@ public interface NodeAllocator extends NodeInitializeAdapter, NodeDestroyAdapter
     NodeAllocationResult allocate(NodeAllocationRequest request);
 
     default CompletableFuture<NodeAllocationResult> allocateAsync(NodeAllocationRequest request) {
-        return null;
+        return CompletableFuture.supplyAsync(() -> allocate(request));
     }
 
     /**
@@ -68,7 +69,7 @@ public interface NodeAllocator extends NodeInitializeAdapter, NodeDestroyAdapter
     @Override
     @Local
     default CompletableFuture<Void> create(ManagedNode node) {
-        final List<SharedNodeComponent> sharedNodeComponents = node.listComponents(SharedNodeComponent.class);
+        final List<SharedNodeComponent> sharedNodeComponents = node.findComponents(SharedNodeComponent.class);
         final NodeAllocationRequest allocationRequest = new NodeAllocationRequest(node.getParent().getName(), node.getName(), node.getTags(), sharedNodeComponents);
 
         return canAllocateAsync(node.getParent().getName(), node.getTags())

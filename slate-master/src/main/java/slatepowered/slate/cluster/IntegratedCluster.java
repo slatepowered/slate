@@ -53,7 +53,7 @@ public class IntegratedCluster extends Cluster<IntegratedClusterInstance> {
 
     @Override
     public Path getInstanceDirectory(ClusterInstance instance) {
-        return Paths.get("./cluster");
+        return master.getDirectory().resolve("integrated-cluster");
     }
 
 }

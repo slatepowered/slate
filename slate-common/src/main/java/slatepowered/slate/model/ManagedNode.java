@@ -1,6 +1,7 @@
 package slatepowered.slate.model;
 
 import slatepowered.slate.logging.Logging;
+import slatepowered.veru.collection.Sequence;
 
 import java.util.*;
 import java.util.logging.Logger;
@@ -56,23 +57,8 @@ public abstract class ManagedNode extends Node {
      * @return The list of components.
      */
     @SuppressWarnings("unchecked")
-    public <T extends NodeComponent> NavigableSet<T> findComponents(Class<T> kl) {
-        NavigableSet<T> set = new TreeSet<>();
-        for (NodeComponent component : components) {
-            if (kl.isAssignableFrom(component.getClass())) {
-                set.add((T) component);
-            }
-        }
-
-        return set;
-    }
-
-    /**
-     * @see ManagedNode#findComponents(Class)
-     */
-    @SuppressWarnings("unchecked")
-    public <T extends NodeComponent> List<T> listComponents(Class<T> kl) {
-        List<T> set = new ArrayList<>();
+    public <T extends NodeComponent> Sequence<T> findComponents(Class<T> kl) {
+        Sequence<T> set = new Sequence<>();
         for (NodeComponent component : components) {
             if (kl.isAssignableFrom(component.getClass())) {
                 set.add((T) component);

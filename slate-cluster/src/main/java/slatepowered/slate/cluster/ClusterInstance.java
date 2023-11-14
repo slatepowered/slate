@@ -139,7 +139,7 @@ public abstract class ClusterInstance extends ClusterNetwork {
             // install packages
             PackageManager packageManager = cluster.getLocalPackageManager();
             node.findComponents(PackageAttachment.class).forEach(packageAttachment -> {
-                packageManager.findOrInstallPackage(packageAttachment.getSourcePackage()).whenComplete((localPackage, throwable) -> {
+                packageAttachment.getSourcePackage().findOrInstall(packageManager).whenComplete((localPackage, throwable) -> {
                     packageAttachment.install(packageManager, node, localNodeAllocation.getDirectory(), localPackage);
                 });
             });

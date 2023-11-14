@@ -36,7 +36,7 @@ public abstract class MasterManagedNode extends ManagedNode {
         CompletableFuture<Void>[] futures = (CompletableFuture<Void>[]) findComponents(component)
                 .stream()
                 .map(c -> function.apply(c, this))
-                .toArray();
+                .toArray(CompletableFuture[]::new);
 
         if (tFunction != null) {
             CompletableFuture<T> future = new CompletableFuture<>();

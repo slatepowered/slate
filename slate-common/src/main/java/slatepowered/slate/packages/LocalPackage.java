@@ -11,7 +11,7 @@ import java.nio.file.Path;
  */
 @Getter
 @RequiredArgsConstructor
-public class LocalPackage {
+public abstract class LocalPackage {
 
     /**
      * The local package manager.
@@ -21,25 +21,11 @@ public class LocalPackage {
     /**
      * The package key which identifies this package.
      */
-    private final PackageKey key;
-
-    /**
-     * The resolved package key.
-     */
-    private ResolvedPackage resolvedKey;
+    private final ResolvedPackage<?, ?> key;
 
     /**
      * The directory of this package.
      */
     private final Path path;
-
-    public synchronized ResolvedPackage getResolvedKey() {
-        return resolvedKey;
-    }
-
-    public synchronized LocalPackage resolvedKey(ResolvedPackage resolvedKey) {
-        this.resolvedKey = resolvedKey;
-        return this;
-    }
 
 }

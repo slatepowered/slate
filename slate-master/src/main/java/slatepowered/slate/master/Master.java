@@ -52,6 +52,15 @@ public class Master extends MasterNetwork {
     }
 
     /**
+     * Get the working/data directory for this master controller.
+     *
+     * @return The directory path.
+     */
+    public Path getDirectory() {
+        return directory;
+    }
+
+    /**
      * Get the integrated cluster instance for configuration.
      *
      * @return The integrated cluster instance.

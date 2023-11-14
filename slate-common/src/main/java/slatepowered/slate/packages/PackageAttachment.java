@@ -21,9 +21,9 @@ public abstract class PackageAttachment implements SharedNodeComponent {
     /**
      * The package to attach to the node.
      */
-    protected PackageKey fromPackage;
+    protected PackageKey<?> fromPackage;
 
-    public PackageKey getSourcePackage() {
+    public PackageKey<?> getSourcePackage() {
         return fromPackage;
     }
 
