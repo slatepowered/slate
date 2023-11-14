@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import slatepowered.slate.model.ManagedNode;
 import slatepowered.slate.model.SharedNodeComponent;
-import slatepowered.slate.packages.attachment.PackageTarget;
 import slatepowered.slate.packages.attachment.TargetedPackageAttachment;
 
 import java.nio.file.Path;

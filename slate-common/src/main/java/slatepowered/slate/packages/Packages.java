@@ -1,7 +1,11 @@
-package slatepowered.slate.packages.attachment;
+package slatepowered.slate.packages;
 
 import slatepowered.slate.model.ManagedNode;
-import slatepowered.slate.packages.*;
+import slatepowered.slate.packages.attachment.*;
+import slatepowered.slate.packages.key.JavaPackageKey;
+import slatepowered.slate.packages.key.URLFilesDownload;
+import slatepowered.veru.data.Pair;
+import slatepowered.veru.runtime.JavaVersion;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -9,19 +13,64 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Function;
+import java.util.function.BiFunction;
 
 /**
- * Common package attachment implementations.
+ * Helper functions for packages.
  */
-public class PackageAttachments {
+public final class Packages {
+
+    /**
+     * Creates a new file download package key from the given
+     * varargs array. Each even element is expected to be a URL
+     * and the next (odd) element is the filename that file should be
+     * downloaded to.
+     *
+     * @param files The varargs array.
+     * @return The download key.
+     */
+    public static URLFilesDownload download(String... files) {
+        return URLFilesDownload.download(files);
+    }
+
+    /**
+     * Creates a new file download package key from the given
+     * list. Each pair in the list is expected to have the first
+     * element be the download URL and the second element the output file name.
+     *
+     * @param files The list of pairs.
+     * @return The download key.
+     */
+    public static URLFilesDownload download(List<Pair<String, String>> files) {
+        return new URLFilesDownload(files);
+    }
+
+    /**
+     * Requires a JDK installation of the given version.
+     *
+     * @param version The version.
+     * @return The JDK package key.
+     */
+    public static JavaPackageKey jdk(JavaVersion version) {
+        return JavaPackageKey.jdk(version);
+    }
+
+    /**
+     * Requires any installation of the given Java version.
+     *
+     * @param version The version.
+     * @return The Java installation package key.
+     */
+    public static JavaPackageKey java(JavaVersion version) {
+        return JavaPackageKey.jdk(version);
+    }
 
     /**
      * Copies files from a package to the node's working/data directory.
      *
      * @return The builder.
      */
-    public static <P extends LocalPackage> CopyMatchingFiles<P> copyFiles(PackageKey<P> key, Function<Path, Path> resolver) {
+    public static <P extends LocalPackage> CopyMatchingFiles<P> copyFiles(PackageKey<P> key, BiFunction<Path, Path, Path> resolver) {
         return new CopyMatchingFiles<>(key, resolver);
     }
 
@@ -30,7 +79,7 @@ public class PackageAttachments {
      *
      * @return The builder.
      */
-    public static <P extends LocalPackage> LinkMatchingFiles<P> linkFiles(PackageKey<P> key, Function<Path, Path> resolver) {
+    public static <P extends LocalPackage> LinkMatchingFiles<P> linkFiles(PackageKey<P> key, BiFunction<Path, Path, Path> resolver) {
         return new LinkMatchingFiles<>(key, resolver);
     }
 
@@ -76,7 +125,7 @@ public class PackageAttachments {
     }
 
     /**
-     * Helper function.
+     * Internal helper function.
      * Attaches all given attachments, in order, to the given node.
      *
      * @param packageManager The package manager.

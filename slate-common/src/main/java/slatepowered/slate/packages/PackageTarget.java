@@ -1,4 +1,4 @@
-package slatepowered.slate.packages.attachment;
+package slatepowered.slate.packages;
 
 public enum PackageTarget {
     /**

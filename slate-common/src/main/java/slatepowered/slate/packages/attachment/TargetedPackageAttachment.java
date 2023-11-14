@@ -7,6 +7,7 @@ import slatepowered.slate.model.ManagedNode;
 import slatepowered.slate.packages.LocalPackage;
 import slatepowered.slate.packages.PackageAttachment;
 import slatepowered.slate.packages.PackageManager;
+import slatepowered.slate.packages.PackageTarget;
 
 import java.nio.file.Path;
 

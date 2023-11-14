@@ -9,10 +9,9 @@ import slatepowered.slate.model.Node;
 import slatepowered.slate.model.NodeComponent;
 import slatepowered.slate.action.NodeAllocationAdapter;
 import slatepowered.slate.network.NetworkInfoService;
-import slatepowered.slate.packages.LocalPackage;
 import slatepowered.slate.packages.PackageAttachment;
 import slatepowered.slate.packages.PackageManager;
-import slatepowered.slate.packages.attachment.PackageAttachments;
+import slatepowered.slate.packages.Packages;
 import slatepowered.slate.packages.service.LateAttachmentService;
 import slatepowered.veru.misc.Throwables;
 
@@ -21,7 +20,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Consumer;
 
 /**
  * An instance of this cluster for a specific network.
@@ -143,7 +141,7 @@ public abstract class ClusterInstance extends ClusterNetwork {
 
             // install packages
             PackageManager packageManager = cluster.getLocalPackageManager();
-            PackageAttachments.attachAll(
+            Packages.attachAll(
                     packageManager,
                     node.findComponents(PackageAttachment.class),
                     node,
@@ -226,7 +224,7 @@ public abstract class ClusterInstance extends ClusterNetwork {
         serviceManager.register(LateAttachmentService.KEY, new LateAttachmentService() {
             @Override
             public void attachImmediate(List<PackageAttachment<?>> attachments) {
-                PackageAttachments.attachAll(
+                Packages.attachAll(
                         cluster.getLocalPackageManager(),
                         attachments,
                         local(),

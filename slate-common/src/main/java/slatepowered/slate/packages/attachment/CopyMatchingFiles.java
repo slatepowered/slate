@@ -13,6 +13,7 @@ import slatepowered.veru.misc.Throwables;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 // Copies files from the installed package to a destination
@@ -23,13 +24,13 @@ public class CopyMatchingFiles<P extends LocalPackage> extends PackageAttachment
      * Resolves the source path to a destination path, skipping
      * it if null is returned.
      */
-    protected Function<Path, Path> resolver;
+    protected BiFunction<Path, Path, Path> resolver;
 
     public CopyMatchingFiles() {
 
     }
 
-    public CopyMatchingFiles(PackageKey<P> fromPackage, Function<Path, Path> resolver) {
+    public CopyMatchingFiles(PackageKey<P> fromPackage, BiFunction<Path, Path, Path> resolver) {
         super(fromPackage);
         this.resolver = resolver;
     }
@@ -39,7 +40,7 @@ public class CopyMatchingFiles<P extends LocalPackage> extends PackageAttachment
         try {
             Path sources = localPackage.getPath();
             Files.walk(sources)
-                    .map(p -> Pair.of(p, resolver.apply(p)))
+                    .map(p -> Pair.of(p, resolver.apply(nodePath, sources.relativize(p))))
                     .filter(p -> p.getSecond() != null && !Files.isDirectory(p.getFirst()))
                     .forEach(pathPair -> {
                         Path src = pathPair.getFirst();
