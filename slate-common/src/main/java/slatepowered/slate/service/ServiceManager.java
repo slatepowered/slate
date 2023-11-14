@@ -1,5 +1,6 @@
 package slatepowered.slate.service;
 
+import slatepowered.slate.model.Network;
 import slatepowered.slate.service.singleton.SingletonContainer;
 import slatepowered.slate.service.singleton.SingletonKey;
 
@@ -12,18 +13,30 @@ import java.util.Map;
  */
 public class ServiceManager implements ServiceProvider {
 
+    /** The network which provides this service manager. */
+    private final Network network;
+
     /** The parent service manager. */
     private final ServiceManager parent;
 
     /** All registered local services. */
     private final Map<ServiceKey<?>, Service> localServices = new HashMap<>();
 
-    public ServiceManager(ServiceManager parent) {
+    public ServiceManager(Network network, ServiceManager parent) {
+        this.network = network;
         this.parent = parent;
     }
 
-    public ServiceManager() {
-        this(null);
+    public ServiceManager(ServiceManager parent) {
+        this(parent.getNetwork(), parent);
+    }
+
+    public ServiceManager(Network network) {
+        this(network, null);
+    }
+
+    public Network getNetwork() {
+        return network;
     }
 
     /**

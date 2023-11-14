@@ -76,7 +76,7 @@ public abstract class Network implements ServiceProvider {
 
         // create the service manager with
         // default services
-        this.serviceManager = new ServiceManager()
+        this.serviceManager = new ServiceManager(this)
                 .registerSingleton(RPCManager.class, rpcManager);
 
         getService(NetworkInfoService.KEY).onClose().then(unused -> {
