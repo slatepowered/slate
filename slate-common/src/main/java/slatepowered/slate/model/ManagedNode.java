@@ -1,6 +1,9 @@
 package slatepowered.slate.model;
 
 import slatepowered.slate.logging.Logging;
+import slatepowered.slate.service.Service;
+import slatepowered.slate.service.ServiceKey;
+import slatepowered.slate.service.network.NodeHostBoundServiceKey;
 import slatepowered.veru.collection.Sequence;
 
 import java.util.*;
@@ -139,6 +142,16 @@ public abstract class ManagedNode extends Node {
         } else {
             return (CompletableFuture<T>) CompletableFuture.allOf(futureList.toArray(new CompletableFuture[0]));
         }
+    }
+
+    @Override
+    public <T extends Service> ServiceKey<T> qualifyServiceKey(ServiceKey<T> key) throws UnsupportedOperationException {
+        if (key instanceof NodeHostBoundServiceKey) {
+            ((NodeHostBoundServiceKey) key).forNode(
+                    this.findComponents(NodeHost.class).first().map(h -> h.host.getName()).orElse(null));
+        }
+
+        return super.qualifyServiceKey(key);
     }
 
 }

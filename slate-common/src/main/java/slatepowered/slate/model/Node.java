@@ -7,6 +7,7 @@ import slatepowered.slate.service.ServiceKey;
 import slatepowered.slate.service.ServiceManager;
 import slatepowered.slate.service.ServiceProvider;
 import slatepowered.slate.service.network.NodeBoundServiceKey;
+import slatepowered.slate.service.network.NodeHostBoundServiceKey;
 import slatepowered.slate.service.remote.RemoteServiceKey;
 
 /**
@@ -103,7 +104,7 @@ public abstract class Node implements NetworkObject, ServiceProvider, SecurityOb
 
     @SuppressWarnings("unchecked")
     public static Node masterNode(Network network) {
-        return new Node("master", (Network) network) {
+        return new Node("master", network) {
             // the tags on this node
             final String[] tags = new String[] { "*", "master" };
 
