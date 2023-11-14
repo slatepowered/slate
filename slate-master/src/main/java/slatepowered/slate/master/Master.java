@@ -93,8 +93,9 @@ public class Master extends MasterNetwork {
         communicationProvider.close();
     }
 
+    /* ----------- Register Services ----------- */
+
     {
-        // create default services
         serviceManager.register(NetworkInfoService.key(), new NetworkInfoService() {
             @Override
             public Collection<Pair<String, String[]>> fetchNodeNames() {

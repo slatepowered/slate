@@ -7,6 +7,7 @@ import slatepowered.slate.communication.RMQCommunicationStrategy;
 import slatepowered.slate.master.Master;
 import slatepowered.slate.model.NodeBuilder;
 import slatepowered.slate.packages.PackageKey;
+import slatepowered.slate.packages.attachment.PackageAttachments;
 import slatepowered.slate.packages.key.JavaPackageKey;
 import slatepowered.veru.io.FileUtil;
 import slatepowered.veru.runtime.JavaVersion;

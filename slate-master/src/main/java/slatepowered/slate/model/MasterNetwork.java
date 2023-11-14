@@ -10,7 +10,7 @@ import slatepowered.slate.network.NetworkInfoService;
 public abstract class MasterNetwork extends Network {
 
     @Override
-    public Node local() {
+    public ManagedNode local() {
         return master();
     }
 

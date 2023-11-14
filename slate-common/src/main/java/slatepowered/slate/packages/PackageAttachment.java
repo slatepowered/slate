@@ -1,14 +1,15 @@
 package slatepowered.slate.packages;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
 import slatepowered.slate.model.ManagedNode;
 import slatepowered.slate.model.SharedNodeComponent;
+import slatepowered.slate.packages.attachment.PackageTarget;
+import slatepowered.slate.packages.attachment.TargetedPackageAttachment;
 
 import java.nio.file.Path;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Determines the way a package is installed onto a node.
@@ -42,5 +43,24 @@ public abstract class PackageAttachment<P extends LocalPackage> implements Share
             Path nodePath,
             P localPackage
     );
+
+    /**
+     * Get the attachments which the installation/attachment
+     * of the package depends on.
+     *
+     * @return The list of dependencies.
+     */
+    public List<PackageAttachment<?>> dependencies() {
+        return Collections.emptyList();
+    }
+
+    /**
+     * Targets this package attachment to a specific domain.
+     *
+     * @return The attachment.
+     */
+    public TargetedPackageAttachment<P> targeted(PackageTarget target) {
+        return new TargetedPackageAttachment<P>(this, target);
+    }
 
 }

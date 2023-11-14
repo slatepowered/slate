@@ -29,11 +29,16 @@ public abstract class ManagedNode extends Node {
      */
     protected final List<NodeComponent> components;
 
-    @SuppressWarnings("unchecked")
     public ManagedNode(Node parent, String name, Network network, List<NodeComponent> components) {
         super(name, network);
         this.parent = parent;
         this.components = components;
+    }
+
+    public ManagedNode(Node parent, String name, Network network) {
+        super(name, network);
+        this.parent = parent;
+        this.components = new ArrayList<>();
     }
 
     public Node getParent() {

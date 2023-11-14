@@ -1,10 +1,17 @@
 package slatepowered.slate.packages.attachment;
 
+import slatepowered.slate.model.ManagedNode;
 import slatepowered.slate.packages.LocalPackage;
+import slatepowered.slate.packages.PackageAttachException;
 import slatepowered.slate.packages.PackageAttachment;
+import slatepowered.slate.packages.PackageManager;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Vector;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
 /**
@@ -39,6 +46,89 @@ public class PackageAttachments {
     @SafeVarargs
     public static <P extends LocalPackage> CompoundPackageAttachment<P> all(PackageAttachment<P>... attachments) {
         return new CompoundPackageAttachment<>(Arrays.asList(attachments));
+    }
+
+    /**
+     * Immediately loads the given files as libraries on the receiver
+     * of the attachments, not on the node it is installed to.
+     *
+     * This will fail if the node it is received by is not the node it is
+     * supposed to be installed on.
+     *
+     * @param files The files.
+     * @return The attachment.
+     */
+    public static <P extends LocalPackage> LoadLibraryAttachment<P> loadLibrariesImmediate(String... files) {
+        return new LoadLibraryAttachment<>(Arrays.asList(files));
+    }
+
+    // Flattens the given attachment and it's dependencies into the given list,
+    // also making sure there are no duplicates
+    @SuppressWarnings("unchecked")
+    private static void flattenAttachment(List<PackageAttachment<LocalPackage>> list,
+                                          PackageAttachment<?> attachment) {
+        if (list.contains(attachment)) {
+            return;
+        }
+
+        for (PackageAttachment<?> dependency : attachment.dependencies()) {
+            flattenAttachment(list, dependency);
+        }
+
+        list.add((PackageAttachment<LocalPackage>)attachment);
+    }
+
+    /**
+     * Helper function.
+     * Attaches all given attachments, in order, to the given node.
+     *
+     * @param packageManager The package manager.
+     * @param attachments The list of attachments.
+     * @param node The node to attach to.
+     * @param path The node directory.
+     */
+    public static CompletableFuture<List<Throwable>> attachAll(PackageManager packageManager,
+                                                               List<PackageAttachment<?>> attachments,
+                                                               ManagedNode node,
+                                                               Path path,
+                                                               ManagedNode hostNode,
+                                                               Path hostPath) {
+        List<PackageAttachment<LocalPackage>> flattenedAttachmentList = new ArrayList<>();
+        for (PackageAttachment<?> attachment : attachments) {
+            flattenAttachment(flattenedAttachmentList, attachment);
+        }
+
+        // start applying attachments and register all potential
+        // errors into a list
+        CompletableFuture<List<Throwable>> future = new CompletableFuture<>();
+        Vector<Throwable> errors = new Vector<>();
+        for (PackageAttachment<LocalPackage> attachment : flattenedAttachmentList) {
+            PackageTarget target = attachment instanceof TargetedPackageAttachment ?
+                    ((TargetedPackageAttachment<?>)attachment).getTarget() :
+                    PackageTarget.NODE;
+
+            attachment.getSourcePackage().
+                    findOrInstall(packageManager)
+                    .thenApply(localPackage -> {
+                        // install attachment
+                        attachment.install(
+                                packageManager,
+                                target == PackageTarget.HOST ? hostNode : node,
+                                target == PackageTarget.HOST ? hostPath : path,
+                                localPackage
+                        );
+
+                        return null;
+                    })
+                    .whenComplete((localPackage, throwable) -> {
+                        errors.add(throwable == null ? null : new PackageAttachException(throwable).forAttachment(attachment));
+                        if (errors.size() == flattenedAttachmentList.size()) {
+                            future.complete(errors);
+                        }
+                    });
+        }
+
+        return future;
     }
 
 }

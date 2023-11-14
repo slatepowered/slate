@@ -12,12 +12,16 @@ import slatepowered.slate.network.NetworkInfoService;
 import slatepowered.slate.packages.LocalPackage;
 import slatepowered.slate.packages.PackageAttachment;
 import slatepowered.slate.packages.PackageManager;
+import slatepowered.slate.packages.attachment.PackageAttachments;
+import slatepowered.slate.packages.service.LateAttachmentService;
 import slatepowered.veru.misc.Throwables;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 
 /**
  * An instance of this cluster for a specific network.
@@ -139,10 +143,15 @@ public abstract class ClusterInstance extends ClusterNetwork {
 
             // install packages
             PackageManager packageManager = cluster.getLocalPackageManager();
-            node.<PackageAttachment<LocalPackage>>findComponents(PackageAttachment.class).forEach(packageAttachment -> {
-                packageAttachment.getSourcePackage().findOrInstall(packageManager).whenComplete((localPackage, throwable) -> {
-                    packageAttachment.install(packageManager, node, localNodeAllocation.getDirectory(), localPackage);
-                });
+            PackageAttachments.attachAll(
+                    packageManager,
+                    node.findComponents(PackageAttachment.class),
+                    node,
+                    localNodeAllocation.getDirectory(),
+                    local(),
+                    directory
+            ).whenComplete((throwables, __) -> {
+                throwables.forEach(Throwable::printStackTrace);
             });
 
             // execute other allocation components
@@ -175,7 +184,11 @@ public abstract class ClusterInstance extends ClusterNetwork {
     }
 
     {
-        // register the remote node allocation service
+        /* ----------- Register Services ----------- */
+
+        /*
+            Node allocation and initialization
+         */
         serviceManager.register(NodeAllocator.KEY, new NodeAllocator() {
             @Override
             public Boolean canAllocate(String parent, String[] tags) {
@@ -204,6 +217,31 @@ public abstract class ClusterInstance extends ClusterNetwork {
                     throw new IllegalStateException("Node `" + name + "` is not managed by this cluster");
 
                 destroyNode((ClusterManagedNode) n);
+            }
+        });
+
+        /*
+            Late package attachment
+         */
+        serviceManager.register(LateAttachmentService.KEY, new LateAttachmentService() {
+            @Override
+            public void attachImmediate(List<PackageAttachment<?>> attachments) {
+                PackageAttachments.attachAll(
+                        cluster.getLocalPackageManager(),
+                        attachments,
+                        local(),
+                        directory,
+                        local(),
+                        directory
+                ).whenComplete((throwables, __) -> {
+                    throwables.forEach(Throwable::printStackTrace);
+                });
+            }
+
+            @Override
+            public CompletableFuture<Void> attachImmediateAsync(List<PackageAttachment<?>> attachments) {
+                attachImmediate(attachments);
+                return CompletableFuture.completedFuture(null);
             }
         });
     }

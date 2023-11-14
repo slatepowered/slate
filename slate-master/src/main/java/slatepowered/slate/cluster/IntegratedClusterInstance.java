@@ -10,6 +10,8 @@ import slatepowered.slate.model.ManagedNode;
 import slatepowered.slate.model.Node;
 import slatepowered.slate.packages.local.LocalJavaPackage;
 
+import java.util.ArrayList;
+
 /**
  * The integrated cluster instance.
  */
@@ -20,12 +22,24 @@ public class IntegratedClusterInstance extends ClusterInstance {
      */
     protected ClusterAllocationChecker allocationChecker = (cluster, clusterInstance, name, tags) -> true;
 
+    // The node which represents this virtual integrated cluster
+    private final ManagedNode localNode;
+
     public IntegratedClusterInstance(IntegratedCluster cluster, CommunicationKey communicationKey, CommunicationStrategy communicationStrategy) {
         super(cluster, communicationKey, communicationStrategy);
 
         if (cluster.theInstance != null)
             throw new IllegalStateException("Attempt to construct second cluster instance on an integrated cluster");
         cluster.theInstance = this;
+
+        this.localNode = new ManagedNode(master(), "master.integratedCluster", this, new ArrayList<>()) {
+            final String[] tags = new String[] { "*", "cluster", "master", "integrated", "local" };
+
+            @Override
+            public String[] getTags() {
+                return tags;
+            }
+        };
     }
 
     /**
@@ -60,7 +74,8 @@ public class IntegratedClusterInstance extends ClusterInstance {
     }
 
     @Override
-    public Node local() {
-        return null;
+    public ManagedNode local() {
+        return localNode;
     }
+
 }

@@ -25,9 +25,4 @@ public abstract class ClusterNetwork extends Network {
         return masterNode;
     }
 
-    @Override
-    public Node local() {
-        return null;
-    }
-
 }

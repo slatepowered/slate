@@ -3,7 +3,11 @@ package slatepowered.slate.cluster;
 import slatepowered.slate.allocation.ClusterAllocationChecker;
 import slatepowered.slate.communication.CommunicationKey;
 import slatepowered.slate.communication.CommunicationStrategy;
+import slatepowered.slate.model.ManagedNode;
 import slatepowered.slate.model.Node;
+
+import java.util.ArrayList;
+import java.util.Map;
 
 /**
  * An instance of a {@link DedicatedCluster} dedicated to one network.
@@ -11,13 +15,13 @@ import slatepowered.slate.model.Node;
 public class DedicatedClusterInstance extends ClusterInstance {
 
     // The local node
-    private final Node localNode;
+    private final ManagedNode localNode;
 
     public DedicatedClusterInstance(Cluster<?> cluster, CommunicationKey communicationKey, CommunicationStrategy communicationStrategy) {
         super(cluster, communicationKey, communicationStrategy);
 
-        this.localNode = new Node(cluster.getName(), this) {
-            final String[] tags = new String[] { "*", "cluster" };
+        this.localNode = new ManagedNode(master(), cluster.getName(), this) {
+            final String[] tags = new String[] { "*", "cluster", "local" };
 
             @Override
             public String[] getTags() {
@@ -32,7 +36,7 @@ public class DedicatedClusterInstance extends ClusterInstance {
     }
 
     @Override
-    public Node local() {
+    public ManagedNode local() {
         return localNode;
     }
 

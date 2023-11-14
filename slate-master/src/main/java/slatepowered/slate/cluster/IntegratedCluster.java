@@ -1,12 +1,10 @@
 package slatepowered.slate.cluster;
 
-import lombok.RequiredArgsConstructor;
 import slatepowered.slate.communication.CommunicationKey;
 import slatepowered.slate.master.Master;
 import slatepowered.slate.packages.PackageManager;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /**
  * The integrated cluster provided by the master.

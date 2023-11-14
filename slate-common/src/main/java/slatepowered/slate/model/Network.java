@@ -123,7 +123,7 @@ public abstract class Network implements ServiceProvider {
      *
      * @return The local node.
      */
-    public abstract Node local();
+    public abstract ManagedNode local();
 
     /**
      * Get a pre-registered node by name.
