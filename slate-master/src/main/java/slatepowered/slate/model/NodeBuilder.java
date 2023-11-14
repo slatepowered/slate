@@ -40,6 +40,24 @@ public class NodeBuilder {
      */
     protected String channelName;
 
+    public String getName() {
+        return name;
+    }
+
+    public MasterManagedNode getParent() {
+        return parent;
+    }
+
+    public MasterNetwork getNetwork() {
+        return parent.getNetwork();
+    }
+
+    /**
+     * Set the tags for this node.
+     *
+     * @param tags The tags.
+     * @return This.
+     */
     public NodeBuilder tags(String[] tags) {
         this.tags = tags;
         return this;
