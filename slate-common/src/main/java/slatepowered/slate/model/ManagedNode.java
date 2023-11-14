@@ -125,7 +125,7 @@ public abstract class ManagedNode extends Node {
      * @return The result future.
      */
     @SuppressWarnings("unchecked")
-    protected <T, C extends NodeComponent> CompletableFuture<T> runVoidAction(Class<C> componentClass, BiFunction<C, ManagedNode, CompletableFuture<?>> invoker, Function<Throwable, T> resultComposer) {
+    public  <T, C extends NodeComponent> CompletableFuture<T> runVoidAction(Class<C> componentClass, BiFunction<C, ManagedNode, CompletableFuture<?>> invoker, Function<Throwable, T> resultComposer) {
         List<CompletableFuture<?>> futureList = new ArrayList<>();
         for (C component : findComponents(componentClass)) {
             futureList.add(invoker.apply(component, this));

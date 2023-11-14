@@ -9,6 +9,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Supplier;
 
 public interface ServiceProvider {
 
@@ -57,6 +58,24 @@ public interface ServiceProvider {
     default <T extends Service> ServiceProvider register(ServiceKey<T> key, T service) {
         this.parentServiceResolver().register(qualifyServiceKey(key), service);
         return this;
+    }
+
+    /**
+     * Get the service by the given key if present otherwise
+     * compute a new instance, register it then return it.
+     *
+     * @param key The service key.
+     * @param supplier The instance supplier.
+     * @param <T> The service type.
+     * @return The service instance.
+     */
+    default <T extends Service> T ensureService(ServiceKey<T> key, Supplier<T> supplier) {
+        T service = getService(key);
+        if (service == null) {
+            register(key, service = supplier.get());
+        }
+
+        return service;
     }
 
     @SuppressWarnings("unchecked")
