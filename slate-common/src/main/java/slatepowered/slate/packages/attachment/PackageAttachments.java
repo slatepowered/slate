@@ -1,10 +1,7 @@
 package slatepowered.slate.packages.attachment;
 
 import slatepowered.slate.model.ManagedNode;
-import slatepowered.slate.packages.LocalPackage;
-import slatepowered.slate.packages.PackageAttachException;
-import slatepowered.slate.packages.PackageAttachment;
-import slatepowered.slate.packages.PackageManager;
+import slatepowered.slate.packages.*;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -24,8 +21,8 @@ public class PackageAttachments {
      *
      * @return The builder.
      */
-    public static <P extends LocalPackage> CopyMatchingFiles<P> copyFiles(Function<Path, Path> resolver) {
-        return new CopyMatchingFiles<>(resolver);
+    public static <P extends LocalPackage> CopyMatchingFiles<P> copyFiles(PackageKey<P> key, Function<Path, Path> resolver) {
+        return new CopyMatchingFiles<>(key, resolver);
     }
 
     /**
@@ -33,8 +30,8 @@ public class PackageAttachments {
      *
      * @return The builder.
      */
-    public static <P extends LocalPackage> LinkMatchingFiles<P> linkFiles(Function<Path, Path> resolver) {
-        return new LinkMatchingFiles<>(resolver);
+    public static <P extends LocalPackage> LinkMatchingFiles<P> linkFiles(PackageKey<P> key, Function<Path, Path> resolver) {
+        return new LinkMatchingFiles<>(key, resolver);
     }
 
     /**
@@ -58,8 +55,8 @@ public class PackageAttachments {
      * @param files The files.
      * @return The attachment.
      */
-    public static <P extends LocalPackage> LoadLibraryAttachment<P> loadLibrariesImmediate(String... files) {
-        return new LoadLibraryAttachment<>(Arrays.asList(files));
+    public static <P extends LocalPackage> LoadLibraryAttachment<P> loadLibrariesImmediate(PackageKey<P> key, String... files) {
+        return new LoadLibraryAttachment<>(key, Arrays.asList(files));
     }
 
     // Flattens the given attachment and it's dependencies into the given list,

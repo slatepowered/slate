@@ -6,6 +6,7 @@ import lombok.experimental.SuperBuilder;
 import slatepowered.slate.model.ManagedNode;
 import slatepowered.slate.packages.LocalPackage;
 import slatepowered.slate.packages.PackageAttachment;
+import slatepowered.slate.packages.PackageKey;
 import slatepowered.slate.packages.PackageManager;
 import slatepowered.veru.data.Pair;
 import slatepowered.veru.misc.Throwables;
@@ -16,8 +17,6 @@ import java.util.function.Function;
 
 // Links files from the installed package to a destination
 // in the node directory
-@AllArgsConstructor
-@NoArgsConstructor
 public class LinkMatchingFiles<P extends LocalPackage> extends PackageAttachment<P> {
 
     /**
@@ -25,6 +24,15 @@ public class LinkMatchingFiles<P extends LocalPackage> extends PackageAttachment
      * it if null is returned.
      */
     protected Function<Path, Path> resolver;
+
+    public LinkMatchingFiles() {
+
+    }
+
+    public LinkMatchingFiles(PackageKey<P> fromPackage, Function<Path, Path> resolver) {
+        super(fromPackage);
+        this.resolver = resolver;
+    }
 
     @Override
     public void install(PackageManager packageManager, ManagedNode node, Path nodePath, P localPackage) {
