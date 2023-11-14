@@ -16,16 +16,16 @@ import java.util.List;
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
-public class CompoundPackageAttachment extends PackageAttachment {
+public class CompoundPackageAttachment<P extends LocalPackage> extends PackageAttachment<P> {
 
     /**
      * The list of package attachments to execute.
      */
-    protected List<PackageAttachment> list;
+    protected List<PackageAttachment<P>> list;
 
     @Override
-    public void install(PackageManager packageManager, ManagedNode node, Path nodePath, LocalPackage localPackage) {
-        for (PackageAttachment attachment : list) {
+    public void install(PackageManager packageManager, ManagedNode node, Path nodePath, P localPackage) {
+        for (PackageAttachment<P> attachment : list) {
             attachment.install(packageManager, node, nodePath, localPackage);
         }
     }

@@ -19,7 +19,7 @@ import java.util.function.Function;
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
-public class LinkMatchingFiles extends PackageAttachment {
+public class LinkMatchingFiles<P extends LocalPackage> extends PackageAttachment<P> {
 
     /**
      * Resolves the source path to a destination path, skipping
@@ -28,7 +28,7 @@ public class LinkMatchingFiles extends PackageAttachment {
     protected Function<Path, Path> resolver;
 
     @Override
-    public void install(PackageManager packageManager, ManagedNode node, Path nodePath, LocalPackage localPackage) {
+    public void install(PackageManager packageManager, ManagedNode node, Path nodePath, P localPackage) {
         try {
             Path sources = localPackage.getPath();
             Files.walk(sources)

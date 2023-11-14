@@ -1,5 +1,6 @@
 package slatepowered.slate.packages.attachment;
 
+import slatepowered.slate.packages.LocalPackage;
 import slatepowered.slate.packages.PackageAttachment;
 
 import java.util.Arrays;
@@ -14,7 +15,7 @@ public class PackageAttachments {
      *
      * @return The builder.
      */
-    public static CopyMatchingFiles.CopyMatchingFilesBuilder<?, ?> copyFiles() {
+    public static <P extends LocalPackage> CopyMatchingFiles.CopyMatchingFilesBuilder<P, ?, ?> copyFiles() {
         return CopyMatchingFiles.builder();
     }
 
@@ -23,7 +24,7 @@ public class PackageAttachments {
      *
      * @return The builder.
      */
-    public static LinkMatchingFiles.LinkMatchingFilesBuilder<?, ?> linkFiles() {
+    public static <P extends LocalPackage> LinkMatchingFiles.LinkMatchingFilesBuilder<P, ?, ?> linkFiles() {
         return LinkMatchingFiles.builder();
     }
 
@@ -33,8 +34,9 @@ public class PackageAttachments {
      * @param attachments The attachments.
      * @return The compound attachment.
      */
-    public static CompoundPackageAttachment all(PackageAttachment... attachments) {
-        return new CompoundPackageAttachment(Arrays.asList(attachments));
+    @SafeVarargs
+    public static <P extends LocalPackage> CompoundPackageAttachment<P> all(PackageAttachment<P>... attachments) {
+        return new CompoundPackageAttachment<>(Arrays.asList(attachments));
     }
 
 }

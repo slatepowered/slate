@@ -9,6 +9,7 @@ import slatepowered.slate.model.Node;
 import slatepowered.slate.model.NodeComponent;
 import slatepowered.slate.action.NodeAllocationAdapter;
 import slatepowered.slate.network.NetworkInfoService;
+import slatepowered.slate.packages.LocalPackage;
 import slatepowered.slate.packages.PackageAttachment;
 import slatepowered.slate.packages.PackageManager;
 import slatepowered.veru.misc.Throwables;
@@ -138,7 +139,7 @@ public abstract class ClusterInstance extends ClusterNetwork {
 
             // install packages
             PackageManager packageManager = cluster.getLocalPackageManager();
-            node.findComponents(PackageAttachment.class).forEach(packageAttachment -> {
+            node.<PackageAttachment<LocalPackage>>findComponents(PackageAttachment.class).forEach(packageAttachment -> {
                 packageAttachment.getSourcePackage().findOrInstall(packageManager).whenComplete((localPackage, throwable) -> {
                     packageAttachment.install(packageManager, node, localNodeAllocation.getDirectory(), localPackage);
                 });

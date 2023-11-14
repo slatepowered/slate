@@ -57,7 +57,7 @@ public abstract class ManagedNode extends Node {
      * @return The list of components.
      */
     @SuppressWarnings("unchecked")
-    public <T extends NodeComponent> Sequence<T> findComponents(Class<T> kl) {
+    public <T extends NodeComponent> Sequence<T> findComponents(Class<? super T> kl) {
         Sequence<T> set = new Sequence<>();
         for (NodeComponent component : components) {
             if (kl.isAssignableFrom(component.getClass())) {

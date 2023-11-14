@@ -16,14 +16,14 @@ import java.nio.file.Path;
 @AllArgsConstructor
 @NoArgsConstructor
 @SuperBuilder
-public abstract class PackageAttachment implements SharedNodeComponent {
+public abstract class PackageAttachment<P extends LocalPackage> implements SharedNodeComponent {
 
     /**
      * The package to attach to the node.
      */
-    protected PackageKey<?> fromPackage;
+    protected PackageKey<P> fromPackage;
 
-    public PackageKey<?> getSourcePackage() {
+    public PackageKey<P> getSourcePackage() {
         return fromPackage;
     }
 
@@ -41,7 +41,7 @@ public abstract class PackageAttachment implements SharedNodeComponent {
             PackageManager packageManager,
             ManagedNode node,
             Path nodePath,
-            LocalPackage localPackage
+            P localPackage
     );
 
 }
