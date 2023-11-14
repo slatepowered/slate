@@ -4,6 +4,9 @@ import slatepowered.slate.logging.Logging;
 import slatepowered.veru.collection.Sequence;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.logging.Logger;
 
 /**
@@ -109,6 +112,33 @@ public abstract class ManagedNode extends Node {
     public ManagedNode adopt(ManagedNode node) {
         children.put(node.getName(), node);
         return this;
+    }
+
+    /**
+     * Execute an action through all the components
+     *
+     * @param componentClass The component class to match the components against.
+     * @param invoker The invoker function which runs the action and returns the result.
+     * @param resultComposer The result composer which composes any errors into a result object.
+     * @param <T> The result type.
+     * @param <C> The component type.
+     * @return The result future.
+     */
+    @SuppressWarnings("unchecked")
+    protected <T, C extends NodeComponent> CompletableFuture<T> runVoidAction(Class<C> componentClass, BiFunction<C, ManagedNode, CompletableFuture<?>> invoker, Function<Throwable, T> resultComposer) {
+        List<CompletableFuture<?>> futureList = new ArrayList<>();
+        for (C component : findComponents(componentClass)) {
+            futureList.add(invoker.apply(component, this));
+        }
+
+        if (resultComposer != null) {
+            return CompletableFuture
+                    .allOf(futureList.toArray(new CompletableFuture[0]))
+                    .thenApply(__ -> resultComposer.apply(null))
+                    .exceptionally(resultComposer);
+        } else {
+            return (CompletableFuture<T>) CompletableFuture.allOf(futureList.toArray(new CompletableFuture[0]));
+        }
     }
 
 }

@@ -7,8 +7,6 @@ import slatepowered.slate.action.NodeInitializeAdapter;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.BiFunction;
-import java.util.function.Function;
 
 /**
  * Implementation of {@link ManagedNode} on the master instance, with
@@ -30,23 +28,6 @@ public abstract class MasterManagedNode extends ManagedNode {
         return new NodeBuilder(this, name);
     }
 
-    // run the action through the components
-    @SuppressWarnings("unchecked")
-    private <T, C extends NodeComponent> CompletableFuture<T> runAction(Class<C> component, BiFunction<C, ManagedNode, ?> function, Function<Throwable, T> tFunction) {
-        CompletableFuture<Void>[] futures = (CompletableFuture<Void>[]) findComponents(component)
-                .stream()
-                .map(c -> function.apply(c, this))
-                .toArray(CompletableFuture[]::new);
-
-        if (tFunction != null) {
-            CompletableFuture<T> future = new CompletableFuture<>();
-            CompletableFuture.allOf(futures).whenComplete((__, t) -> future.complete(tFunction.apply(t)));
-            return future;
-        } else {
-            return (CompletableFuture<T>) CompletableFuture.allOf(futures);
-        }
-    }
-
     /**
      * Initialize this node.
      *
@@ -54,7 +35,7 @@ public abstract class MasterManagedNode extends ManagedNode {
      */
     public CompletableFuture<InitializationResult> initialize() {
         CompletableFuture<InitializationResult> future =
-                this.runAction(NodeInitializeAdapter.class, NodeInitializeAdapter::create,
+                this.runVoidAction(NodeInitializeAdapter.class, NodeInitializeAdapter::create,
                         t -> t == null ? new InitializationResult(false, null) : new InitializationResult(true, Collections.singletonList(t)));
         future.whenComplete((result, err) -> {
             if (!result.isSuccess()) {
@@ -78,7 +59,7 @@ public abstract class MasterManagedNode extends ManagedNode {
      */
     public CompletableFuture<Void> destroy() {
         CompletableFuture<Void> future =
-                this.runAction(NodeDestroyAdapter.class, NodeDestroyAdapter::destroy, null);
+                this.runVoidAction(NodeDestroyAdapter.class, NodeDestroyAdapter::destroy, null);
         future.whenComplete((unused, err) -> {
             if (err != null) {
                 LOGGER.warning("Destruction of node(" + this.name + ") encountered an error while running action");
