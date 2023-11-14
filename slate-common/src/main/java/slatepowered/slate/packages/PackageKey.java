@@ -24,7 +24,9 @@ public interface PackageKey<P extends LocalPackage> {
      *
      * @return The provider key.
      */
-    String getProvider();
+    default String getProvider() {
+        return null;
+    }
 
     @SuppressWarnings("unchecked")
     default CompletableFuture<P> findOrInstall(PackageManager manager) {
