@@ -15,7 +15,6 @@ import java.nio.file.Path;
  */
 @AllArgsConstructor
 @NoArgsConstructor
-@SuperBuilder
 public abstract class PackageAttachment<P extends LocalPackage> implements SharedNodeComponent {
 
     /**

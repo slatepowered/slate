@@ -25,7 +25,7 @@ public interface NodeComponent {
      * @return Whether this component should be attached to the given node.
      */
     default boolean attached(ManagedNode node) {
-        return false;
+        return true;
     }
 
 }

@@ -30,16 +30,12 @@ public class TestMasterBootstrap {
                 .directory(dir)
                 .build();
 
-        JavaPackageKey.jdk(JavaVersion.JAVA_8).findOrInstall(master.getLocalPackageManager())
-                .whenComplete((localJavaPackage, throwable) -> {
-                    System.out.println(localJavaPackage.getJavaBinary());
-                });
-
         {
             NodeBuilder builder = master.master().child("test");
             builder.attach(master.getIntegratedCluster().getService(NodeAllocator.class));
+            builder.attach(JavaPackageKey.jdk(JavaVersion.JAVA_8).attachment());
             builder.build().initialize().whenComplete((initializationResult, throwable) -> {
-                System.out.println("initialized test node");
+                System.out.println("initialized node");
             });
         }
     }

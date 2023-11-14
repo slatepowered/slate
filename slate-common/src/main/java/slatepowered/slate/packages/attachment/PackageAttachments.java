@@ -3,7 +3,9 @@ package slatepowered.slate.packages.attachment;
 import slatepowered.slate.packages.LocalPackage;
 import slatepowered.slate.packages.PackageAttachment;
 
+import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.function.Function;
 
 /**
  * Common package attachment implementations.
@@ -15,8 +17,8 @@ public class PackageAttachments {
      *
      * @return The builder.
      */
-    public static <P extends LocalPackage> CopyMatchingFiles.CopyMatchingFilesBuilder<P, ?, ?> copyFiles() {
-        return CopyMatchingFiles.builder();
+    public static <P extends LocalPackage> CopyMatchingFiles<P> copyFiles(Function<Path, Path> resolver) {
+        return new CopyMatchingFiles<>(resolver);
     }
 
     /**
@@ -24,8 +26,8 @@ public class PackageAttachments {
      *
      * @return The builder.
      */
-    public static <P extends LocalPackage> LinkMatchingFiles.LinkMatchingFilesBuilder<P, ?, ?> linkFiles() {
-        return LinkMatchingFiles.builder();
+    public static <P extends LocalPackage> LinkMatchingFiles<P> linkFiles(Function<Path, Path> resolver) {
+        return new LinkMatchingFiles<>(resolver);
     }
 
     /**

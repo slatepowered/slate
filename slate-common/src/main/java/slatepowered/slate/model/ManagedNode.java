@@ -75,7 +75,7 @@ public abstract class ManagedNode extends Node {
      * @param component The component.
      * @return This.
      */
-    public ManagedNode attach(NodeComponent component) {
+    public synchronized ManagedNode attach(NodeComponent component) {
         if (component == null)
             return this;
 

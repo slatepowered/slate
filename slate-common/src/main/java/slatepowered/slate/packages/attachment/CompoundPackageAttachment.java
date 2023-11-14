@@ -13,7 +13,6 @@ import java.util.List;
 
 // Links files from the installed package to a destination
 // in the node directory
-@SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
 public class CompoundPackageAttachment<P extends LocalPackage> extends PackageAttachment<P> {

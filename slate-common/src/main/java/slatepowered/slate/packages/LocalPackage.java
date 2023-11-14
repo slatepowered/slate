@@ -28,4 +28,9 @@ public abstract class LocalPackage {
      */
     private final Path path;
 
+    @SuppressWarnings("unchecked")
+    public <K extends ResolvedPackage<?, ?>> K getKey() {
+        return (K) key;
+    }
+
 }

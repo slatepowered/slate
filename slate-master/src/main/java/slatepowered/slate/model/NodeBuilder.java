@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Vector;
 
 /**
  * Builds managed node instances on the network.
@@ -27,7 +28,7 @@ public class NodeBuilder {
     /**
      * The components to set on the node.
      */
-    protected final List<NodeComponent> components = new ArrayList<>();
+    protected final List<NodeComponent> components = new Vector<>();
 
     /**
      * The tags on this node.
@@ -72,12 +73,12 @@ public class NodeBuilder {
      * @return The built node.
      */
     public MasterManagedNode build() {
-        MasterManagedNode node = new MasterManagedNode(parent, name, parent.getNetwork(), components) {
+        MasterManagedNode node = new MasterManagedNode(parent, name, parent.getNetwork(), new Vector<>()) {
             {
                 // register this node to the network
                 network.registerNode(this);
 
-                for (NodeComponent component : this.components) {
+                for (NodeComponent component : NodeBuilder.this.components) {
                     attach(component);
                 }
             }

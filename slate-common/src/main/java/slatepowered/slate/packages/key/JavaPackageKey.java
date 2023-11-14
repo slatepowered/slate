@@ -3,10 +3,9 @@ package slatepowered.slate.packages.key;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import slatepowered.slate.packages.LocalPackage;
-import slatepowered.slate.packages.PackageKey;
-import slatepowered.slate.packages.PackageManager;
-import slatepowered.slate.packages.ResolvedPackage;
+import slatepowered.slate.model.ManagedNode;
+import slatepowered.slate.model.NodeComponent;
+import slatepowered.slate.packages.*;
 import slatepowered.slate.packages.local.LocalJavaPackage;
 import slatepowered.veru.io.FileUtil;
 import slatepowered.veru.misc.Throwables;
@@ -107,6 +106,21 @@ public class JavaPackageKey extends ResolvedPackage<JavaPackageKey, LocalJavaPac
         return this;
     }
 
+    /**
+     * Get the package attachment to install/use this Java package on a node.
+     *
+     * @return The package attachment.
+     */
+    public PackageAttachment<LocalJavaPackage> attachment() {
+        return new PackageAttachment<LocalJavaPackage>(this) {
+            @Override
+            public void install(PackageManager packageManager, ManagedNode node, Path nodePath, LocalJavaPackage localPackage) {
+                // attach the local package to the node
+                node.attach(localPackage);
+            }
+        };
+    }
+
     // add the path object representation of the given string
     // if it parses successfully and the file/dir exists
     private void addPathIfPresent(List<Path> paths, String pathStr) {
@@ -191,6 +205,9 @@ public class JavaPackageKey extends ResolvedPackage<JavaPackageKey, LocalJavaPac
 
     @Override
     public LocalJavaPackage loadLocally(PackageManager manager, Path path) {
+        if (!Files.exists(path))
+            return null;
+
         try {
             // read installation path
             String installationPathStr = FileUtil.readString(path.resolve("installation"));
@@ -201,6 +218,15 @@ public class JavaPackageKey extends ResolvedPackage<JavaPackageKey, LocalJavaPac
             Throwables.sneakyThrow(e);
             throw new AssertionError();
         }
+    }
+
+    @Override
+    public String toString() {
+        return "JavaPackageKey(" +
+                "type=" + type +
+                ", version=" + version +
+                ", uuid=" + uuid +
+                ')';
     }
 
 }

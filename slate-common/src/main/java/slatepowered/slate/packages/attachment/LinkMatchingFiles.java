@@ -16,7 +16,6 @@ import java.util.function.Function;
 
 // Links files from the installed package to a destination
 // in the node directory
-@SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
 public class LinkMatchingFiles<P extends LocalPackage> extends PackageAttachment<P> {

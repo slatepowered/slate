@@ -140,27 +140,32 @@ public class PackageManager implements Service {
      * @return The package or null if absent.
      */
     @SuppressWarnings("unchecked")
-    public <P extends LocalPackage> P findPackage(PackageKey<P> key) {
+    public <P extends LocalPackage> P findOrLoadPackage(PackageKey<P> key) {
+        P localPackage = getCachedPackage(key);
+        // todo: currently joining the resolving process, idk if that's good
+        return localPackage != null ? localPackage : findOrLoadPackage(resolvePackage(key).join());
+    }
+
+    /**
+     * Find or load a locally installed package by resolved key.
+     *
+     * @param resolvedKey The resolved key.
+     * @return The package or null if absent.
+     */
+    @SuppressWarnings("unchecked")
+    public <P extends LocalPackage> P findOrLoadPackage(ResolvedPackage<?, P> resolvedKey) {
+        PackageKey<P> key = resolvedKey.getKey();
         P localPackage = getCachedPackage(key);
 
         if (localPackage == null) {
             String dirName = key.toUUID().toString();
-            Path path = null;
+            Path path = directory.resolve(dirName);
 
-            try {
-                path = Files.list(directory)
-                        .filter(p -> Files.isDirectory(p) && p.getFileName().toString().equals(dirName))
-                        .findFirst()
-                        .orElse(null);
-            } catch (Throwable t) {
-                Throwables.sneakyThrow(t);
-            }
-
-            if (path != null) {
-                // load data to local package
-                // todo: this is joining the resolve process rn idk if thats good
-                localPackage = (P) resolvePackage(key).join().loadLocally(this, path);
-            }
+            // try to load data to local package, this should
+            // check whether the path exists itself if that's needed;
+            // for dynamic packages this should working without an existing
+            // file or directory
+            localPackage = resolvedKey.loadLocally(this, path);
         }
 
         return localPackage;
@@ -175,7 +180,7 @@ public class PackageManager implements Service {
      */
     public <P extends LocalPackage> CompletableFuture<P> findOrInstallPackage(ResolvedPackage<?, P> resolvedKey) {
         PackageKey<P> key = resolvedKey.getKey();
-        P localPackage = findPackage(key);
+        P localPackage = findOrLoadPackage(resolvedKey);
         if (localPackage == null) {
             // install package
             return resolvedKey.installLocally(

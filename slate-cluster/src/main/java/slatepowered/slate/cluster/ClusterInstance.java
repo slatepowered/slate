@@ -119,7 +119,7 @@ public abstract class ClusterInstance extends ClusterNetwork {
      * @return The allocation result.
      */
     @SuppressWarnings("unchecked")
-    public NodeAllocationResult allocateAndInitializeNode(NodeAllocationRequest request) {
+    public ClusterManagedNode allocateAndInitializeNode(NodeAllocationRequest request) {
         try {
             NetworkInfoService networkInfoService = getService(NetworkInfoService.KEY);
 
@@ -149,9 +149,10 @@ public abstract class ClusterInstance extends ClusterNetwork {
             node.findComponents(NodeAllocationAdapter.class).forEach(adapter ->
                     adapter.initialize(packageManager, node, localNodeAllocation.getDirectory()));
 
-            return new NodeAllocation(node.getName(), /* todo: components to add */ new ArrayList<>());
+            return node;
         } catch (Throwable e) {
-            return new FailedNodeAllocation(e);
+            Throwables.sneakyThrow(e);
+            throw new AssertionError();
         }
     }
 
@@ -185,7 +186,13 @@ public abstract class ClusterInstance extends ClusterNetwork {
             @Override
             public NodeAllocationResult allocate(NodeAllocationRequest request) {
                 if (!isEnabled()) return new FailedNodeAllocation(new IllegalStateException("Cluster instance is not enabled"));
-                return allocateAndInitializeNode(request);
+
+                try {
+                    ClusterManagedNode node = allocateAndInitializeNode(request);
+                    return new NodeAllocation(node.getName(), /* todo: components to register */ new ArrayList<>());
+                } catch (Throwable t) {
+                    return new FailedNodeAllocation(t);
+                }
             }
 
             @Override
