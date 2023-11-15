@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Vector;
+import java.util.function.Consumer;
 
 /**
  * Builds managed node instances on the network.
@@ -72,6 +73,13 @@ public class NodeBuilder {
     public NodeBuilder attach(NodeComponent component) {
         components.add(component);
         return this;
+    }
+
+    /**
+     * @see NodeComponent#attachHook(Consumer)
+     */
+    public <N extends ManagedNode> NodeBuilder then(Consumer<N> consumer) {
+        return attach(NodeComponent.attachHook(consumer));
     }
 
     /**
