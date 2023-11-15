@@ -38,7 +38,7 @@ subprojects {
     apply plugin: "java-library"
 
     ext {
-        VERU_COMMIT = "0819f12"
+        VERU_COMMIT = "fc327c3"
         RECO_COMMIT = "9af31c4"
     }
 

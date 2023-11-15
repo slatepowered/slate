@@ -9,6 +9,9 @@ ext {
 }
 
 dependencies {
+    api "com.github.slatepowered.veru:veru-config:${project.VERU_COMMIT}"
+    api "org.yaml:snakeyaml:1.33"
+
     api project(":slate-common")
     api project(":slate-cluster")
     api project(":slate-master")
