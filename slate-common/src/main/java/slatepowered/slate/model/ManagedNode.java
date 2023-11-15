@@ -1,5 +1,6 @@
 package slatepowered.slate.model;
 
+import slatepowered.slate.logging.Logger;
 import slatepowered.slate.logging.Logging;
 import slatepowered.slate.service.Service;
 import slatepowered.slate.service.ServiceKey;
@@ -10,7 +11,6 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiFunction;
 import java.util.function.Function;
-import java.util.logging.Logger;
 
 /**
  * Represents a node you have management capabilities over.

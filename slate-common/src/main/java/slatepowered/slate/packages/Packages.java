@@ -118,7 +118,7 @@ public final class Packages {
      * @param files The files.
      * @return The attachment.
      */
-    public static <P extends LocalPackage> LoadAttachment<P> loadPluginsOrLibrariesImmediate(PackageKey<P> key, String... files) {
+    public static <P extends LocalPackage> LoadAttachment<P> loadImmediate(PackageKey<P> key, String... files) {
         return new LoadAttachment<>(key, Arrays.asList(files), true);
     }
 

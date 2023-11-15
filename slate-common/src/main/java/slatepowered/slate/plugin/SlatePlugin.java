@@ -64,6 +64,11 @@ public class SlatePlugin {
     protected volatile boolean isLoaded;
 
     /**
+     * Whether this plugin is currently successfully initialized.
+     */
+    protected volatile boolean isInitialized;
+
+    /**
      * Event: Called when this plugin should be initialized
      */
     public final Callback<Void> onInitialize = Callback.multi();
@@ -71,7 +76,7 @@ public class SlatePlugin {
     /**
      * Event: Called when this plugin is disabled/destroyed
      */
-    public final Callback<Void> onDestroy = Callback.multi();
+    public final Callback<Void> onDisable = Callback.multi();
 
     @Override
     public String toString() {

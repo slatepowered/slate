@@ -128,4 +128,15 @@ subprojects {
             filter ReplaceTokens, tokens: [version: project.version]
         }
     }
+
+    // Application Modules
+    if (project.hasProperty("mainClassName")) {
+        tasks.withType(Jar) {
+            manifest {
+                attributes(
+                        "Main-Class": project.mainClassName
+                )
+            }
+        }
+    }
 }

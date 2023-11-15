@@ -89,7 +89,8 @@ public abstract class Network implements ServiceProvider {
 
         getService(NetworkInfoService.KEY).onClose().then(unused -> {
             onCloseEvent.call(null);
-            this.onClose();
+            handleOnClose();
+            destroy();
         });
     }
 
@@ -193,6 +194,15 @@ public abstract class Network implements ServiceProvider {
     // called when the whole network is about to close
     protected void handleOnClose() {
 
+    }
+
+    /**
+     * Should be called when this local network instance is
+     * closed/destroyed, not only when the actual network is closed.
+     */
+    public void destroy() {
+        // disable network plugins
+        pluginManager.disable();
     }
 
     /* --------------- Events --------------- */

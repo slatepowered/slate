@@ -2,6 +2,8 @@ package slatepowered.slate.plugin;
 
 import com.eclipsesource.json.*;
 import lombok.RequiredArgsConstructor;
+import slatepowered.slate.logging.Logger;
+import slatepowered.slate.logging.Logging;
 import slatepowered.slate.model.Network;
 import slatepowered.veru.io.IOUtil;
 import slatepowered.veru.misc.Throwables;
@@ -10,6 +12,7 @@ import slatepowered.veru.reflect.Classloading;
 import java.io.InputStream;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.function.Predicate;
@@ -21,6 +24,8 @@ import java.util.stream.StreamSupport;
  */
 @RequiredArgsConstructor
 public abstract class SlatePluginManager {
+
+    private static final Logger LOGGER = Logging.getLogger("SlatePluginManager");
 
     /**
      * The resource to find the plugin configuration at.
@@ -35,7 +40,7 @@ public abstract class SlatePluginManager {
     /**
      * The list of all plugins loaded by this plugin manager.
      */
-    protected final Map<String, SlatePlugin> plugins = new HashMap<>();
+    protected final Map<String, SlatePlugin> plugins = new LinkedHashMap<>();
 
     /**
      * Get the name of the local environment.
@@ -221,6 +226,11 @@ public abstract class SlatePluginManager {
             JsonObject pluginDesc = JsonObject.readFrom(strContent);
 
             final String pluginId = pluginDesc.getString("id", null);
+            if (plugins.containsKey(pluginId)) {
+                throw new IllegalStateException("Attempt to load plugin with id `" + pluginId + "` twice\n" +
+                        "  original " + plugins.get(pluginId) + ", duplicate from file(" + path +")");
+            }
+
             final String pluginName = pluginDesc.getString("name", null);
             final String pluginVersion = pluginDesc.getString("version", null);
 
@@ -296,6 +306,66 @@ public abstract class SlatePluginManager {
             plugin.isLoaded = true;
         } catch (Throwable t) {
             throw new RuntimeException("An error occurred while loading plugin(id: " + plugin.getId() + " version: " + plugin.getVersion() + ")", t);
+        }
+    }
+
+    /**
+     * Find all plugin files in the given directory and load them,
+     * composing them into a list of constructed plugin instances.
+     *
+     * @param dir The directory.
+     * @return The successfully constructed instances.
+     */
+    public List<SlatePlugin> constructPluginsFromDirectory(Path dir) {
+        try {
+            final List<SlatePlugin> plugins = new ArrayList<>();
+            if (!Files.exists(dir))
+                return plugins;
+
+            // list plugin files
+            Files.list(dir).forEach(path -> {
+                try {
+                    // load plugin
+                    SlatePlugin plugin = constructFromFile(path);
+                    plugins.add(plugin);
+                } catch (Throwable t) {
+                    t.printStackTrace();
+                }
+            });
+
+            return plugins;
+        } catch (Throwable t) {
+            throw new RuntimeException("Failed to construct plugins from directory(" + dir + ")", t);
+        }
+    }
+
+    /**
+     * Mark the plugin manager as initialized after invoking
+     * the initialization event on every plugin.
+     */
+    public void initialize() {
+        for (SlatePlugin plugin : plugins.values()) {
+            try {
+                plugin.onInitialize.call();
+                plugin.isInitialized = true;
+            } catch (Throwable t) {
+                throw new RuntimeException("An error occurred while initializing " + plugin, t);
+            }
+        }
+    }
+
+    /**
+     * Closes this plugin manager and invokes the plugin disable/destroy event.
+     */
+    public void disable() {
+        for (SlatePlugin plugin : plugins.values()) {
+            try {
+                plugin.onDisable.call();
+            } catch (Throwable t) {
+                throw new RuntimeException("An error occurred while disabling " + plugin, t);
+            }
+
+            plugin.isInitialized = false;
         }
     }
 

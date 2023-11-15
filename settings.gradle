@@ -3,4 +3,5 @@ include 'slate-common'
 include 'slate-master'
 include 'slate-cluster'
 include 'slate-communication-rmq'
+include 'slate-master-bootstrap'
 

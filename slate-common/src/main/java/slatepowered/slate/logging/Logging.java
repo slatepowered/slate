@@ -1,7 +1,5 @@
 package slatepowered.slate.logging;
 
-import java.util.logging.Logger;
-
 /**
  * Common logging utilities for consistent logging.
  */
@@ -12,8 +10,28 @@ public class Logging {
      */
     public static final boolean DEBUG;
 
+    /**
+     * The current set logger provider.
+     */
+    private static LoggerProvider provider;
+
     static {
         DEBUG = Boolean.parseBoolean(System.getProperty("slate.debug", "false"));
+    }
+
+    public static void setProvider(LoggerProvider provider1) {
+        if (provider != null)
+            return; // silently fail
+        provider = provider1;
+    }
+
+    /**
+     * Get the currently active logger provider.
+     *
+     * @return The logger provider.
+     */
+    public static LoggerProvider getProvider() {
+        return provider;
     }
 
     /**
@@ -23,7 +41,7 @@ public class Logging {
      * @return The logger.
      */
     public static Logger getLogger(String name) {
-        return Logger.getLogger(name);
+        return provider != null ? provider.getLogger(name) : Logger.voiding();
     }
 
 }

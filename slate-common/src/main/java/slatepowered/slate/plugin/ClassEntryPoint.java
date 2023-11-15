@@ -53,7 +53,7 @@ final class ClassEntryPoint implements CompiledPluginEntrypoint {
 
         // register events
         plugin.onInitialize.then(__ -> instance.onInitialize(plugin, manager.getNetwork()));
-        plugin.onDestroy.then(__ -> instance.onDisable(plugin, manager.getNetwork()));
+        plugin.onDisable.then(__ -> instance.onDisable(plugin, manager.getNetwork()));
     }
 
 }
