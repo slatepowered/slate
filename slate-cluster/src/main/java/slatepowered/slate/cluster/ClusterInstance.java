@@ -13,6 +13,7 @@ import slatepowered.slate.packages.PackageAttachment;
 import slatepowered.slate.packages.PackageManager;
 import slatepowered.slate.packages.Packages;
 import slatepowered.slate.packages.service.LateAttachmentService;
+import slatepowered.slate.plugin.SlatePluginManager;
 import slatepowered.veru.misc.Throwables;
 
 import java.nio.file.Files;
@@ -54,6 +55,18 @@ public abstract class ClusterInstance extends ClusterNetwork {
         } catch (Throwable t) {
             Throwables.sneakyThrow(t);
         }
+    }
+
+    @Override
+    protected SlatePluginManager createPluginManager() {
+        return new SlatePluginManager(this) {
+            final String[] envNames = new String[] { "nodehost", "host", "cluster" };
+
+            @Override
+            public String[] getEnvironmentNames() {
+                return envNames;
+            }
+        };
     }
 
     /**

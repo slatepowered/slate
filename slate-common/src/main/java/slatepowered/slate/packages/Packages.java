@@ -104,8 +104,22 @@ public final class Packages {
      * @param files The files.
      * @return The attachment.
      */
-    public static <P extends LocalPackage> LoadLibraryAttachment<P> loadLibrariesImmediate(PackageKey<P> key, String... files) {
-        return new LoadLibraryAttachment<>(key, Arrays.asList(files));
+    public static <P extends LocalPackage> LoadAttachment<P> loadLibrariesImmediate(PackageKey<P> key, String... files) {
+        return new LoadAttachment<>(key, Arrays.asList(files), false);
+    }
+
+    /**
+     * Immediately loads the given files as libraries and plugins if possible on the receiver
+     * of the attachments, not on the node it is installed to.
+     *
+     * This will fail if the node it is received by is not the node it is
+     * supposed to be installed on.
+     *
+     * @param files The files.
+     * @return The attachment.
+     */
+    public static <P extends LocalPackage> LoadAttachment<P> loadPluginsOrLibrariesImmediate(PackageKey<P> key, String... files) {
+        return new LoadAttachment<>(key, Arrays.asList(files), true);
     }
 
     // Flattens the given attachment and it's dependencies into the given list,

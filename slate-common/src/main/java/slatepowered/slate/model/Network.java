@@ -6,6 +6,7 @@ import slatepowered.reco.rpc.RPCManager;
 import slatepowered.slate.communication.CommunicationKey;
 import slatepowered.slate.communication.CommunicationStrategy;
 import slatepowered.slate.network.NetworkInfoService;
+import slatepowered.slate.plugin.SlatePluginManager;
 import slatepowered.slate.security.NetworkRPCSecurityManager;
 import slatepowered.slate.service.Service;
 import slatepowered.slate.service.ServiceManager;
@@ -49,6 +50,11 @@ public abstract class Network implements ServiceProvider {
     protected final ServiceManager serviceManager;
 
     /**
+     * The plugin manager for this network.
+     */
+    protected final SlatePluginManager pluginManager;
+
+    /**
      * All nodes by name.
      */
     protected final Map<String, Node> nodeMap = new ConcurrentHashMap<>();
@@ -79,10 +85,28 @@ public abstract class Network implements ServiceProvider {
         this.serviceManager = new ServiceManager(this)
                 .registerSingleton(RPCManager.class, rpcManager);
 
+        this.pluginManager = createPluginManager();
+
         getService(NetworkInfoService.KEY).onClose().then(unused -> {
             onCloseEvent.call(null);
             this.onClose();
         });
+    }
+
+    /**
+     * Create a new plugin manager for this environment.
+     *
+     * @return The plugin manager.
+     */
+    protected abstract SlatePluginManager createPluginManager();
+
+    /**
+     * Get the local plugin manager for this local network.
+     *
+     * @return The plugin manager.
+     */
+    public SlatePluginManager getPluginManager() {
+        return pluginManager;
     }
 
     public CommunicationKey getCommunicationKey() {

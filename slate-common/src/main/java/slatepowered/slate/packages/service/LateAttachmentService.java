@@ -1,6 +1,7 @@
 package slatepowered.slate.packages.service;
 
 import slatepowered.reco.rpc.RemoteAPI;
+import slatepowered.reco.rpc.function.Allow;
 import slatepowered.slate.packages.PackageAttachment;
 import slatepowered.slate.service.Service;
 import slatepowered.slate.service.ServiceKey;
@@ -26,6 +27,7 @@ public interface LateAttachmentService extends Service, RemoteAPI {
      *
      * @param attachments The attachments.
      */
+    @Allow("master")
     void attachImmediate(List<PackageAttachment<?>> attachments);
 
     CompletableFuture<Void> attachImmediateAsync(List<PackageAttachment<?>> attachments);

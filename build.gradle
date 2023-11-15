@@ -1,3 +1,5 @@
+import org.apache.tools.ant.filters.ReplaceTokens
+
 group 'com.github.slatepowered.slate'
 
 buildscript {
@@ -110,5 +112,20 @@ subprojects {
 
     tasks.test {
         useJUnitPlatform()
+    }
+
+    // Make build task depend on shadowJar
+    if (plugins.hasPlugin("com.github.johnrengelman.shadow")) {
+        tasks.getByName("build") {
+            dependsOn(tasks.getByName("shadowJar"))
+        }
+    }
+
+    processResources {
+        duplicatesStrategy = 'include'
+
+        from(sourceSets.main.resources.srcDirs) {
+            filter ReplaceTokens, tokens: [version: project.version]
+        }
     }
 }

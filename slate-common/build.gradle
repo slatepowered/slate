@@ -4,6 +4,9 @@ dependencies {
     api "com.github.slatepowered.veru:veru-java8:${project.VERU_COMMIT}"
     api "com.github.slatepowered.reco:reco-core:${project.RECO_COMMIT}"
     api "com.github.slatepowered.reco:reco-rpc:${project.RECO_COMMIT}"
+
+    implementation 'com.eclipsesource.minimal-json:minimal-json:0.9.5'
+
     testImplementation "com.github.slatepowered.reco:reco-core-rmq:${project.RECO_COMMIT}"
     testImplementation "com.github.slatepowered.reco:reco-serializer-kryo:${project.RECO_COMMIT}"
 }

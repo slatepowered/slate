@@ -7,8 +7,8 @@ import slatepowered.slate.communication.CommunicationStrategy;
 import slatepowered.slate.model.MasterManagedNode;
 import slatepowered.slate.model.MasterNetwork;
 import slatepowered.slate.network.NetworkInfoService;
-import slatepowered.slate.packages.PackageKey;
 import slatepowered.slate.packages.PackageManager;
+import slatepowered.slate.plugin.SlatePluginManager;
 import slatepowered.veru.data.Pair;
 
 import java.nio.file.Path;
@@ -110,6 +110,18 @@ public class Master extends MasterNetwork {
                 return new NodeInfo(node.getName(), node.getParent().getName(), node.getTags());
             }
         });
+    }
+
+    @Override
+    protected SlatePluginManager createPluginManager() {
+        return new SlatePluginManager(this) {
+            final String[] envNames = new String[] { "master", "controller" };
+
+            @Override
+            public String[] getEnvironmentNames() {
+                return envNames;
+            }
+        };
     }
 
     /**
