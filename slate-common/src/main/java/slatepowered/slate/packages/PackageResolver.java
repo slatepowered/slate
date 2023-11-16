@@ -17,7 +17,7 @@ public interface PackageResolver {
      * @return Whether the key is supported.
      */
     boolean canResolve(PackageManager manager,
-                       PackageKey key);
+                       PackageKey<?> key);
 
     /**
      * Try and resolve the given package key if supported by

@@ -50,6 +50,13 @@ public abstract class CommunicationStrategy {
     protected abstract CommunicationProvider<?> createCommunicationProvider(CommunicationKey key) throws Exception;
 
     /**
+     * Create a new, random communication key.
+     *
+     * @return The key.
+     */
+    public abstract CommunicationKey createKey();
+
+    /**
      * Get or create an RPC manager for the given communication key.
      *
      * @param key The key.

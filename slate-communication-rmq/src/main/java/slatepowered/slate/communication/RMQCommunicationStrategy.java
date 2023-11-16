@@ -8,6 +8,7 @@ import slatepowered.reco.rmq.RMQProvider;
 import slatepowered.reco.serializer.KryoSerializer;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 
 /**
  * A communication strategy implementation which utilizes one RabbitMQ node.
@@ -40,6 +41,12 @@ public class RMQCommunicationStrategy extends CommunicationStrategy {
     }
 
     @Override
+    public CommunicationKey createKey() {
+        return new RMQCommunicationKey("slatenetwork:" +
+                Integer.toHexString((short)(Math.random() * Short.MAX_VALUE)));
+    }
+
+    @Override
     public RMQCommunicationStrategy localName(String localName) {
         super.localName(localName);
         return this;
@@ -58,7 +65,7 @@ public class RMQCommunicationStrategy extends CommunicationStrategy {
         private String password;
         private String virtualHost = "/";
 
-        private RMQCommunicationStrategy build() {
+        public RMQCommunicationStrategy build() {
             try {
                 return new RMQCommunicationStrategy(rmqChannel == null ?
                         RMQProvider.makeConnection(host, port, username, password, virtualHost) :

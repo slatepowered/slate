@@ -1,0 +1,27 @@
+#
+# Slate Network Master Controller Bootstrap
+# Configuration (created on @version@)
+#
+
+# Communication settings
+communication:
+
+  # The strategy/provider to use
+  # - RabbitMQ: rmq | rabbitmq
+  strategy: rmq
+
+  # RabbitMQ configuration, only of use if
+  # the strategy above is set to RabbitMQ
+  rabbitmq:
+    host: 127.0.0.1 # The IP address of the RabbitMQ node
+    port: 5672      # The port the RabbitMQ node is bound to (default = 5672)
+    username: guest # The user to use for the RabbitMQ connection
+    password: guest # The password for authentication with the aforementioned user
+    vhost: "/"      # The virtual host name (default = '/')
+
+# The data directory of the master
+directory: "./"
+
+# The directory where the plugins should be loaded from,
+# this is resolved under the above defined data directory
+pluginsDirectory: "plugins"
