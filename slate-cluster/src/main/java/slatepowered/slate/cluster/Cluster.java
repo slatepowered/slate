@@ -69,6 +69,13 @@ public abstract class Cluster<I extends ClusterInstance> {
     }
 
     /**
+     * Get the shared cluster directory.
+     *
+     * @return The cluster directory.
+     */
+    public abstract Path getClusterDirectory();
+
+    /**
      * Start this cluster' operations.
      */
     public abstract void start();

@@ -25,6 +25,11 @@ public class IntegratedCluster extends Cluster<IntegratedClusterInstance> {
     }
 
     @Override
+    public Path getClusterDirectory() {
+        return theInstance.directory;
+    }
+
+    @Override
     public PackageManager getLocalPackageManager() {
         return master.getLocalPackageManager();
     }

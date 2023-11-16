@@ -97,6 +97,11 @@ public class DedicatedCluster extends Cluster<DedicatedClusterInstance> {
         return directory.resolve("instances").resolve(Integer.toHexString(instance.getCommunicationKey().hashCode()));
     }
 
+    @Override
+    public Path getClusterDirectory() {
+        return directory;
+    }
+
     /**
      * Get the local package manager.
      *
