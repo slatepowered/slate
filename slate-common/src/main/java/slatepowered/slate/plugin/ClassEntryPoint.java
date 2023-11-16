@@ -3,8 +3,11 @@ package slatepowered.slate.plugin;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import slatepowered.slate.model.Network;
+import slatepowered.veru.reflect.ReflectUtil;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 
 /**
  * Represents a simple entry point which loads a class extending
@@ -30,6 +33,11 @@ final class ClassEntryPoint implements CompiledPluginEntrypoint {
      */
     protected transient PluginEntrypoint<Network> instance;
 
+    /**
+     * The network class defined when implementing PluginEntrypoint.
+     */
+    protected transient Class<? extends Network> networkClass;
+
     @Override
     public boolean isValid(SlatePlugin plugin, SlatePluginManager manager) throws Throwable {
         return true;
@@ -44,6 +52,18 @@ final class ClassEntryPoint implements CompiledPluginEntrypoint {
             throw new IllegalArgumentException("Class " + loadedClass.getName() + " set as entrypoint of " + plugin + " does not implement PluginEntrypoint");
         }
 
+        // find the network type
+        for (Type type : loadedClass.getGenericInterfaces()) {
+            if (type.getTypeName().equals(PluginEntrypoint.class.getTypeName())) {
+                if (type instanceof ParameterizedType) {
+                    networkClass = (Class<? extends Network>) ReflectUtil.getClassForType(((ParameterizedType) type).getActualTypeArguments()[0]);
+                } else {
+                    // no type parameter found, use plain Network class
+                    networkClass = Network.class;
+                }
+            }
+        }
+
         // create instance
         Constructor<?> constructor = loadedClass.getConstructor();
         instance = (PluginEntrypoint<Network>) constructor.newInstance();
@@ -52,8 +72,10 @@ final class ClassEntryPoint implements CompiledPluginEntrypoint {
         instance.onLoad(plugin);
 
         // register events
-        plugin.onInitialize.then(net -> instance.onInitialize(plugin, net));
-        plugin.onDisable.then(net -> instance.onDisable(plugin, net));
+        plugin.onInitialize.then(net -> { if (!networkClass.isAssignableFrom(net.getClass()))
+            instance.onInitialize(plugin, net); });
+        plugin.onDisable.then(net -> { if (!networkClass.isAssignableFrom(net.getClass()))
+            instance.onDisable(plugin, net); });
     }
 
 }

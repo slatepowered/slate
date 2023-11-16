@@ -28,6 +28,16 @@ public interface CompiledPluginEntrypoint {
     void loadAndExecute(SlatePlugin plugin, SlatePluginManager manager) throws Throwable;
 
     /**
+     * Expand this entrypoint to a list of more entry points to register.
+     *
+     * @param manager The manager.
+     * @return The list of entry points.
+     */
+    default List<CompiledPluginEntrypoint> expand(SlatePluginManager manager) {
+        return null;
+    }
+
+    /**
      * Only load and execute this entrypoint if all the given
      * predicates pass.
      *

@@ -1,10 +1,10 @@
 package slatepowered.slate.plugin;
 
 import com.eclipsesource.json.*;
-import lombok.RequiredArgsConstructor;
 import slatepowered.slate.logging.Logger;
 import slatepowered.slate.logging.Logging;
 import slatepowered.slate.model.Network;
+import slatepowered.slate.packages.PackageManager;
 import slatepowered.veru.io.IOUtil;
 import slatepowered.veru.misc.Throwables;
 import slatepowered.veru.reflect.Classloading;
@@ -22,7 +22,6 @@ import java.util.stream.StreamSupport;
 /**
  * Dynamically loads/manages {@link SlatePlugin} instances.
  */
-@RequiredArgsConstructor
 public abstract class SlatePluginManager {
 
     private static SlatePluginManager instance;
@@ -43,6 +42,15 @@ public abstract class SlatePluginManager {
      * The resource to find the plugin configuration at.
      */
     private static final String pluginDataResource = "slate.plugin.json";
+
+    protected SlatePluginManager(PackageManager packageManager) {
+        this.packageManager = packageManager;
+    }
+
+    /**
+     * The local package manager.
+     */
+    protected final PackageManager packageManager;
 
     /**
      * The list of all plugins loaded by this plugin manager.
@@ -248,12 +256,24 @@ public abstract class SlatePluginManager {
                     .filter(Objects::nonNull)
                     .collect(Collectors.toList()) : new ArrayList<>();
 
-            // parse entry points
-            final List<CompiledPluginEntrypoint> entrypoints = pluginEntrypointArray != null ? StreamSupport.stream(
+            // parse entrypoints from the json
+            List<CompiledPluginEntrypoint> entrypoints = pluginEntrypointArray != null ? StreamSupport.stream(
                     Spliterators.spliterator(pluginEntrypointArray.iterator(), pluginEntrypointArray.size(), 0), false)
                     .map(v -> parseEntrypoint(v.asObject()))
                     .filter(Objects::nonNull)
                     .collect(Collectors.toList()) : new ArrayList<>();
+
+            // expand the parsed entrypoints
+            List<CompiledPluginEntrypoint> unexpandedEntrypoints = entrypoints;
+            entrypoints = new ArrayList<>();
+            for (CompiledPluginEntrypoint entrypoint : unexpandedEntrypoints) {
+                List<CompiledPluginEntrypoint> expanded = entrypoint.expand(this);
+                if (expanded == null) {
+                    entrypoints.add(entrypoint);
+                } else {
+                    entrypoints.addAll(expanded);
+                }
+            }
 
             // load plugin JAR to the class loader
             Classloading.addURLs(ClassLoader.getSystemClassLoader(),

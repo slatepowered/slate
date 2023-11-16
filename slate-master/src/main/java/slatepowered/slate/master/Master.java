@@ -52,7 +52,7 @@ public class Master extends MasterNetwork {
 
         localPackageManager = new PackageManager(directory.resolve("packages"));
 
-        this.pluginManager = new SlatePluginManager() {
+        this.pluginManager = new SlatePluginManager(localPackageManager) {
             final String[] envNames = new String[] { "master", "controller" };
 
             @Override

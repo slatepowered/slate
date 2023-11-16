@@ -1,10 +1,7 @@
 package slatepowered.slate.cluster;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import slatepowered.slate.allocation.ClusterAllocationChecker;
 import slatepowered.slate.allocation.LocalNodeAllocation;
 import slatepowered.slate.communication.CommunicationKey;
 import slatepowered.slate.packages.PackageManager;
@@ -43,7 +40,7 @@ public abstract class Cluster<I extends ClusterInstance> {
     /**
      * The local plugin manager.
      */
-    protected final SlatePluginManager pluginManager = new SlatePluginManager() {
+    protected final SlatePluginManager pluginManager = new SlatePluginManager(getLocalPackageManager()) {
         final String[] envNames = new String[] { "nodehost", "host", "cluster" };
 
         @Override
