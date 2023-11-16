@@ -23,7 +23,7 @@ public class CompoundPackageAttachment<P extends LocalPackage> extends PackageAt
     protected List<PackageAttachment<P>> list;
 
     @Override
-    public void install(PackageManager packageManager, ManagedNode node, Path nodePath, P localPackage) {
+    protected void install0(PackageManager packageManager, ManagedNode node, Path nodePath, P localPackage) {
         for (PackageAttachment<P> attachment : list) {
             attachment.install(packageManager, node, nodePath, localPackage);
         }

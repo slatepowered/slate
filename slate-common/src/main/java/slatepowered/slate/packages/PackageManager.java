@@ -85,9 +85,11 @@ public class PackageManager implements Service {
      */
     @SuppressWarnings("unchecked")
     protected <P extends LocalPackage> CompletableFuture<ResolvedPackage<?, P>> resolvePackage0(PackageKey<P> key) {
+        LOGGER.info("Resolving package key: " + key);
         if (key.baseKey() instanceof TrivialPackageKey) {
             CompletableFuture<ResolvedPackage<?, P>> future = ((TrivialPackageKey<P>)key.baseKey()).resolve(this);
             if (future != null) {
+                LOGGER.info(" - Resolved by TrivialPackageKey");
                 return future;
             }
         }
@@ -98,6 +100,7 @@ public class PackageManager implements Service {
                 CompletableFuture<ResolvedPackage<?, ?>> future =
                         resolver.tryResolve(this, key);
                 if (future != null) {
+                    LOGGER.info(" - Resolved by PackageResolver: " + resolver);
                     return (CompletableFuture<ResolvedPackage<?,P>>)(Object) future;
                 }
             }
@@ -127,6 +130,7 @@ public class PackageManager implements Service {
                 return;
             }
 
+            LOGGER.info("Resolved packageKey(" + key + ") -> resolvedPackage(" + resolved + ")");
             resolvedPackageCache.put(key, resolved);
 
             // store this result in the package instance
@@ -157,6 +161,7 @@ public class PackageManager implements Service {
      */
     @SuppressWarnings("unchecked")
     public <P extends LocalPackage> P findOrLoadPackage(ResolvedPackage<?, P> resolvedKey) {
+        LOGGER.info("Find or load package resolvedKey(" + resolvedKey + ")");
         PackageKey<P> key = resolvedKey.getKey();
         P localPackage = getCachedPackage(key);
 
@@ -168,6 +173,7 @@ public class PackageManager implements Service {
             // check whether the path exists itself if that's needed;
             // for dynamic packages this should working without an existing
             // file or directory
+            LOGGER.info("Loading installed package data from path(" + path + ") by(" + resolvedKey + ")");
             localPackage = resolvedKey.loadLocally(this, path);
         }
 
@@ -186,6 +192,7 @@ public class PackageManager implements Service {
         P localPackage = findOrLoadPackage(resolvedKey);
         if (localPackage == null) {
             // install package
+            LOGGER.info("Installing package resolvedKey(" + resolvedKey + ") uuid(" + key.toUUID() + ")");
             return resolvedKey.installLocally(
                     this,
                     this.directory.resolve(key.toUUID().toString())

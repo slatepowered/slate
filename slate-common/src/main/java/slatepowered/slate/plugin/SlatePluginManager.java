@@ -292,6 +292,8 @@ public abstract class SlatePluginManager {
             return;
 
         try {
+            LOGGER.info("Loading ", plugin);
+
             // ensure dependencies are loaded
             for (PluginDependency dependency : plugin.getDependencies()) {
                 dependency.ensureLoaded(plugin, this);

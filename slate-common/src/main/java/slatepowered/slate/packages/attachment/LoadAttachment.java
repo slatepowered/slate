@@ -49,7 +49,7 @@ public class LoadAttachment<P extends LocalPackage> extends PackageAttachment<P>
     }
 
     @Override
-    public void install(PackageManager packageManager, ManagedNode node, Path nodePath, P localPackage) {
+    protected void install0(PackageManager packageManager, ManagedNode node, Path nodePath, P localPackage) {
         if (node.getNetwork().local() != node) {
             throw new IllegalArgumentException("Can not immediately load library for a remote node");
         }

@@ -30,7 +30,7 @@ public class TargetedPackageAttachment<P extends LocalPackage> extends PackageAt
     protected PackageTarget target;
 
     @Override
-    public void install(PackageManager packageManager, ManagedNode node, Path nodePath, P localPackage) {
+    protected void install0(PackageManager packageManager, ManagedNode node, Path nodePath, P localPackage) {
         attachment.install(packageManager, node, nodePath, localPackage);
     }
 

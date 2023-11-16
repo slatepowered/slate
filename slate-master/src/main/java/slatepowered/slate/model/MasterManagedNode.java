@@ -3,6 +3,7 @@ package slatepowered.slate.model;
 import slatepowered.slate.action.InitializationResult;
 import slatepowered.slate.action.NodeDestroyAdapter;
 import slatepowered.slate.action.NodeInitializeAdapter;
+import slatepowered.slate.logging.Logger;
 
 import java.util.Collections;
 import java.util.List;
@@ -34,6 +35,7 @@ public abstract class MasterManagedNode extends ManagedNode {
      * @return The initialization result future.
      */
     public CompletableFuture<MasterManagedNode> initialize() {
+        LOGGER.debug("Initializing node `", name, "` on master");
         CompletableFuture<MasterManagedNode> future =
                 this.<MasterManagedNode, NodeInitializeAdapter>
                         runVoidAction(NodeInitializeAdapter.class, NodeInitializeAdapter::create, null)
@@ -52,6 +54,7 @@ public abstract class MasterManagedNode extends ManagedNode {
      * @return The
      */
     public CompletableFuture<Void> destroy() {
+        LOGGER.debug("Destroying node `", name, "` on master");
         CompletableFuture<Void> future =
                 this.runVoidAction(NodeDestroyAdapter.class, NodeDestroyAdapter::destroy, null)
                 .thenApply(unused -> {

@@ -116,7 +116,7 @@ public class JavaPackageKey extends ResolvedPackage<JavaPackageKey, LocalJavaPac
     public PackageAttachment<LocalJavaPackage> attachment() {
         return new PackageAttachment<LocalJavaPackage>(this) {
             @Override
-            public void install(PackageManager packageManager, ManagedNode node, Path nodePath, LocalJavaPackage localPackage) {
+            public void install0(PackageManager packageManager, ManagedNode node, Path nodePath, LocalJavaPackage localPackage) {
                 // attach the local package to the node
                 node.attach(localPackage);
             }
