@@ -42,14 +42,22 @@ public class MasterBootstrap {
     private static final String CONFIG_DEFAULTS = "/config.defaults.yml";
     private static final Logger LOGGER = Logging.getLogger("MasterBootstrap");
 
+    private static Configuration config;
+    private static Master master;
+
     public static void main(String[] args) {
+        start(args);
+        awaitClose();
+    }
+
+    public static void start(String[] args) {
         // todo: parse config and options
         //  make options replace config values
         //  then actually start the Master instance
 
         // load init configuration
         LOGGER.info("Loading configuration and command line overrides");
-        Configuration config = new Configuration().withParser(YamlConfigParser.standard());
+        config = new Configuration().withParser(YamlConfigParser.standard());
         config.reloadOrDefaultThrowing(CONFIG_PATH, CONFIG_DEFAULTS);
 
         // parse args (config overrides)
@@ -89,7 +97,7 @@ public class MasterBootstrap {
 
         // create master network
         LOGGER.info("Bootstrapping network controller");
-        Master master = new Master(
+        master = new Master(
                 Paths.get(config.getOrDefault("directory", "./")),
                 communicationStrategy.createKey(),
                 communicationStrategy
@@ -127,9 +135,16 @@ public class MasterBootstrap {
                 });
             }
         }
+    }
 
+    public static void awaitClose() {
         // await network close
         master.onClose().await().join();
+    }
+
+    /** Starts a non-daemon thread which waits for the network to be destroyed. */
+    public static void awaitCloseAsync() {
+        new Thread(MasterBootstrap::awaitClose, "Network Close Listener");
     }
 
     // Connect to a RabbitMQ and create the communication strategy
@@ -141,6 +156,14 @@ public class MasterBootstrap {
                 .password(config.get("password"))
                 .virtualHost(config.get("vhost"))
                 .build();
+    }
+
+    public static Master getMaster() {
+        return master;
+    }
+
+    public static Configuration getConfiguration() {
+        return config;
     }
 
 }
