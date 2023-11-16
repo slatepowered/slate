@@ -35,19 +35,13 @@ public abstract class MasterManagedNode extends ManagedNode {
      */
     public CompletableFuture<MasterManagedNode> initialize() {
         CompletableFuture<MasterManagedNode> future =
-                this.runVoidAction(NodeInitializeAdapter.class, NodeInitializeAdapter::create, null)
-                        .thenApply(__ -> this);
-        future.whenComplete((result, err) -> {
-            if (err != null) {
-                LOGGER.warning("Failed to initialize node(" + this.name + ")");
-                err.printStackTrace();
-                return;
-            }
-
-            MasterNetwork masterNetwork = getNetwork();
-            masterNetwork.onNodeInitialize(this);
-            LOGGER.info("Successfully initialized node(" + this.name + ")");
-        });
+                this.<MasterManagedNode, NodeInitializeAdapter>
+                        runVoidAction(NodeInitializeAdapter.class, NodeInitializeAdapter::create, null)
+                        .thenApply(node1 -> {
+                            MasterNetwork masterNetwork = getNetwork();
+                            masterNetwork.onNodeInitialize(this);
+                            return node1;
+                        });
 
         return future;
     }
@@ -59,17 +53,12 @@ public abstract class MasterManagedNode extends ManagedNode {
      */
     public CompletableFuture<Void> destroy() {
         CompletableFuture<Void> future =
-                this.runVoidAction(NodeDestroyAdapter.class, NodeDestroyAdapter::destroy, null);
-        future.whenComplete((unused, err) -> {
-            if (err != null) {
-                LOGGER.warning("Destruction of node(" + this.name + ") encountered an error while running action");
-                err.printStackTrace();
-            }
-
-            MasterNetwork masterNetwork = getNetwork();
-            masterNetwork.destroyNode(this);
-            LOGGER.info("Destroyed node(" + this.name + ")");
-        });
+                this.runVoidAction(NodeDestroyAdapter.class, NodeDestroyAdapter::destroy, null)
+                .thenApply(unused -> {
+                    MasterNetwork masterNetwork = getNetwork();
+                    masterNetwork.destroyNode(this);
+                    return null;
+                });
 
         return future;
     }
