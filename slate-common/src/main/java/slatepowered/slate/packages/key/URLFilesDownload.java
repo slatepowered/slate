@@ -3,11 +3,14 @@ package slatepowered.slate.packages.key;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import slatepowered.slate.logging.Logger;
+import slatepowered.slate.logging.Logging;
 import slatepowered.slate.packages.PackageKey;
 import slatepowered.slate.packages.PackageManager;
 import slatepowered.slate.packages.local.LocalFilesPackage;
 import slatepowered.veru.data.Pair;
 import slatepowered.veru.io.IOUtil;
+import slatepowered.veru.misc.Throwables;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -23,6 +26,8 @@ import java.util.concurrent.CompletableFuture;
 @NoArgsConstructor
 @Getter
 public class URLFilesDownload extends ResolvedPackageKeyUnion<URLFilesDownload, LocalFilesPackage> {
+
+    private static final Logger LOGGER = Logging.getLogger("URLFilesDownload");
 
     public static URLFilesDownload download(String... arr) {
         if (arr.length % 2 != 0) {
@@ -49,15 +54,22 @@ public class URLFilesDownload extends ResolvedPackageKeyUnion<URLFilesDownload, 
     @Override
     public CompletableFuture<LocalFilesPackage> installLocally(PackageManager manager, Path path) {
         return CompletableFuture.supplyAsync(() -> {
-            for (Pair<String, String> pair : files) {
-                String url = pair.getFirst();
-                String filename = pair.getSecond();
+            try {
+                for (Pair<String, String> pair : files) {
+                    String url = pair.getFirst();
+                    String filename = pair.getSecond();
 
-                Path outputFile = path.resolve(filename);
-                IOUtil.download(IOUtil.parseURL(url), outputFile);
+                    Path outputFile = path.resolve(filename);
+                    Files.createDirectories(outputFile);
+                    LOGGER.debug("Downloading online content to file(" + outputFile + ") from url(" + url + ")");
+                    IOUtil.download(IOUtil.parseURL(url), outputFile);
+                }
+
+                return new LocalFilesPackage(manager, this, path);
+            } catch (Exception e) {
+                Throwables.sneakyThrow(e);
+                throw new AssertionError();
             }
-
-            return new LocalFilesPackage(manager, this, path);
         });
     }
 

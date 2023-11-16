@@ -174,8 +174,9 @@ public class PackageManager implements Service {
             // check whether the path exists itself if that's needed;
             // for dynamic packages this should working without an existing
             // file or directory
-            LOGGER.info("Loading installed package data from path(" + path + ") by(" + resolvedKey + ")");
+            LOGGER.debug("Trying to load installed package data from path(" + path + ") by(" + resolvedKey + ")");
             localPackage = resolvedKey.loadLocally(this, path);
+            LOGGER.debug("= " + localPackage);
         }
 
         return localPackage;
@@ -198,6 +199,9 @@ public class PackageManager implements Service {
                     this,
                     this.directory.resolve(key.toUUID().toString())
             ).exceptionally(throwable -> {
+                LOGGER.warn("Failed to install package " + resolvedKey);
+                throwable.printStackTrace();
+
                 throw new RuntimeException("Failed to install package " + resolvedKey, throwable);
             });
         }
