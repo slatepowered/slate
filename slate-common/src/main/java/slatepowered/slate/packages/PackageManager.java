@@ -1,5 +1,7 @@
 package slatepowered.slate.packages;
 
+import slatepowered.slate.logging.Logger;
+import slatepowered.slate.logging.Logging;
 import slatepowered.slate.packages.key.TrivialPackageKey;
 import slatepowered.slate.service.Service;
 import slatepowered.slate.service.ServiceKey;
@@ -12,7 +14,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Logger;
 
 /**
  * Locally manages and caches packages.
@@ -20,7 +21,7 @@ import java.util.logging.Logger;
 @SuppressWarnings("rawtypes")
 public class PackageManager implements Service {
 
-    private static final Logger LOGGER = Logger.getLogger("PackageManager");
+    private static final Logger LOGGER = Logging.getLogger("PackageManager");
 
     public static final ServiceKey<PackageManager> KEY = ServiceKey.local(PackageManager.class);
 

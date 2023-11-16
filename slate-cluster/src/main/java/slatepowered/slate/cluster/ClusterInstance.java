@@ -3,6 +3,8 @@ package slatepowered.slate.cluster;
 import slatepowered.slate.allocation.*;
 import slatepowered.slate.communication.CommunicationKey;
 import slatepowered.slate.communication.CommunicationStrategy;
+import slatepowered.slate.logging.Logger;
+import slatepowered.slate.logging.Logging;
 import slatepowered.slate.model.ClusterManagedNode;
 import slatepowered.slate.model.ClusterNetwork;
 import slatepowered.slate.model.Node;
@@ -26,6 +28,8 @@ import java.util.concurrent.CompletableFuture;
  * An instance of this cluster for a specific network.
  */
 public abstract class ClusterInstance extends ClusterNetwork {
+
+    protected static final Logger LOGGER = Logging.getLogger("ClusterInstance");
 
     /**
      * The cluster.
@@ -130,6 +134,7 @@ public abstract class ClusterInstance extends ClusterNetwork {
             NetworkInfoService networkInfoService = getService(NetworkInfoService.KEY);
 
             // create node locally
+            LOGGER.debug("Allocating node with name(" + request.getNodeName() + ") with componentCount(" + request.getComponents().size() + ")");
             ClusterManagedNode node = new ClusterManagedNode(
                     fetchAndCreateNode(request.getParentNodeName()),
                     request.getNodeName(),
@@ -142,6 +147,7 @@ public abstract class ClusterInstance extends ClusterNetwork {
             LocalNodeAllocation localNodeAllocation = new LocalNodeAllocation(node, directory.resolve("nodes").resolve(node.getName()));
             cluster.localAllocations.add(localNodeAllocation);
             Files.createDirectories(localNodeAllocation.getDirectory());
+            LOGGER.debug("Created allocation for node(" + node.getName() + ") in directory(" + directory + ")");
 
             // install packages
             PackageManager packageManager = cluster.getLocalPackageManager();

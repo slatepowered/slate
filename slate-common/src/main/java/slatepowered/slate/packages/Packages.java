@@ -1,5 +1,7 @@
 package slatepowered.slate.packages;
 
+import slatepowered.slate.logging.Logger;
+import slatepowered.slate.logging.Logging;
 import slatepowered.slate.model.ManagedNode;
 import slatepowered.slate.packages.attachment.*;
 import slatepowered.slate.packages.key.JavaPackageKey;
@@ -19,6 +21,8 @@ import java.util.function.BiFunction;
  * Helper functions for packages.
  */
 public final class Packages {
+
+    private static final Logger LOGGER = Logging.getLogger("Packages");
 
     /**
      * Creates a new file download package key from the given
@@ -153,6 +157,7 @@ public final class Packages {
                                                                Path path,
                                                                ManagedNode hostNode,
                                                                Path hostPath) {
+        LOGGER.debug("Initial attachAll with attachmentCount(" + attachments.size() + ") for node(" + node.getName() + ") hostNode(" + hostNode.getName() + ")");
         List<PackageAttachment<LocalPackage>> flattenedAttachmentList = new ArrayList<>();
         for (PackageAttachment<?> attachment : attachments) {
             flattenAttachment(flattenedAttachmentList, attachment);
@@ -160,6 +165,7 @@ public final class Packages {
 
         // start applying attachments and register all potential
         // errors into a list
+        LOGGER.debug("Flattened package attachment list of size(" + flattenedAttachmentList.size() + ")");
         CompletableFuture<List<Throwable>> future = new CompletableFuture<>();
         Vector<Throwable> errors = new Vector<>();
         for (PackageAttachment<LocalPackage> attachment : flattenedAttachmentList) {
@@ -167,6 +173,7 @@ public final class Packages {
                     ((TargetedPackageAttachment<?>)attachment).getTarget() :
                     PackageTarget.NODE;
 
+            LOGGER.debug("Applying packageAttachment(" + attachment + ")");
             attachment.getSourcePackage().
                     findOrInstall(packageManager)
                     .thenApply(localPackage -> {
