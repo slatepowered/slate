@@ -49,11 +49,11 @@ final class ClassEntryPoint implements CompiledPluginEntrypoint {
         instance = (PluginEntrypoint<Network>) constructor.newInstance();
 
         // call onLoad()
-        instance.onLoad(plugin, manager.getNetwork());
+        instance.onLoad(plugin);
 
         // register events
-        plugin.onInitialize.then(__ -> instance.onInitialize(plugin, manager.getNetwork()));
-        plugin.onDisable.then(__ -> instance.onDisable(plugin, manager.getNetwork()));
+        plugin.onInitialize.then(net -> instance.onInitialize(plugin, net));
+        plugin.onDisable.then(net -> instance.onDisable(plugin, net));
     }
 
 }

@@ -53,30 +53,25 @@ public class SlatePlugin {
     protected List<CompiledPluginEntrypoint> loadedEntrypoints;
 
     /**
-     * The network this plugin was loaded for.
-     */
-    protected final Network network;
-
-    /**
      * Whether this plugin has successfully been loaded and
      * is now technically available.
      */
     protected volatile boolean isLoaded;
 
     /**
-     * Whether this plugin is currently successfully initialized.
-     */
-    protected volatile boolean isInitialized;
-
-    /**
      * Event: Called when this plugin should be initialized
      */
-    public final Callback<Void> onInitialize = Callback.multi();
+    public final Callback<Network> onInitialize = Callback.multi();
 
     /**
-     * Event: Called when this plugin is disabled/destroyed
+     * Event: Called when this plugin is disabled
      */
-    public final Callback<Void> onDisable = Callback.multi();
+    public final Callback<Network> onDisable = Callback.multi();
+
+    /**
+     * Event: Called when this plugin is destroyed
+     */
+    public final Callback<Void> onDestroy = Callback.multi();
 
     @Override
     public String toString() {

@@ -1,0 +1,23 @@
+plugins {
+    id "com.github.johnrengelman.shadow" version("8.1.1")
+}
+
+version '1.0.0'
+
+ext {
+    mainClassName = "slatepowered.slate.master.MasterBootstrap"
+}
+
+dependencies {
+    api "com.github.slatepowered.veru:veru-config:${project.VERU_COMMIT}"
+    api "org.yaml:snakeyaml:1.33"
+
+    api project(":slate-common")
+    api project(":slate-cluster")
+
+    implementation project(":slate-communication-rmq")
+
+    testImplementation "com.github.slatepowered.reco:reco-core-rmq:${project.RECO_COMMIT}"
+    testImplementation "com.github.slatepowered.reco:reco-serializer-kryo:${project.RECO_COMMIT}"
+    testImplementation 'com.rabbitmq:amqp-client:5.16.0'
+}

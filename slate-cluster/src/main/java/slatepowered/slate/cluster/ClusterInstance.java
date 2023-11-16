@@ -47,6 +47,8 @@ public abstract class ClusterInstance extends ClusterNetwork {
         this.cluster = cluster;
         this.directory = cluster.getInstanceDirectory(this);
 
+        cluster.getPluginManager().initialize(this);
+
         // register the cluster services
         serviceManager.register(PackageManager.KEY, cluster.getLocalPackageManager());
 
@@ -55,18 +57,6 @@ public abstract class ClusterInstance extends ClusterNetwork {
         } catch (Throwable t) {
             Throwables.sneakyThrow(t);
         }
-    }
-
-    @Override
-    protected SlatePluginManager createPluginManager() {
-        return new SlatePluginManager(this) {
-            final String[] envNames = new String[] { "nodehost", "host", "cluster" };
-
-            @Override
-            public String[] getEnvironmentNames() {
-                return envNames;
-            }
-        };
     }
 
     /**
@@ -115,6 +105,7 @@ public abstract class ClusterInstance extends ClusterNetwork {
      * Closes this cluster instance.
      */
     public void close() {
+        cluster.getPluginManager().disable(this);
         cluster.closeInstance(this);
     }
 

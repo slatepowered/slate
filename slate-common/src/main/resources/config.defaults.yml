@@ -25,3 +25,12 @@ directory: "./"
 # The directory where the plugins should be loaded from,
 # this is resolved under the above defined data directory
 pluginsDirectory: "plugins"
+
+# Settings for the integrated cluster
+integrated-cluster:
+  # Whether the cluster should be enabled
+  enabled: true
+
+  # The maximum amount of nodes the integrated
+  # cluster can allocate
+  max-nodes: 5

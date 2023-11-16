@@ -25,17 +25,24 @@ import java.util.stream.StreamSupport;
 @RequiredArgsConstructor
 public abstract class SlatePluginManager {
 
+    private static SlatePluginManager instance;
     private static final Logger LOGGER = Logging.getLogger("SlatePluginManager");
+
+    public static SlatePluginManager getInstance() {
+        return instance;
+    }
+
+    {
+        // the first instance is accepted as the global instance
+        if (instance == null) {
+            instance = this;
+        }
+    }
 
     /**
      * The resource to find the plugin configuration at.
      */
     private static final String pluginDataResource = "slate.plugin.json";
-
-    /**
-     * The network this plugin manager was created for.
-     */
-    protected final Network network;
 
     /**
      * The list of all plugins loaded by this plugin manager.
@@ -48,10 +55,6 @@ public abstract class SlatePluginManager {
      * @return The environment.
      */
     public abstract String[] getEnvironmentNames();
-
-    public Network getNetwork() {
-        return network;
-    }
 
     public Map<String, SlatePlugin> getPlugins() {
         return plugins;
@@ -227,8 +230,9 @@ public abstract class SlatePluginManager {
 
             final String pluginId = pluginDesc.getString("id", null);
             if (plugins.containsKey(pluginId)) {
-                throw new IllegalStateException("Attempt to load plugin with id `" + pluginId + "` twice\n" +
-                        "  original " + plugins.get(pluginId) + ", duplicate from file(" + path +")");
+                throw new DuplicatePluginException("Attempt to load plugin with id `" + pluginId + "` twice\n" +
+                        "  original " + plugins.get(pluginId) + ", duplicate from file(" + path +")")
+                        .id(pluginId);
             }
 
             final String pluginName = pluginDesc.getString("name", null);
@@ -255,8 +259,11 @@ public abstract class SlatePluginManager {
             Classloading.addURLs(ClassLoader.getSystemClassLoader(),
                     path.toUri().toURL());
 
-            // create plugin descriptor
-            return register(new SlatePlugin(this, pluginId, pluginName, pluginVersion, dependencies, entrypoints, network));
+            // create plugin instance
+            SlatePlugin plugin = new SlatePlugin(this, pluginId, pluginName, pluginVersion, dependencies, entrypoints);
+            register(plugin);
+            LOGGER.debug("Constructed ", plugin, " from file(", path, ")");
+            return plugin;
         } catch (Throwable t) {
             throw new RuntimeException("An error occurred while constructing plugin from path(" + path + ")", t);
         }
@@ -296,6 +303,7 @@ public abstract class SlatePluginManager {
                 if (entrypoint.isValid(plugin, this)) {
                     try {
                         entrypoint.loadAndExecute(plugin, this);
+                        plugin.loadedEntrypoints.add(entrypoint);
                     } catch (Throwable t) {
                         throw new RuntimeException("Failed to load and execute entrypoint:" + entrypoint + " for plugin(id: " + plugin.getId() + " version: " + plugin.getVersion() + ")", t);
                     }
@@ -304,8 +312,20 @@ public abstract class SlatePluginManager {
 
             // plugin was loaded successfully
             plugin.isLoaded = true;
+
+            LOGGER.debug("Loaded ", plugin, " with entrypoints[", plugin.loadedEntrypoints.size(), "] dependencies[" + plugin.dependencies + "]");
         } catch (Throwable t) {
             throw new RuntimeException("An error occurred while loading plugin(id: " + plugin.getId() + " version: " + plugin.getVersion() + ")", t);
+        }
+    }
+
+    /**
+     * Load all constructed plugins which have not been loaded yet.
+     */
+    public void loadAll() {
+        List<SlatePlugin> plugins = new ArrayList<>(this.plugins.values()); // we have to make a copy because of concurrent modification
+        for (SlatePlugin plugin : plugins) {
+            load(plugin);
         }
     }
 
@@ -340,32 +360,82 @@ public abstract class SlatePluginManager {
     }
 
     /**
-     * Mark the plugin manager as initialized after invoking
-     * the initialization event on every plugin.
+     * Initialize all plugins for the given network.
+     *
+     * @param network The network to initialize it for.
      */
-    public void initialize() {
-        for (SlatePlugin plugin : plugins.values()) {
-            try {
-                plugin.onInitialize.call();
-                plugin.isInitialized = true;
-            } catch (Throwable t) {
-                throw new RuntimeException("An error occurred while initializing " + plugin, t);
-            }
+    public void initialize(Network network) {
+        List<SlatePlugin> plugins = new ArrayList<>(this.plugins.values()); // we have to make a copy because of concurrent modification
+        for (SlatePlugin plugin : plugins) {
+            initialize(plugin, network);
         }
     }
 
     /**
-     * Closes this plugin manager and invokes the plugin disable/destroy event.
+     * Initialize the given plugin for the given network.
+     *
+     * @param plugin The plugin to initialize.
+     * @param network The network to initialize it for.
      */
-    public void disable() {
-        for (SlatePlugin plugin : plugins.values()) {
-            try {
-                plugin.onDisable.call();
-            } catch (Throwable t) {
-                throw new RuntimeException("An error occurred while disabling " + plugin, t);
-            }
+    public void initialize(SlatePlugin plugin, Network network) {
+        LOGGER.debug("Initializing ", plugin, " for network: ", network);
 
-            plugin.isInitialized = false;
+        try {
+            plugin.onInitialize.call(network);
+        } catch (Throwable t) {
+            throw new RuntimeException("An error occurred while initializing " + plugin, t);
+        }
+    }
+
+    /**
+     * Invokes the plugin disable event on every plugin for this network.
+     *
+     * @param network The network to disable it for.
+     */
+    public void disable(Network network) {
+        List<SlatePlugin> plugins = new ArrayList<>(this.plugins.values()); // we have to make a copy because of concurrent modification
+        for (SlatePlugin plugin : plugins) {
+            disable(plugin, network);
+        }
+    }
+
+    /**
+     * Disables the given plugin for the given network.
+     *
+     * @param plugin The
+     * @param network The network to disable it for.
+     */
+    public void disable(SlatePlugin plugin, Network network) {
+        LOGGER.debug("Disabling ", plugin, " for network: ", network);
+
+        try {
+            plugin.onDisable.call(network);
+        } catch (Throwable t) {
+            throw new RuntimeException("An error occurred while disabling " + plugin, t);
+        }
+    }
+
+    /**
+     * Destroy all plugins and the plugin manager itself.
+     */
+    public void destroy() {
+        List<SlatePlugin> plugins = new ArrayList<>(this.plugins.values()); // we have to make a copy because of concurrent modification
+        for (SlatePlugin plugin : plugins) {
+            destroy(plugin);
+        }
+    }
+
+    /**
+     * Destroy and unregister the given plugin.
+     */
+    public void destroy(SlatePlugin plugin) {
+        LOGGER.debug("Unregistering and destroying ", plugin);
+
+        try {
+            plugin.onDestroy.call();
+            plugins.remove(plugin.getId());
+        } catch (Throwable t) {
+            throw new RuntimeException("An error occurred while disabling " + plugin, t);
         }
     }
 

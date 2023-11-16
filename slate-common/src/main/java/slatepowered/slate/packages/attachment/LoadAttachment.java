@@ -5,6 +5,7 @@ import slatepowered.slate.packages.LocalPackage;
 import slatepowered.slate.packages.PackageAttachment;
 import slatepowered.slate.packages.PackageKey;
 import slatepowered.slate.packages.PackageManager;
+import slatepowered.slate.plugin.DuplicatePluginException;
 import slatepowered.slate.plugin.SlatePlugin;
 import slatepowered.slate.plugin.SlatePluginManager;
 import slatepowered.veru.reflect.Classloading;
@@ -13,12 +14,19 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Loads the given JAR files from the package into the system class loader.
  */
 public class LoadAttachment<P extends LocalPackage> extends PackageAttachment<P> {
+
+    /**
+     * All files loaded by this attachment type on this JVM.
+     */
+    private static final Set<Path> loadedFiles = new HashSet<>();
 
     /**
      * The list of files to load.
@@ -51,29 +59,40 @@ public class LoadAttachment<P extends LocalPackage> extends PackageAttachment<P>
             Path packagePath = localPackage.getPath();
             for (String fileStr : files) {
                 Path filePath = packagePath.resolve(fileStr);
-                if (!Files.exists(filePath) || Files.isDirectory(filePath))
+                if (!Files.exists(filePath) || Files.isDirectory(filePath) || loadedFiles.contains(filePath))
                     continue;
 
                 // try and load file path as plugin
                 if (loadPlugins) {
-                    final SlatePluginManager pluginManager = node.getNetwork().getPluginManager();
-                    final SlatePlugin plugin = pluginManager.constructFromFile(filePath);
+                    final SlatePluginManager pluginManager = SlatePluginManager.getInstance();
+                    SlatePlugin plugin;
+
+                    try {
+                        plugin = pluginManager.constructFromFile(filePath);
+                    } catch (DuplicatePluginException e) {
+                        plugin = pluginManager.getPlugin(e.getId());
+                    }
+
                     if (plugin != null) {
                         pluginManager.load(plugin);
+                        pluginManager.initialize(plugin, node.getNetwork());
+
                         // dont register to classloading, as it should've been
                         // loaded by now
+                        loadedFiles.add(filePath);
                         continue;
                     }
                 }
 
                 // register URL
                 urls.add(filePath.toUri().toURL());
+                loadedFiles.add(filePath);
             }
 
             // add all URLs to classloading
             Classloading.addURLs(ClassLoader.getSystemClassLoader(), urls.toArray(new URL[0]));
         } catch (Throwable t) {
-            throw new RuntimeException("Failed to load libraries immediately", t);
+            throw new RuntimeException("Failed to loa immediately", t);
         }
     }
 

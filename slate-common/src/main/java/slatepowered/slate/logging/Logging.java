@@ -8,7 +8,7 @@ public class Logging {
     /**
      * Whether to do debug logging.
      */
-    public static final boolean DEBUG;
+    public static boolean DEBUG;
 
     /**
      * The current set logger provider.
@@ -17,6 +17,15 @@ public class Logging {
 
     static {
         DEBUG = Boolean.parseBoolean(System.getProperty("slate.debug", "false"));
+    }
+
+    /**
+     * Set whether debug messages should be shown.
+     *
+     * @param debug The debug flag value.
+     */
+    public static void setDebug(boolean debug) {
+        DEBUG = debug;
     }
 
     public static void setProvider(LoggerProvider provider1) {

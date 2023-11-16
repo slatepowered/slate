@@ -8,6 +8,7 @@ import slatepowered.slate.allocation.ClusterAllocationChecker;
 import slatepowered.slate.allocation.LocalNodeAllocation;
 import slatepowered.slate.communication.CommunicationKey;
 import slatepowered.slate.packages.PackageManager;
+import slatepowered.slate.plugin.SlatePluginManager;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -24,9 +25,32 @@ import java.util.Map;
 @RequiredArgsConstructor
 public abstract class Cluster<I extends ClusterInstance> {
 
+    /**
+     * The name of this cluster.
+     */
     protected final String name;
+
+    /**
+     * All cluster instances by communication key.
+     */
     protected final Map<CommunicationKey, I> instanceMap = new HashMap<>();
+
+    /**
+     * All local node allocations.
+     */
     protected final List<LocalNodeAllocation> localAllocations = new ArrayList<>();
+
+    /**
+     * The local plugin manager.
+     */
+    protected final SlatePluginManager pluginManager = new SlatePluginManager() {
+        final String[] envNames = new String[] { "nodehost", "host", "cluster" };
+
+        @Override
+        public String[] getEnvironmentNames() {
+            return envNames;
+        }
+    };
 
     /**
      * Get the local package manager for this cluster.
@@ -34,6 +58,15 @@ public abstract class Cluster<I extends ClusterInstance> {
      * @return The package manager.
      */
     public abstract PackageManager getLocalPackageManager();
+
+    /**
+     * Get the plugin manager on this cluster.
+     *
+     * @return The plugin manager instance.
+     */
+    public SlatePluginManager getPluginManager() {
+        return pluginManager;
+    }
 
     /**
      * Start this cluster' operations.

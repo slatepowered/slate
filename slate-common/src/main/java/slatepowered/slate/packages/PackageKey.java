@@ -28,6 +28,15 @@ public interface PackageKey<P extends LocalPackage> {
         return null;
     }
 
+    /**
+     * Get the operational package key which should be used for local operations.
+     *
+     * @return The base package key.
+     */
+    default PackageKey<P> baseKey() {
+        return this;
+    }
+
     @SuppressWarnings("unchecked")
     default CompletableFuture<P> findOrInstall(PackageManager manager) {
         return manager.findOrInstallPackage(this);
@@ -38,6 +47,37 @@ public interface PackageKey<P extends LocalPackage> {
      */
     static UUID stringToUUID(String str) {
         return UUID.nameUUIDFromBytes(str.getBytes(StandardCharsets.UTF_8));
+    }
+
+    /**
+     * Create a named package key wrapping the given key type.
+     *
+     * @param key The key.
+     * @param name The name.
+     * @param <P> The package type.
+     * @return The named package key.
+     */
+    static <P extends LocalPackage> PackageKey<P> named(PackageKey<P> key,
+                                                        String name) {
+        return new PackageKey<P>() {
+            // The cached UUID of this package key
+            private final UUID uuid = stringToUUID(name);
+
+            @Override
+            public UUID toUUID() {
+                return uuid;
+            }
+
+            @Override
+            public PackageKey<P> baseKey() {
+                return key;
+            }
+
+            @Override
+            public String toString() {
+                return name;
+            }
+        };
     }
 
 }

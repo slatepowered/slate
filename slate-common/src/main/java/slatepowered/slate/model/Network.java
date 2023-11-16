@@ -50,11 +50,6 @@ public abstract class Network implements ServiceProvider {
     protected final ServiceManager serviceManager;
 
     /**
-     * The plugin manager for this network.
-     */
-    protected final SlatePluginManager pluginManager;
-
-    /**
      * All nodes by name.
      */
     protected final Map<String, Node> nodeMap = new ConcurrentHashMap<>();
@@ -85,29 +80,11 @@ public abstract class Network implements ServiceProvider {
         this.serviceManager = new ServiceManager(this)
                 .registerSingleton(RPCManager.class, rpcManager);
 
-        this.pluginManager = createPluginManager();
-
         getService(NetworkInfoService.KEY).onClose().then(unused -> {
             onCloseEvent.call(null);
             handleOnClose();
             destroy();
         });
-    }
-
-    /**
-     * Create a new plugin manager for this environment.
-     *
-     * @return The plugin manager.
-     */
-    protected abstract SlatePluginManager createPluginManager();
-
-    /**
-     * Get the local plugin manager for this local network.
-     *
-     * @return The plugin manager.
-     */
-    public SlatePluginManager getPluginManager() {
-        return pluginManager;
     }
 
     public CommunicationKey getCommunicationKey() {
@@ -201,8 +178,7 @@ public abstract class Network implements ServiceProvider {
      * closed/destroyed, not only when the actual network is closed.
      */
     public void destroy() {
-        // disable network plugins
-        pluginManager.disable();
+
     }
 
     /* --------------- Events --------------- */

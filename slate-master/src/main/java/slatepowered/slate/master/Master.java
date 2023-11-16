@@ -41,14 +41,32 @@ public class Master extends MasterNetwork {
      */
     protected final IntegratedClusterInstance integratedClusterInstance;
 
+    /**
+     * The plugin manager.
+     */
+    protected final SlatePluginManager pluginManager;
+
     Master(Path directory, CommunicationKey communicationKey, CommunicationStrategy communicationStrategy) {
         super(communicationKey, communicationStrategy);
         this.directory = directory;
 
         localPackageManager = new PackageManager(directory.resolve("packages"));
 
+        this.pluginManager = new SlatePluginManager() {
+            final String[] envNames = new String[] { "master", "controller" };
+
+            @Override
+            public String[] getEnvironmentNames() {
+                return envNames;
+            }
+        };
+
         integratedClusterImpl = new IntegratedCluster("master.integrated-cluster", this);
         integratedClusterInstance = new IntegratedClusterInstance(integratedClusterImpl, communicationKey, communicationStrategy);
+    }
+
+    public SlatePluginManager getPluginManager() {
+        return pluginManager;
     }
 
     /**
@@ -87,10 +105,18 @@ public class Master extends MasterNetwork {
         getIntegratedCluster().close();
         getIntegratedCluster().getCluster().close();
 
+        pluginManager.disable(this);
+        pluginManager.destroy();
+
         // finally, close the communication provider
         // this basically closes the network until
         // a whole new network instance is created
         communicationProvider.close();
+    }
+
+    @Override
+    public void destroy() {
+        close();
     }
 
     /* ----------- Register Services ----------- */
@@ -110,18 +136,6 @@ public class Master extends MasterNetwork {
                 return new NodeInfo(node.getName(), node.getParent().getName(), node.getTags());
             }
         });
-    }
-
-    @Override
-    protected SlatePluginManager createPluginManager() {
-        return new SlatePluginManager(this) {
-            final String[] envNames = new String[] { "master", "controller" };
-
-            @Override
-            public String[] getEnvironmentNames() {
-                return envNames;
-            }
-        };
     }
 
     /**

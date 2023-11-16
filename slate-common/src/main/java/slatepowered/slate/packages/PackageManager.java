@@ -85,8 +85,8 @@ public class PackageManager implements Service {
      */
     @SuppressWarnings("unchecked")
     protected <P extends LocalPackage> CompletableFuture<ResolvedPackage<?, P>> resolvePackage0(PackageKey<P> key) {
-        if (key instanceof TrivialPackageKey) {
-            CompletableFuture<ResolvedPackage<?, P>> future = ((TrivialPackageKey<P>)key).resolve(this);
+        if (key.baseKey() instanceof TrivialPackageKey) {
+            CompletableFuture<ResolvedPackage<?, P>> future = ((TrivialPackageKey<P>)key.baseKey()).resolve(this);
             if (future != null) {
                 return future;
             }
