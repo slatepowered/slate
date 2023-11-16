@@ -72,7 +72,7 @@ public final class Packages {
     /**
      * Copies files from a package to the node's working/data directory.
      *
-     * @return The builder.
+     * @return The attachment.
      */
     public static <P extends LocalPackage> CopyMatchingFiles<P> copyFiles(PackageKey<P> key, BiFunction<Path, Path, Path> resolver) {
         return new CopyMatchingFiles<>(key, resolver);
@@ -81,10 +81,33 @@ public final class Packages {
     /**
      * (Symbolically) links files from a package to the node's working/data directory.
      *
-     * @return The builder.
+     * @return The attachment.
      */
     public static <P extends LocalPackage> LinkMatchingFiles<P> linkFiles(PackageKey<P> key, BiFunction<Path, Path, Path> resolver) {
         return new LinkMatchingFiles<>(key, resolver);
+    }
+
+    /**
+     * (Symbolically) links files from a package to the node's working/data directory.
+     *
+     * @param pairs The source package file -> destination node file pairs.
+     * @return The attachment.
+     */
+    public static <P extends LocalPackage> LinkSpecifiedFiles<P> linkFiles(PackageKey<P> key, Pair<String, String>... pairs) {
+        return new LinkSpecifiedFiles<>(key, Arrays.asList(pairs));
+    }
+
+    /**
+     * Create an attachment which links all files from the package to the node directory.
+     *
+     * @param destinationDirectory The destination directory under the node directory
+     *                             to link the files into.
+     * @param recursive Whether it should link the files recursively, if true it will
+     *                  never symbolically link directories and instead only link files.
+     * @return The attachment.
+     */
+    public static <P extends LocalPackage> LinkAllFiles<P> linkAllFiles(PackageKey<P> key, String destinationDirectory, boolean recursive) {
+        return new LinkAllFiles<>(key, destinationDirectory, recursive);
     }
 
     /**

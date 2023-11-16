@@ -90,7 +90,7 @@ public class PackageManager implements Service {
         if (key.baseKey() instanceof TrivialPackageKey) {
             CompletableFuture<ResolvedPackage<?, P>> future = ((TrivialPackageKey<P>)key.baseKey()).resolve(this);
             if (future != null) {
-                LOGGER.info(" - Resolved by TrivialPackageKey");
+                LOGGER.info(" Resolved by TrivialPackageKey");
                 return future;
             }
         }
@@ -101,7 +101,7 @@ public class PackageManager implements Service {
                 CompletableFuture<ResolvedPackage<?, ?>> future =
                         resolver.tryResolve(this, key);
                 if (future != null) {
-                    LOGGER.info(" - Resolved by PackageResolver: " + resolver);
+                    LOGGER.info(" Resolved by PackageResolver: " + resolver);
                     return (CompletableFuture<ResolvedPackage<?,P>>)(Object) future;
                 }
             }
@@ -176,7 +176,7 @@ public class PackageManager implements Service {
             // file or directory
             LOGGER.debug("Trying to load installed package data from path(" + path + ") by(" + resolvedKey + ")");
             localPackage = resolvedKey.loadLocally(this, path);
-            LOGGER.debug("= " + localPackage);
+            LOGGER.debug(" = " + localPackage);
         }
 
         return localPackage;
@@ -199,8 +199,8 @@ public class PackageManager implements Service {
                     this,
                     this.directory.resolve(key.toUUID().toString())
             ).exceptionally(throwable -> {
-                LOGGER.warn("Failed to install package " + resolvedKey);
-                throwable.printStackTrace();
+//                LOGGER.warn("Failed to install package " + resolvedKey);
+//                throwable.printStackTrace();
 
                 throw new RuntimeException("Failed to install package " + resolvedKey, throwable);
             });
