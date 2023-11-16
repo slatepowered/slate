@@ -60,7 +60,7 @@ public class URLFilesDownload extends ResolvedPackageKeyUnion<URLFilesDownload, 
                     String filename = pair.getSecond();
 
                     Path outputFile = path.resolve(filename);
-                    Files.createDirectories(outputFile);
+                    Files.createDirectories(outputFile.getParent());
                     LOGGER.debug("Downloading online content to file(" + outputFile + ") from url(" + url + ")");
                     IOUtil.download(IOUtil.parseURL(url), outputFile);
                 }
