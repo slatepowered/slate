@@ -93,6 +93,7 @@ public final class Packages {
      * @param pairs The source package file -> destination node file pairs.
      * @return The attachment.
      */
+    @SafeVarargs
     public static <P extends LocalPackage> LinkSpecifiedFiles<P> linkFiles(PackageKey<P> key, Pair<String, String>... pairs) {
         return new LinkSpecifiedFiles<>(key, Arrays.asList(pairs));
     }
