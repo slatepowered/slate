@@ -33,14 +33,14 @@ public abstract class MasterManagedNode extends ManagedNode {
      *
      * @return The initialization result future.
      */
-    public CompletableFuture<InitializationResult> initialize() {
-        CompletableFuture<InitializationResult> future =
-                this.runVoidAction(NodeInitializeAdapter.class, NodeInitializeAdapter::create,
-                        t -> t == null ? new InitializationResult(false, null) : new InitializationResult(true, Collections.singletonList(t)));
+    public CompletableFuture<MasterManagedNode> initialize() {
+        CompletableFuture<MasterManagedNode> future =
+                this.runVoidAction(NodeInitializeAdapter.class, NodeInitializeAdapter::create, null)
+                        .thenApply(__ -> this);
         future.whenComplete((result, err) -> {
-            if (!result.isSuccess()) {
-                LOGGER.warning("Failed to initialize node(" + this.name + ") with " + result.getErrors().size() + " errors");
-                result.getErrors().forEach(Throwable::printStackTrace);
+            if (err != null) {
+                LOGGER.warning("Failed to initialize node(" + this.name + ")");
+                err.printStackTrace();
                 return;
             }
 
