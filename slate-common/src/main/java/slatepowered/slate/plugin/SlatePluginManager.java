@@ -317,7 +317,7 @@ public abstract class SlatePluginManager implements Service {
             return;
 
         try {
-            LOGGER.info("Loading ", plugin);
+            LOGGER.debug("Loading ", plugin);
 
             // ensure dependencies are loaded
             for (PluginDependency dependency : plugin.getDependencies()) {
