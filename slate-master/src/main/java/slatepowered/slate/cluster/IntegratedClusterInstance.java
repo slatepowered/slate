@@ -8,7 +8,9 @@ import slatepowered.slate.communication.CommunicationStrategy;
 import slatepowered.slate.model.ClusterManagedNode;
 import slatepowered.slate.model.ManagedNode;
 import slatepowered.slate.model.Node;
+import slatepowered.slate.packages.PackageManager;
 import slatepowered.slate.packages.local.LocalJavaPackage;
+import slatepowered.slate.plugin.SlatePluginManager;
 
 import java.util.ArrayList;
 
@@ -31,6 +33,9 @@ public class IntegratedClusterInstance extends ClusterInstance {
         if (cluster.theInstance != null)
             throw new IllegalStateException("Attempt to construct second cluster instance on an integrated cluster");
         cluster.theInstance = this;
+
+        register(PackageManager.KEY, cluster.getLocalPackageManager());
+        register(SlatePluginManager.KEY, cluster.getPluginManager());
 
         this.localNode = new ManagedNode(master(), "master.integratedCluster", this, new ArrayList<>()) {
             final String[] tags = new String[] { "*", "cluster", "master", "integrated", "local" };

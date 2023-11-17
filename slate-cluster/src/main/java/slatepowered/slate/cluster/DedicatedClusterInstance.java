@@ -5,6 +5,8 @@ import slatepowered.slate.communication.CommunicationKey;
 import slatepowered.slate.communication.CommunicationStrategy;
 import slatepowered.slate.model.ManagedNode;
 import slatepowered.slate.model.Node;
+import slatepowered.slate.packages.PackageManager;
+import slatepowered.slate.plugin.SlatePluginManager;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -19,6 +21,9 @@ public class DedicatedClusterInstance extends ClusterInstance {
 
     public DedicatedClusterInstance(Cluster<?> cluster, CommunicationKey communicationKey, CommunicationStrategy communicationStrategy) {
         super(cluster, communicationKey, communicationStrategy);
+
+        register(PackageManager.KEY, cluster.getLocalPackageManager());
+        register(SlatePluginManager.KEY, cluster.getPluginManager());
 
         this.localNode = new ManagedNode(master(), cluster.getName(), this) {
             final String[] tags = new String[] { "*", "cluster", "local" };

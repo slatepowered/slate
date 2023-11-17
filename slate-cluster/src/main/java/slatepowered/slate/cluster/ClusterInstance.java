@@ -54,10 +54,6 @@ public abstract class ClusterInstance extends ClusterNetwork {
 
         cluster.getPluginManager().initialize(this);
 
-        // register the cluster services
-        register(PackageManager.KEY, cluster.getLocalPackageManager());
-        register(SlatePluginManager.KEY, cluster.getPluginManager());
-
         try {
             Files.createDirectories(directory);
         } catch (Throwable t) {
