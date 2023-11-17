@@ -75,12 +75,14 @@ public abstract class Node implements NetworkObject, ServiceProvider, SecurityOb
 
     @Override
     public <T extends Service> ServiceKey<T> qualifyServiceKey(ServiceKey<T> key) throws UnsupportedOperationException {
+        /* Built-in key types */
         if (key instanceof NodeBoundServiceKey) {
-            ((NodeBoundServiceKey)key).forNode(this);
+            ((NodeBoundServiceKey<?>)key).forNode(this);
         } else if (key instanceof RemoteServiceKey) {
             ((RemoteServiceKey<?>)key).forRemote(this);
         }
 
+        // return the (hopefully qualified) service key
         return key;
     }
 
