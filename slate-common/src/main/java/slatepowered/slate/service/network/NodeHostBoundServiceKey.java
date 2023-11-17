@@ -66,14 +66,12 @@ public interface NodeHostBoundServiceKey<T extends Service> extends NodeBoundSer
                 throw new IllegalArgumentException("Could not find a node by hostName(" + nodeName + ")");
             System.out.println("Service: NodeHostBound: Found host node for hostName(" + hostName + ")");
             S baseService = manager.getService(hostNode.qualifyServiceKey(sourceKey));
-            System.out.println("Service: NodeHostBound: Found base service for unqualified key: " + sourceKey);
+            System.out.println("Service: NodeHostBound: Found base service instance(" + baseService + ") for unqualified key: " + sourceKey);
             return function.apply(baseService, nodeName);
         }
 
         @Override
         public NodeHostBoundServiceKey<R> forHost(String hostName) {
-            System.out.println("Service: NodeHostBound: set hostName(" + hostName + ")");
-            new RuntimeException().printStackTrace();
             this.hostName = hostName;
             return this;
         }
