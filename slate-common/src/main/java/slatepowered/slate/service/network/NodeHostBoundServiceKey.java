@@ -1,6 +1,8 @@
 package slatepowered.slate.service.network;
 
 import lombok.RequiredArgsConstructor;
+import slatepowered.slate.logging.Logger;
+import slatepowered.slate.logging.Logging;
 import slatepowered.slate.model.Network;
 import slatepowered.slate.model.Node;
 import slatepowered.slate.service.*;
@@ -8,6 +10,8 @@ import slatepowered.slate.service.*;
 import java.util.function.BiFunction;
 
 public interface NodeHostBoundServiceKey<T extends Service> extends NodeBoundServiceKey<T> {
+
+    Logger LOGGER = Logging.getLogger("NodeHostBoundServiceKey");
 
     /**
      * Set the host this should be bound to.
@@ -53,7 +57,9 @@ public interface NodeHostBoundServiceKey<T extends Service> extends NodeBoundSer
         @Override
         public R create(ServiceProvider manager) {
             Node hostNode = manager.getService(Network.KEY).getNode(hostName);
+            LOGGER.debug("Found host node for hostName(" + hostNode + ")");
             S baseService = manager.getService(hostNode.qualifyServiceKey(sourceKey));
+            LOGGER.debug("Found base service for unqualified key: " + sourceKey);
             return function.apply(baseService, nodeName);
         }
 
