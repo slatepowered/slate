@@ -102,7 +102,7 @@ public interface NodeAllocator extends NodeInitializeAdapter, NodeDestroyAdapter
                             for (NodeComponent component : allocation.getComponents()) {
                                 node.attach(component);
                             }
-                        }).<Void>thenApply(__ -> null);
+                        }).thenApply(__ -> null);
                     }
 
                     return CompletableFuture.completedFuture(null);

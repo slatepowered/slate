@@ -38,7 +38,14 @@ public abstract class ManagedNode extends Node {
     public ManagedNode(Node parent, String name, Network network, List<NodeComponent> components) {
         super(name, network);
         this.parent = parent;
-        this.components = components;
+        this.components = new ArrayList<>();
+
+        // invoke node attachments
+        if (components != null) {
+            for (NodeComponent component : components) {
+                attach(component);
+            }
+        }
     }
 
     public ManagedNode(Node parent, String name, Network network) {
