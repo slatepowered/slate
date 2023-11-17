@@ -30,7 +30,6 @@ public abstract class RemoteServiceKey<T extends Service & RemoteAPI> implements
 
     public RemoteServiceKey<T> forRemote(String remoteName) {
         System.out.println("Service: Remote: forRemote(" + remoteName + ")");
-        new RuntimeException().printStackTrace();
         this.remoteName = remoteName;
         return this;
     }
