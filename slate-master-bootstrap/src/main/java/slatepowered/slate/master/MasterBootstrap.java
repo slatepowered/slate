@@ -7,6 +7,7 @@ import slatepowered.slate.communication.RMQCommunicationStrategy;
 import slatepowered.slate.logging.JavaLoggerProvider;
 import slatepowered.slate.logging.Logger;
 import slatepowered.slate.logging.Logging;
+import slatepowered.slate.model.Network;
 import slatepowered.veru.config.Configuration;
 import slatepowered.veru.config.Section;
 import slatepowered.veru.config.YamlConfigParser;
@@ -56,6 +57,7 @@ public class MasterBootstrap {
                 .build();
 
         bootstrap.start(args);
+        System.out.println(bootstrap.getMaster().local().getService(Network.KEY));
         bootstrap.awaitClose();
     }
 
