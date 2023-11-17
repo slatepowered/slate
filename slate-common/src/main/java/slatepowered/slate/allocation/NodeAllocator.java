@@ -70,14 +70,16 @@ public interface NodeAllocator extends NodeInitializeAdapter, NodeDestroyAdapter
     @Override
     @Local
     default CompletableFuture<Void> create(ManagedNode node) {
-        final List<SharedNodeComponent> sharedNodeComponents = node.findComponents(SharedNodeComponent.class);
+        final List<SharedNodeComponent> sharedNodeComponents = new ArrayList<>(node.findComponents(SharedNodeComponent.class));
         final NodeAllocationRequest allocationRequest = new NodeAllocationRequest(node.getParent().getName(), node.getName(), node.getTags(), sharedNodeComponents);
 
         return canAllocateAsync(node.getName(), node.getParent().getName(), node.getTags())
-                .thenApply(b -> {
+                .thenCompose(b -> {
                     if (b) {
+                        LOGGER.debug("Trying to allocate node(name: " + node.getName() + ") with(" + sharedNodeComponents.size() + " shared components)");
+
                         // allocate node and add result as component
-                        allocateAsync(allocationRequest).whenComplete((result, t) -> {
+                        return allocateAsync(allocationRequest).whenComplete((result, t) -> {
                             if (t != null) {
                                 Throwables.sneakyThrow(t);
                                 return;
@@ -100,10 +102,10 @@ public interface NodeAllocator extends NodeInitializeAdapter, NodeDestroyAdapter
                             for (NodeComponent component : allocation.getComponents()) {
                                 node.attach(component);
                             }
-                        });
+                        }).<Void>thenApply(__ -> null);
                     }
 
-                    return null;
+                    return CompletableFuture.completedFuture(null);
                 });
     }
 

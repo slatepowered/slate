@@ -187,7 +187,9 @@ public class PackageManager implements Service {
             // file or directory
             LOGGER.debug("Trying to load installed package data from path(" + path + ") by(" + resolvedKey + ")");
             localPackage = resolvedKey.loadLocally(this, path);
-            LOGGER.debug(" = " + localPackage);
+
+            if (localPackage == null) LOGGER.debug(" No installed package found: localPackage = null");
+            else LOGGER.debug(" Found and loaded localPackage: " + localPackage);
         }
 
         return localPackage;

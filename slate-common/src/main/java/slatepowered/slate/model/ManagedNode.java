@@ -131,7 +131,7 @@ public abstract class ManagedNode extends Node {
     public <T, C extends NodeComponent> CompletableFuture<T> runVoidAction(Class<C> componentClass, BiFunction<C, ManagedNode, CompletableFuture<?>> invoker, Function<Throwable, T> resultComposer) {
         List<CompletableFuture<?>> futureList = new ArrayList<>();
         for (C component : findComponents(componentClass)) {
-            LOGGER.info("  action executed on " + component);
+            if (Logging.DEBUG) LOGGER.debug("  Action executed on component(" + component + ") of node(name: " + name + ")");
             futureList.add(invoker.apply(component, this));
         }
 
