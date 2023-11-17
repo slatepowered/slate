@@ -25,7 +25,7 @@ public interface NodeHostBoundServiceKey<T extends Service> extends NodeBoundSer
     class Mapped<S extends Service, R extends Service> implements NodeHostBoundServiceKey<R>, DynamicServiceKey<R> {
         private final Class<R> serviceClass;
         private final ServiceKey<S> sourceKey;
-        private final BiFunction<String, S, R> function;
+        private final BiFunction<S, String, R> function;
         private String hostName;
         private String nodeName;
 
@@ -53,7 +53,8 @@ public interface NodeHostBoundServiceKey<T extends Service> extends NodeBoundSer
         @Override
         public R create(ServiceProvider manager) {
             Node hostNode = manager.getService(Network.KEY).getNode(hostName);
-            return function.apply(nodeName, manager.getService(hostNode.qualifyServiceKey(sourceKey)));
+            S baseService = manager.getService(hostNode.qualifyServiceKey(sourceKey));
+            return function.apply(baseService, nodeName);
         }
 
         @Override
@@ -74,7 +75,7 @@ public interface NodeHostBoundServiceKey<T extends Service> extends NodeBoundSer
      * @param <R> The result service type.
      * @return The mapped service key.
      */
-    static <S extends Service, R extends Service> Mapped<S, R> mapped(Class<R> serviceClass, ServiceKey<S> key, BiFunction<String, S, R> function) {
+    static <S extends Service, R extends Service> Mapped<S, R> mapped(Class<R> serviceClass, ServiceKey<S> key, BiFunction<S, String, R> function) {
         return new Mapped<>(serviceClass, key, function);
     }
 
