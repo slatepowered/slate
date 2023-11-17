@@ -53,8 +53,10 @@ public abstract class RemoteServiceKey<T extends Service & RemoteAPI> implements
         Objects.requireNonNull(rpcManager, "Could not find valid RPC manager singleton");
 
         ProvidedChannel channel = rpcManager.getLocalChannel().provider().channel(remoteName);
-        System.out.println("Service: Remote: created channel " + channel);
-        return rpcManager.bindRemote(channel, getServiceClass());
+        System.out.println("Service: Remote: created channel " + channel + " to bind class: " + getServiceClass());
+        T instance = rpcManager.bindRemote(channel, getServiceClass());
+        System.out.println("Service: Remote: bound proxy to remote channel(" + remoteName + ")");
+        return instance;
     }
 
 }
