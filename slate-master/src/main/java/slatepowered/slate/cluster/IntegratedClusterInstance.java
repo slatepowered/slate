@@ -20,7 +20,7 @@ public class IntegratedClusterInstance extends ClusterInstance {
     /**
      * The allocation checker.
      */
-    protected ClusterAllocationChecker allocationChecker = (cluster, clusterInstance, name, tags) -> true;
+    protected ClusterAllocationChecker allocationChecker = (cluster, clusterInstance, name, parent, tags) -> true;
 
     // The node which represents this virtual integrated cluster
     private final ManagedNode localNode;
