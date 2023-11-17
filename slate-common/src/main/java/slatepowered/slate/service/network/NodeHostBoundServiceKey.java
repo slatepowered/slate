@@ -57,9 +57,9 @@ public interface NodeHostBoundServiceKey<T extends Service> extends NodeBoundSer
         @Override
         public R create(ServiceProvider manager) {
             Node hostNode = manager.getService(Network.KEY).getNode(hostName);
-            LOGGER.debug("Found host node for hostName(" + hostNode + ")");
+            if (Logging.DEBUG) LOGGER.debug("Found host node for hostName(" + hostNode + ")");
             S baseService = manager.getService(hostNode.qualifyServiceKey(sourceKey));
-            LOGGER.debug("Found base service for unqualified key: " + sourceKey);
+            if (Logging.DEBUG) LOGGER.debug("Found base service for unqualified key: " + sourceKey);
             return function.apply(baseService, nodeName);
         }
 

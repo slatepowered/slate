@@ -93,7 +93,7 @@ public abstract class Node implements NetworkObject, ServiceProvider, SecurityOb
 
     @Override
     public <T extends Service> T getService(ServiceKey<T> tag) throws UnsupportedOperationException {
-        T service = serviceManager.getService(tag, this);
+        T service = serviceManager.getService(qualifyServiceKey(tag), this);
         return service == null ? ServiceProvider.super.getService(tag) : service;
     }
 
