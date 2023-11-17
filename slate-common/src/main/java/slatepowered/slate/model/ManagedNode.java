@@ -172,6 +172,8 @@ public abstract class ManagedNode extends Node {
                             .map(h -> h.host.getName())
                             .orElse(null)
             );
+
+            return key;
         }
 
         return super.qualifyServiceKey(key);
