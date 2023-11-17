@@ -5,6 +5,7 @@ import slatepowered.slate.logging.Logger;
 import slatepowered.slate.logging.Logging;
 import slatepowered.slate.model.Network;
 import slatepowered.slate.model.Node;
+import slatepowered.slate.packages.PackageKey;
 import slatepowered.slate.service.*;
 
 import java.util.Objects;
@@ -64,8 +65,10 @@ public interface NodeHostBoundServiceKey<T extends Service> extends NodeBoundSer
             Node hostNode = network.getNode(hostName);
             if (hostNode == null)
                 throw new IllegalArgumentException("Could not find a node by hostName(" + nodeName + ")");
-            System.out.println("Service: NodeHostBound: Found host node for hostName(" + hostName + ")");
-            S baseService = manager.getService(hostNode.qualifyServiceKey(sourceKey));
+            System.out.println("Service: NodeHostBound: Found host node for hostName(" + hostName + "): " + hostNode);
+            ServiceKey<S> qualifiedSourceKey = hostNode.qualifyServiceKey(sourceKey);
+            System.out.println("Service: NodeHostBound: Qualified base service key with node host: " + qualifiedSourceKey);
+            S baseService = manager.getService(qualifiedSourceKey);
             System.out.println("Service: NodeHostBound: Found base service instance(" + baseService + ") for unqualified key: " + sourceKey);
             return function.apply(baseService, nodeName);
         }

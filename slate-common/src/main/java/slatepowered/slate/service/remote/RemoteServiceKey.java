@@ -43,7 +43,7 @@ public abstract class RemoteServiceKey<T extends Service & RemoteAPI> implements
 
     @Override
     public T create(ServiceProvider provider) {
-        System.out.println("Network: Remote: binding service to remoteChannel(" + remoteName + ")");
+        System.out.println("Service: Remote: binding service to remoteChannel(" + remoteName + ")");
         Objects.requireNonNull(remoteName, "Remote name can not be null");
 
         RPCManager rpcManager = provider.getSingleton(RPCManager.class);
