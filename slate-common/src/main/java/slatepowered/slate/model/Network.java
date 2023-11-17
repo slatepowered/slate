@@ -143,6 +143,7 @@ public abstract class Network implements ServiceProvider, Service {
      */
     @SuppressWarnings("unchecked")
     public <N extends Node> N getNode(String name) {
+        System.out.println("Network: finding node by name(" + name + ")");
         if ("master".equals(name))
             return (N) master();
         return (N) nodeMap.get(name);
