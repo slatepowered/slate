@@ -1,5 +1,6 @@
 package slatepowered.slate.service.remote;
 
+import slatepowered.reco.ProvidedChannel;
 import slatepowered.reco.rpc.RPCManager;
 import slatepowered.reco.rpc.RemoteAPI;
 import slatepowered.slate.model.NamedRemote;
@@ -50,7 +51,10 @@ public abstract class RemoteServiceKey<T extends Service & RemoteAPI> implements
 
         RPCManager rpcManager = provider.getSingleton(RPCManager.class);
         Objects.requireNonNull(rpcManager, "Could not find valid RPC manager singleton");
-        return rpcManager.bindRemote(rpcManager.getLocalChannel().provider().channel(remoteName), getServiceClass());
+
+        ProvidedChannel channel = rpcManager.getLocalChannel().provider().channel(remoteName);
+        System.out.println("Service: Remote: created channel " + channel);
+        return rpcManager.bindRemote(channel, getServiceClass());
     }
 
 }
