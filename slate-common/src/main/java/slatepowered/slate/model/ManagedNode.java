@@ -155,7 +155,7 @@ public abstract class ManagedNode extends Node {
     @Override
     public <T extends Service> ServiceKey<T> qualifyServiceKey(ServiceKey<T> key) throws UnsupportedOperationException {
         if (key instanceof NodeHostBoundServiceKey) {
-            ((NodeHostBoundServiceKey) key).forNode(
+            ((NodeHostBoundServiceKey) key).forHost(
                     this.findComponents(NodeHost.class).first().map(h -> h.host.getName()).orElse(null));
         }
 

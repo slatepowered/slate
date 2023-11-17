@@ -12,9 +12,9 @@ public interface DynamicServiceKey<T extends Service> extends ServiceKey<T> {
     /**
      * Dynamically create the service for the given service manager.
      *
-     * @param manager The manager.
+     * @param provider The manager.
      * @return The service.
      */
-    T create(ServiceManager manager);
+    T create(ServiceProvider provider);
 
 }

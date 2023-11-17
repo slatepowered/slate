@@ -13,6 +13,7 @@ import slatepowered.slate.service.ServiceManager;
 import slatepowered.slate.service.ServiceProvider;
 import slatepowered.slate.service.ServiceKey;
 import slatepowered.veru.functional.Callback;
+import sun.nio.ch.Net;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -22,7 +23,9 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Represents a Slate network.
  */
-public abstract class Network implements ServiceProvider {
+public abstract class Network implements ServiceProvider, Service {
+
+    public static final ServiceKey<Network> KEY = ServiceKey.local(Network.class);
 
     /**
      * The communication strategy.
@@ -79,6 +82,7 @@ public abstract class Network implements ServiceProvider {
         // default services
         this.serviceManager = new ServiceManager(this)
                 .registerSingleton(RPCManager.class, rpcManager);
+        serviceManager.register(KEY, this);
 
         getService(NetworkInfoService.KEY).onClose().then(unused -> {
             onCloseEvent.call(null);
@@ -100,6 +104,7 @@ public abstract class Network implements ServiceProvider {
      *
      * @return The service manager.
      */
+    @Override
     public ServiceManager serviceManager() {
         return serviceManager;
     }

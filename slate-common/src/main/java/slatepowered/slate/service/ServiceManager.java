@@ -40,15 +40,16 @@ public class ServiceManager implements ServiceProvider {
     }
 
     /**
-     * Retrieves the given service from this service manager.
+     * Retrieves the given service from this service manager with the
+     * given provider as source.
      *
      * @param key The service key.
+     * @param provider The service provider used to invoke this.
      * @param <T> The service instance type.
      * @return The service instance.
      */
-    @Override
     @SuppressWarnings("unchecked")
-    public <T extends Service> T getService(ServiceKey<T> key) throws UnsupportedOperationException {
+    public <T extends Service> T getService(ServiceKey<T> key, ServiceProvider provider) throws UnsupportedOperationException {
         Service service;
 
         // check local service registry
@@ -60,7 +61,7 @@ public class ServiceManager implements ServiceProvider {
         // create dynamically
         if (key instanceof DynamicServiceKey) {
             DynamicServiceKey<T> serviceTag = (DynamicServiceKey<T>) key;
-            return serviceTag.create(this);
+            return serviceTag.create(provider == null ? this : provider);
         }
 
         // find in parent
@@ -69,6 +70,20 @@ public class ServiceManager implements ServiceProvider {
         }
 
         return null;
+    }
+
+    /**
+     * Retrieves the given service from this service manager with the
+     * given provider as source.
+     *
+     * @param key The service key.
+     * @param <T> The service instance type.
+     * @return The service instance.
+     */
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T extends Service> T getService(ServiceKey<T> key) throws UnsupportedOperationException {
+        return getService(key, null);
     }
 
     /**

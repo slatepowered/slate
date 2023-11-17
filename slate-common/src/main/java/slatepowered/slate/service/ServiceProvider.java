@@ -16,6 +16,15 @@ public interface ServiceProvider {
     Map<Class<?>, MethodHandle> TAG_METHOD_CACHE = new HashMap<>();
 
     /**
+     * Get the root service manager for this provider.
+     *
+     * @return The service manager.
+     */
+    default ServiceManager serviceManager() {
+        return parentServiceResolver().serviceManager();
+    }
+
+    /**
      * The parent service resolver to query the qualified
      * service key in.
      *

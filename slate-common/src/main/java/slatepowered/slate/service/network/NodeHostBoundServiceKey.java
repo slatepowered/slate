@@ -1,17 +1,24 @@
 package slatepowered.slate.service.network;
 
 import lombok.RequiredArgsConstructor;
-import slatepowered.slate.service.DynamicServiceKey;
-import slatepowered.slate.service.Service;
-import slatepowered.slate.service.ServiceKey;
-import slatepowered.slate.service.ServiceManager;
+import slatepowered.slate.model.Network;
+import slatepowered.slate.model.Node;
+import slatepowered.slate.service.*;
 
 import java.util.function.BiFunction;
 
 public interface NodeHostBoundServiceKey<T extends Service> extends NodeBoundServiceKey<T> {
 
     /**
-     * A node-bound service mapping from S -> R.
+     * Set the host this should be bound to.
+     *
+     * @param hostName The host name.
+     * @return The key.
+     */
+    NodeHostBoundServiceKey<T> forHost(String hostName);
+
+    /**
+     * A node-host-bound service mapping from S -> R.
      */
     @RequiredArgsConstructor
     @SuppressWarnings("unchecked")
@@ -19,6 +26,7 @@ public interface NodeHostBoundServiceKey<T extends Service> extends NodeBoundSer
         private final Class<R> serviceClass;
         private final ServiceKey<S> sourceKey;
         private final BiFunction<String, S, R> function;
+        private String hostName;
         private String nodeName;
 
         @Override
@@ -43,10 +51,16 @@ public interface NodeHostBoundServiceKey<T extends Service> extends NodeBoundSer
         }
 
         @Override
-        public R create(ServiceManager manager) {
-            return function.apply(nodeName, manager.getService(sourceKey));
+        public R create(ServiceProvider manager) {
+            Node hostNode = manager.getService(Network.KEY).getNode(hostName);
+            return function.apply(nodeName, manager.getService(hostNode.qualifyServiceKey(sourceKey)));
         }
 
+        @Override
+        public NodeHostBoundServiceKey<R> forHost(String hostName) {
+            this.hostName = hostName;
+            return this;
+        }
     }
 
     /**
