@@ -39,6 +39,22 @@ public interface Logger {
     void debug(Object... msg);
     default void debug(Supplier<Object> msg) { if (Logging.DEBUG) debug(msg.get()); }
 
+    default void trace(Object... msg) {
+        if (Logging.DEBUG) {
+            debug(msg);
+
+            // print the stack trace
+            StackTraceElement[] elements = new RuntimeException().getStackTrace();
+            for (int i = 1; i < elements.length; i++) {
+                debug(elements[i]);
+            }
+        }
+    }
+
+    default void trace(Supplier<Object> msg) {
+        if (Logging.DEBUG) trace(msg.get());
+    }
+
     /**
      * Create a logger which doesn't do anything when the methods
      * are called.

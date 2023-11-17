@@ -7,6 +7,7 @@ import slatepowered.slate.model.Network;
 import slatepowered.slate.model.Node;
 import slatepowered.slate.service.*;
 
+import java.util.Objects;
 import java.util.function.BiFunction;
 
 public interface NodeHostBoundServiceKey<T extends Service> extends NodeBoundServiceKey<T> {
@@ -59,6 +60,7 @@ public interface NodeHostBoundServiceKey<T extends Service> extends NodeBoundSer
             System.out.println("Service: NodeHostBound: Finding Network in provider(" + manager + ")");
             Network network = manager.getService(Network.KEY);
             System.out.println("Service: NodeHostBound: Found Network instance(" + network + ")");
+            Objects.requireNonNull(hostName, "Host name is not set, can not get service");
             Node hostNode = network.getNode(hostName);
             System.out.println("Service: NodeHostBound: Found host node for hostName(" + hostNode + ")");
             S baseService = manager.getService(hostNode.qualifyServiceKey(sourceKey));
@@ -68,6 +70,8 @@ public interface NodeHostBoundServiceKey<T extends Service> extends NodeBoundSer
 
         @Override
         public NodeHostBoundServiceKey<R> forHost(String hostName) {
+            System.out.println("Service: NodeHostBound: set hostName(" + hostName + ")");
+            new RuntimeException().printStackTrace();
             this.hostName = hostName;
             return this;
         }

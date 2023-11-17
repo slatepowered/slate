@@ -11,7 +11,7 @@ import slatepowered.slate.allocation.NodeAllocator;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class NodeHost implements NodeComponent {
+public class NodeHost implements SharedNodeComponent {
 
     public static NodeHost by(Node node) {
         return new NodeHost(node);
