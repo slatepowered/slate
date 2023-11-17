@@ -68,7 +68,7 @@ public interface NodeHostBoundServiceKey<T extends Service> extends NodeBoundSer
             System.out.println("Service: NodeHostBound: Found host node for hostName(" + hostName + "): " + hostNode);
             ServiceKey<S> qualifiedSourceKey = hostNode.qualifyServiceKey(sourceKey);
             System.out.println("Service: NodeHostBound: Qualified base service key with node host: " + qualifiedSourceKey);
-            S baseService = manager.getService(qualifiedSourceKey);
+            S baseService = manager.serviceManager().getService(qualifiedSourceKey);
             System.out.println("Service: NodeHostBound: Found base service instance(" + baseService + ") for unqualified key: " + sourceKey);
             return function.apply(baseService, nodeName);
         }
