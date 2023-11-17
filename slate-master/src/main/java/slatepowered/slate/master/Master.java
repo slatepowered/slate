@@ -67,6 +67,7 @@ public class Master extends MasterNetwork {
 
         integratedClusterImpl = new IntegratedCluster("master.integrated-cluster", this);
         integratedClusterInstance = new IntegratedClusterInstance(integratedClusterImpl, communicationKey, communicationStrategy);
+        registerNode(integratedClusterInstance.node());
 
         // add master package provider service
         register(ProvidedPackageService.KEY, new ProvidedPackageService() {

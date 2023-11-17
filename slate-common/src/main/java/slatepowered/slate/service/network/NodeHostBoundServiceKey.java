@@ -62,7 +62,9 @@ public interface NodeHostBoundServiceKey<T extends Service> extends NodeBoundSer
             System.out.println("Service: NodeHostBound: Found Network instance(" + network + ")");
             Objects.requireNonNull(hostName, "Host name is not set, can not get service");
             Node hostNode = network.getNode(hostName);
-            System.out.println("Service: NodeHostBound: Found host node for hostName(" + hostNode + ")");
+            if (hostNode == null)
+                throw new IllegalArgumentException("Could not find a node by hostName(" + nodeName + ")");
+            System.out.println("Service: NodeHostBound: Found host node for hostName(" + hostName + ")");
             S baseService = manager.getService(hostNode.qualifyServiceKey(sourceKey));
             System.out.println("Service: NodeHostBound: Found base service for unqualified key: " + sourceKey);
             return function.apply(baseService, nodeName);
