@@ -169,7 +169,7 @@ public abstract class ManagedNode extends Node {
             ((NodeHostBoundServiceKey) key).forHost(
                     this.findComponents(NodeHost.class)
                             .first()
-                            .map(h -> h.host.getName())
+                            .map(h -> h.hostNode.getName())
                             .orElse(null)
             );
 
