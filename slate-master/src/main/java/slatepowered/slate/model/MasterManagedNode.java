@@ -48,13 +48,10 @@ public abstract class MasterManagedNode extends ManagedNode {
         return future;
     }
 
-    /**
-     * Destroys this node.
-     *
-     * @return The
-     */
-    public CompletableFuture<Void> destroy() {
+    @Override
+    public void destroy() {
         LOGGER.debug("Destroying node `", name, "` on master");
+        super.destroy();
         CompletableFuture<Void> future =
                 this.runVoidAction(NodeDestroyAdapter.class, NodeDestroyAdapter::destroy, null)
                 .thenApply(unused -> {
@@ -62,8 +59,6 @@ public abstract class MasterManagedNode extends ManagedNode {
                     masterNetwork.destroyNode(this);
                     return null;
                 });
-
-        return future;
     }
 
 }

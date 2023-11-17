@@ -57,8 +57,14 @@ public class MasterBootstrap {
                 .build();
 
         bootstrap.start(args);
-        System.out.println(bootstrap.getMaster().local().getService(Network.KEY));
-        bootstrap.awaitClose();
+        bootstrap.awaitCloseAsync();
+
+        Master master = (Master) bootstrap.getMaster().master().child("hehehee")
+                .build().getService(Network.KEY);
+        System.out.println(master);
+        System.out.println(master.getNode("master"));
+
+        System.out.println("hi");
     }
 
     public void start(String[] args) {

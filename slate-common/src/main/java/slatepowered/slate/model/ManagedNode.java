@@ -38,7 +38,9 @@ public abstract class ManagedNode extends Node {
     public ManagedNode(Node parent, String name, Network network, List<NodeComponent> components) {
         super(name, network);
         this.parent = parent;
-        this.components = new ArrayList<>();
+
+        // ensure a thread-safe component list
+        this.components = new Vector<>();
 
         // invoke node attachments
         if (components != null) {
@@ -54,6 +56,14 @@ public abstract class ManagedNode extends Node {
         this.components = new ArrayList<>();
     }
 
+    /**
+     * Get the parent node of this node.
+     *
+     * The parent of a node is generally unimportant except for
+     * organization or special behavior.
+     *
+     * @return The parent node.
+     */
     public Node getParent() {
         return parent;
     }
@@ -160,6 +170,16 @@ public abstract class ManagedNode extends Node {
         }
 
         return super.qualifyServiceKey(key);
+    }
+
+    @Override
+    public void destroy() {
+        super.destroy();
+
+        // unregister as a child
+        if (parent instanceof ManagedNode) {
+            ((ManagedNode)parent).children.remove(name);
+        }
     }
 
 }

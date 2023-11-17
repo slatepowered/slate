@@ -99,7 +99,7 @@ public class NodeBuilder {
      * @return The built node.
      */
     public MasterManagedNode build() {
-        MasterManagedNode node = new MasterManagedNode(parent, name, parent.getNetwork(), new Vector<>()) {
+        MasterManagedNode node = new MasterManagedNode(parent, name, this.getNetwork(), new Vector<>()) {
             {
                 // register this node to the network
                 network.registerNode(this);
