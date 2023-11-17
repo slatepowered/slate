@@ -3,6 +3,7 @@ package slatepowered.slate.cluster;
 import slatepowered.slate.communication.CommunicationKey;
 import slatepowered.slate.master.Master;
 import slatepowered.slate.packages.PackageManager;
+import slatepowered.slate.plugin.SlatePluginManager;
 
 import java.nio.file.Path;
 
@@ -22,6 +23,11 @@ public class IntegratedCluster extends Cluster<IntegratedClusterInstance> {
     public IntegratedCluster(String name, Master master) {
         super(name);
         this.master = master;
+    }
+
+    @Override
+    public SlatePluginManager getPluginManager() {
+        return master.getPluginManager();
     }
 
     @Override

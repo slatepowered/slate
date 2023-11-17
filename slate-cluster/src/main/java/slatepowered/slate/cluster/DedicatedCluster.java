@@ -7,6 +7,7 @@ import slatepowered.slate.allocation.LocalNodeAllocation;
 import slatepowered.slate.communication.CommunicationKey;
 import slatepowered.slate.communication.CommunicationStrategy;
 import slatepowered.slate.packages.PackageManager;
+import slatepowered.slate.plugin.SlatePluginManager;
 import slatepowered.veru.misc.Throwables;
 
 import java.nio.file.Path;
@@ -46,6 +47,18 @@ public class DedicatedCluster extends Cluster<DedicatedClusterInstance> {
      */
     private final CommunicationStrategy communicationStrategy;
 
+    /**
+     * The local plugin manager.
+     */
+    protected final SlatePluginManager pluginManager = new SlatePluginManager(getLocalPackageManager()) {
+        final String[] envNames = new String[] { "nodehost", "host", "cluster" };
+
+        @Override
+        public String[] getEnvironmentNames() {
+            return envNames;
+        }
+    };
+
     // the communication provider for clusterDeclares
     private RPCManager clusterDeclareRPC;
 
@@ -60,6 +73,10 @@ public class DedicatedCluster extends Cluster<DedicatedClusterInstance> {
         this.allocationChecker = allocationChecker;
         this.communicationStrategy = communicationStrategy;
         this.directory = directory;
+    }
+
+    public SlatePluginManager getPluginManager() {
+        return pluginManager;
     }
 
     /**

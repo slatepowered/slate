@@ -38,18 +38,6 @@ public abstract class Cluster<I extends ClusterInstance> {
     protected final List<LocalNodeAllocation> localAllocations = new ArrayList<>();
 
     /**
-     * The local plugin manager.
-     */
-    protected final SlatePluginManager pluginManager = new SlatePluginManager(getLocalPackageManager()) {
-        final String[] envNames = new String[] { "nodehost", "host", "cluster" };
-
-        @Override
-        public String[] getEnvironmentNames() {
-            return envNames;
-        }
-    };
-
-    /**
      * Get the local package manager for this cluster.
      *
      * @return The package manager.
@@ -61,9 +49,7 @@ public abstract class Cluster<I extends ClusterInstance> {
      *
      * @return The plugin manager instance.
      */
-    public SlatePluginManager getPluginManager() {
-        return pluginManager;
-    }
+    public abstract SlatePluginManager getPluginManager();
 
     /**
      * Get the shared cluster directory.
