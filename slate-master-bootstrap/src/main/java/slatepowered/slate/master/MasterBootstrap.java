@@ -1,6 +1,7 @@
 package slatepowered.slate.master;
 
 import com.eclipsesource.json.JsonValue;
+import lombok.Builder;
 import slatepowered.slate.communication.CommunicationStrategy;
 import slatepowered.slate.communication.RMQCommunicationStrategy;
 import slatepowered.slate.logging.JavaLoggerProvider;
@@ -13,10 +14,12 @@ import slatepowered.veru.config.YamlConfigParser;
 import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * The entry point/bootstrap for the master instance.
  */
+@Builder
 public class MasterBootstrap {
 
     static {
@@ -38,27 +41,35 @@ public class MasterBootstrap {
                 "[%1$tT] [%3$s] [%4$s] %5$s %n"));
     }
 
-    private static final Path CONFIG_PATH = Paths.get("./config.yml");
-    private static final String CONFIG_DEFAULTS = "/config.defaults.yml";
     private static final Logger LOGGER = Logging.getLogger("MasterBootstrap");
 
-    private static Configuration config;
-    private static Master master;
+    private final Path configurationPath;               // The path you can find the configuration file at
+    private final String configurationDefaultsResource; // The configuration defaults resource
+
+    private Configuration config; // The configuration loaded into memory
+    private Master master;        // The master network object
 
     public static void main(String[] args) {
-        start(args);
-        awaitClose();
+        MasterBootstrap bootstrap = MasterBootstrap.builder()
+                .configurationPath(Paths.get("./config.yml"))
+                .configurationDefaultsResource("/config.defaults.yml")
+                .build();
+
+        bootstrap.start(args);
+        bootstrap.awaitClose();
     }
 
-    public static void start(String[] args) {
+    public void start(String[] args) {
         // todo: parse config and options
         //  make options replace config values
         //  then actually start the Master instance
 
         // load init configuration
         LOGGER.info("Loading configuration and command line overrides");
-        config = new Configuration().withParser(YamlConfigParser.standard());
-        config.reloadOrDefaultThrowing(CONFIG_PATH, CONFIG_DEFAULTS);
+        if (config == null) {
+            config = new Configuration().withParser(YamlConfigParser.standard());
+            config.reloadOrDefaultThrowing(configurationPath, configurationDefaultsResource);
+        }
 
         // parse args (config overrides)
         for (int i = 0; i < args.length; i++) {
@@ -137,14 +148,20 @@ public class MasterBootstrap {
         }
     }
 
-    public static void awaitClose() {
+    public void awaitClose() {
         // await network close
         master.onClose().await().join();
     }
 
     /** Starts a non-daemon thread which waits for the network to be destroyed. */
-    public static void awaitCloseAsync() {
-        new Thread(MasterBootstrap::awaitClose, "Network Close Listener");
+    public CompletableFuture<Void> awaitCloseAsync() {
+        final CompletableFuture<Void> future = new CompletableFuture<>();
+        new Thread(() -> {
+            awaitClose();
+            future.complete(null);
+        }, "Network Close Listener");
+
+        return future;
     }
 
     // Connect to a RabbitMQ and create the communication strategy
@@ -158,11 +175,11 @@ public class MasterBootstrap {
                 .build();
     }
 
-    public static Master getMaster() {
+    public Master getMaster() {
         return master;
     }
 
-    public static Configuration getConfiguration() {
+    public Configuration getConfiguration() {
         return config;
     }
 
