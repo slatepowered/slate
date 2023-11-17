@@ -141,7 +141,7 @@ public class MasterBootstrap {
             // make sure not to override an allocation checker set by plugins
             if (master.getIntegratedCluster().getAllocationChecker() == null) {
                 int maxNodes = config.<Integer>issue("integrated-cluster", "max-nodes").orElse(5);
-                master.getIntegratedCluster().setAllocationChecker((cluster, clusterInstance, name, tags) -> {
+                master.getIntegratedCluster().setAllocationChecker((cluster, clusterInstance, name, parent, tags) -> {
                     return cluster.getLocalAllocations().size() < maxNodes;
                 });
             }

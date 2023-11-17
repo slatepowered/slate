@@ -12,9 +12,10 @@ public interface ClusterAllocationChecker {
      * @param cluster The cluster.
      * @param clusterInstance The cluster instance.
      * @param name The name of the node to allocate.
+     * @param parent The name of the parent node.
      * @param tags The tags of the node.
      * @return Whether the node could be allocated.
      */
-    Boolean canAllocate(Cluster cluster, ClusterInstance clusterInstance, String name, String[] tags);
+    Boolean canAllocate(Cluster<?> cluster, ClusterInstance clusterInstance, String name, String parent, String[] tags);
 
 }

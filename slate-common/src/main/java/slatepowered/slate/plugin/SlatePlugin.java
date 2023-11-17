@@ -3,8 +3,11 @@ package slatepowered.slate.plugin;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import slatepowered.slate.model.Network;
+import slatepowered.slate.packages.PackageKey;
+import slatepowered.slate.packages.local.LocalFilesPackage;
 import slatepowered.veru.functional.Callback;
 
+import java.nio.file.Path;
 import java.util.List;
 
 /**

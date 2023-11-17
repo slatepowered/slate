@@ -3,6 +3,8 @@ package slatepowered.slate.allocation;
 import slatepowered.reco.rpc.Local;
 import slatepowered.reco.rpc.RemoteAPI;
 import slatepowered.reco.rpc.function.Allow;
+import slatepowered.slate.logging.Logger;
+import slatepowered.slate.logging.Logging;
 import slatepowered.slate.model.ManagedNode;
 import slatepowered.slate.model.NodeComponent;
 import slatepowered.slate.model.SharedNodeComponent;
@@ -16,7 +18,6 @@ import slatepowered.veru.misc.Throwables;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.logging.Logger;
 
 /**
  * Determines how a node is allocated and created on a cluster
@@ -26,7 +27,7 @@ public interface NodeAllocator extends NodeInitializeAdapter, NodeDestroyAdapter
 
     ServiceKey<NodeAllocator> KEY = LocalRemoteServiceKey.key(NodeAllocator.class);
 
-    Logger LOGGER = Logger.getLogger("NodeAllocator");
+    Logger LOGGER = Logging.getLogger("NodeAllocator");
 
     /**
      * Checks whether this allocator has the resources available
@@ -35,10 +36,10 @@ public interface NodeAllocator extends NodeInitializeAdapter, NodeDestroyAdapter
      * @return Whether it could allocate a node.
      */
     @Allow("all")
-    Boolean canAllocate(String parent, String[] tags);
+    Boolean canAllocate(String name, String parent, String[] tags);
 
-    default CompletableFuture<Boolean> canAllocateAsync(String parent, String[] tags) {
-        return CompletableFuture.completedFuture(canAllocate(parent, tags));
+    default CompletableFuture<Boolean> canAllocateAsync(String name, String parent, String[] tags) {
+        return CompletableFuture.completedFuture(canAllocate(name, parent, tags));
     }
 
     /**
@@ -72,7 +73,7 @@ public interface NodeAllocator extends NodeInitializeAdapter, NodeDestroyAdapter
         final List<SharedNodeComponent> sharedNodeComponents = node.findComponents(SharedNodeComponent.class);
         final NodeAllocationRequest allocationRequest = new NodeAllocationRequest(node.getParent().getName(), node.getName(), node.getTags(), sharedNodeComponents);
 
-        return canAllocateAsync(node.getParent().getName(), node.getTags())
+        return canAllocateAsync(node.getName(), node.getParent().getName(), node.getTags())
                 .thenApply(b -> {
                     if (b) {
                         // allocate node and add result as component
@@ -94,6 +95,7 @@ public interface NodeAllocator extends NodeInitializeAdapter, NodeDestroyAdapter
 
                             // handle successful allocation
                             NodeAllocation allocation = result.successful();
+                            LOGGER.debug("Successfully allocated node(name: " + node.getName() + ") attaching(" + allocation.getComponents().size() + " components)");
                             node.attach(allocation);
                             for (NodeComponent component : allocation.getComponents()) {
                                 node.attach(component);

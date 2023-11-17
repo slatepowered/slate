@@ -8,6 +8,8 @@ import slatepowered.slate.model.MasterManagedNode;
 import slatepowered.slate.model.MasterNetwork;
 import slatepowered.slate.network.NetworkInfoService;
 import slatepowered.slate.packages.PackageManager;
+import slatepowered.slate.packages.service.ProvidedPackageService;
+import slatepowered.slate.plugin.SlatePlugin;
 import slatepowered.slate.plugin.SlatePluginManager;
 import slatepowered.veru.data.Pair;
 
@@ -50,7 +52,7 @@ public class Master extends MasterNetwork {
         super(communicationKey, communicationStrategy);
         this.directory = directory;
 
-        localPackageManager = new PackageManager(directory.resolve("packages"));
+        register(PackageManager.KEY, localPackageManager = new PackageManager(serviceManager(), directory.resolve("packages")));
 
         this.pluginManager = new SlatePluginManager(localPackageManager) {
             final String[] envNames = new String[] { "master", "controller" };
@@ -61,8 +63,15 @@ public class Master extends MasterNetwork {
             }
         };
 
+        register(SlatePluginManager.KEY, pluginManager);
+
         integratedClusterImpl = new IntegratedCluster("master.integrated-cluster", this);
         integratedClusterInstance = new IntegratedClusterInstance(integratedClusterImpl, communicationKey, communicationStrategy);
+
+        // add master package provider service
+        register(ProvidedPackageService.KEY, new ProvidedPackageService() {
+
+        });
     }
 
     public SlatePluginManager getPluginManager() {

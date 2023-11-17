@@ -44,6 +44,10 @@ public class NetworkServiceKey<T extends Service & RemoteAPI> extends RemoteServ
         return new NetworkServiceKey<>(tClass, provider);
     }
 
+    public static <T extends Service & RemoteAPI> NetworkServiceKey<T> fromMaster(Class<T> tClass) {
+        return new NetworkServiceKey<>(tClass, "master");
+    }
+
     @Override
     public Class<T> getServiceClass() {
         return serviceClass;

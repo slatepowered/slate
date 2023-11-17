@@ -5,6 +5,7 @@ import slatepowered.slate.logging.Logging;
 import slatepowered.slate.packages.key.TrivialPackageKey;
 import slatepowered.slate.service.Service;
 import slatepowered.slate.service.ServiceKey;
+import slatepowered.slate.service.ServiceManager;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -26,6 +27,11 @@ public class PackageManager implements Service {
     public static final ServiceKey<PackageManager> KEY = ServiceKey.local(PackageManager.class);
 
     /**
+     * The service manager this package manager has access to.
+     */
+    protected final ServiceManager serviceManager;
+
+    /**
      * The cached local packages by package key.
      */
     protected final Map<PackageKey, LocalPackage> localPackageMap = new ConcurrentHashMap<>();
@@ -45,7 +51,8 @@ public class PackageManager implements Service {
      */
     protected final List<PackageResolver> packageResolvers = new ArrayList<>();
 
-    public PackageManager(Path directory) {
+    public PackageManager(ServiceManager serviceManager, Path directory) {
+        this.serviceManager = serviceManager;
         this.directory = directory;
 
         try {
@@ -53,6 +60,10 @@ public class PackageManager implements Service {
         } catch (Throwable t) {
             throw new RuntimeException("Failed to initialize local package manager dir(" + directory + ")", t);
         }
+    }
+
+    public ServiceManager getServiceManager() {
+        return serviceManager;
     }
 
     /**
@@ -167,7 +178,7 @@ public class PackageManager implements Service {
         P localPackage = getCachedPackage(key);
 
         if (localPackage == null) {
-            String dirName = key.toUUID().toString();
+            String dirName = key.getIdentifier();
             Path path = directory.resolve(dirName);
 
             // try to load data to local package, this should

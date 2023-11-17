@@ -16,6 +16,7 @@ import slatepowered.slate.packages.PackageManager;
 import slatepowered.slate.packages.Packages;
 import slatepowered.slate.packages.service.LateAttachmentService;
 import slatepowered.slate.plugin.SlatePluginManager;
+import slatepowered.veru.collection.Sequence;
 import slatepowered.veru.misc.Throwables;
 
 import java.nio.file.Files;
@@ -54,7 +55,8 @@ public abstract class ClusterInstance extends ClusterNetwork {
         cluster.getPluginManager().initialize(this);
 
         // register the cluster services
-        serviceManager.register(PackageManager.KEY, cluster.getLocalPackageManager());
+        register(PackageManager.KEY, cluster.getLocalPackageManager());
+        register(SlatePluginManager.KEY, cluster.getPluginManager());
 
         try {
             Files.createDirectories(directory);
@@ -163,6 +165,8 @@ public abstract class ClusterInstance extends ClusterNetwork {
             });
 
             // execute other allocation components
+            Sequence<NodeAllocationAdapter> adapters = node.findComponents(NodeAllocationAdapter.class);
+            LOGGER.debug("Execute allocation of node(name: " + node.getName() + ") for adapter count(" + adapters.size() + ")");
             node.findComponents(NodeAllocationAdapter.class).forEach(adapter ->
                     adapter.initialize(packageManager, node, localNodeAllocation.getDirectory()));
 
@@ -180,6 +184,7 @@ public abstract class ClusterInstance extends ClusterNetwork {
      */
     public void destroyNode(ClusterManagedNode node) {
         try {
+            LOGGER.debug("Destroying node(name: " + node.getName() + ") on this cluster");
             LocalNodeAllocation allocation = node.getAllocation();
             cluster.localAllocations.remove(allocation);
             allocation.destroy();
@@ -199,9 +204,10 @@ public abstract class ClusterInstance extends ClusterNetwork {
          */
         serviceManager.register(NodeAllocator.KEY, new NodeAllocator() {
             @Override
-            public Boolean canAllocate(String parent, String[] tags) {
+            public Boolean canAllocate(String name, String parent, String[] tags) {
                 if (!isEnabled()) return false;
-                return getAllocationChecker().canAllocate(cluster, ClusterInstance.this, parent, tags);
+                LOGGER.debug("Checking for allocation possibility here on cluster(name: " + getCluster().getName() + ")");
+                return getAllocationChecker().canAllocate(cluster, ClusterInstance.this, name, parent, tags);
             }
 
             @Override

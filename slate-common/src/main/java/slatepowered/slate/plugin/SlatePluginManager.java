@@ -4,7 +4,10 @@ import com.eclipsesource.json.*;
 import slatepowered.slate.logging.Logger;
 import slatepowered.slate.logging.Logging;
 import slatepowered.slate.model.Network;
+import slatepowered.slate.packages.PackageKey;
 import slatepowered.slate.packages.PackageManager;
+import slatepowered.slate.service.Service;
+import slatepowered.slate.service.ServiceKey;
 import slatepowered.veru.io.IOUtil;
 import slatepowered.veru.misc.Throwables;
 import slatepowered.veru.reflect.Classloading;
@@ -22,7 +25,9 @@ import java.util.stream.StreamSupport;
 /**
  * Dynamically loads/manages {@link SlatePlugin} instances.
  */
-public abstract class SlatePluginManager {
+public abstract class SlatePluginManager implements Service {
+
+    public static final ServiceKey<SlatePluginManager> KEY = ServiceKey.local(SlatePluginManager.class);
 
     private static SlatePluginManager instance;
     private static final Logger LOGGER = Logging.getLogger("SlatePluginManager");
@@ -280,7 +285,7 @@ public abstract class SlatePluginManager {
                     path.toUri().toURL());
 
             // create plugin instance
-            SlatePlugin plugin = new SlatePlugin(this, pluginId, pluginName, pluginVersion, dependencies, entrypoints);
+            SlatePlugin plugin = new FilePlugin(this, pluginId, pluginName, pluginVersion, dependencies, entrypoints, path);
             register(plugin);
             LOGGER.debug("Constructed ", plugin, " from file(", path, ")");
             return plugin;
