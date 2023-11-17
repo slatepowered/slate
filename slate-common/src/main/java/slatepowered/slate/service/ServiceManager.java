@@ -51,24 +51,29 @@ public class ServiceManager implements ServiceProvider {
     @SuppressWarnings("unchecked")
     public <T extends Service> T getService(ServiceKey<T> key, ServiceProvider provider) throws UnsupportedOperationException {
         Service service;
+        System.out.println("Service: Finding service for key(" + key + ") in manager(" + this + ")");
 
         // check local service registry
         service = localServices.get(key.toLocal());
         if (service != null) {
+            System.out.println("Service: found local service for key(" + key + "): " + service);
             return (T) service;
         }
 
         // create dynamically
         if (key instanceof DynamicServiceKey) {
+            System.out.println("Service: creating service from dynamic service key");
             DynamicServiceKey<T> serviceTag = (DynamicServiceKey<T>) key;
             return serviceTag.create(provider == null ? this : provider);
         }
 
         // find in parent
         if (parent != null) {
-            return parent.getService(key);
+            System.out.println("Service: attempting to find service in parent(" + parent + ")");
+            return parent.getService(key, provider);
         }
 
+        System.out.println("Service: could not find service, returning null");
         return null;
     }
 

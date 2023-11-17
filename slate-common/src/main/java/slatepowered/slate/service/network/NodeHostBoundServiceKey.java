@@ -56,11 +56,11 @@ public interface NodeHostBoundServiceKey<T extends Service> extends NodeBoundSer
 
         @Override
         public R create(ServiceProvider manager) {
-            if (Logging.DEBUG) LOGGER.debug("Find in provider(" + manager + ")");
+            System.out.println("Service: NodeHostBound: Find in provider(" + manager + ")");
             Node hostNode = manager.getService(Network.KEY).getNode(hostName);
-            if (Logging.DEBUG) LOGGER.debug("Found host node for hostName(" + hostNode + ")");
+            System.out.println("Service: NodeHostBound: Found host node for hostName(" + hostNode + ")");
             S baseService = manager.getService(hostNode.qualifyServiceKey(sourceKey));
-            if (Logging.DEBUG) LOGGER.debug("Found base service for unqualified key: " + sourceKey);
+            System.out.println("Service: NodeHostBound: Found base service for unqualified key: " + sourceKey);
             return function.apply(baseService, nodeName);
         }
 
