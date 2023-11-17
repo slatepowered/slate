@@ -8,6 +8,8 @@ import slatepowered.slate.service.Service;
 import slatepowered.slate.service.ServiceManager;
 import slatepowered.slate.service.ServiceProvider;
 
+import java.util.Objects;
+
 /**
  * todo
  */
@@ -41,7 +43,11 @@ public abstract class RemoteServiceKey<T extends Service & RemoteAPI> implements
 
     @Override
     public T create(ServiceProvider provider) {
+        System.out.println("Network: Remote: binding service to remoteChannel(" + remoteName + ")");
+        Objects.requireNonNull(remoteName, "Remote name can not be null");
+
         RPCManager rpcManager = provider.getSingleton(RPCManager.class);
+        Objects.requireNonNull(rpcManager, "Could not find valid RPC manager singleton");
         return rpcManager.bindRemote(rpcManager.getLocalChannel().provider().channel(remoteName), getServiceClass());
     }
 
