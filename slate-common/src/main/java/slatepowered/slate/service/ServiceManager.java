@@ -35,8 +35,18 @@ public class ServiceManager implements ServiceProvider {
         this(network, null);
     }
 
+    /**
+     * Get the local network instance this service manager is attached to.
+     *
+     * @return The network instance.
+     */
     public Network getNetwork() {
         return network;
+    }
+
+    @Override
+    public ServiceManager serviceManager() {
+        return this;
     }
 
     /**
