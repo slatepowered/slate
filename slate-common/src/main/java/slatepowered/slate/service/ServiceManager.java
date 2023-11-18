@@ -62,7 +62,7 @@ public class ServiceManager implements ServiceProvider {
 
         // create dynamically
         if (key instanceof DynamicServiceKey) {
-            System.out.println("Service: creating service from dynamic service key");
+            System.out.println("Service: creating service from dynamic service key: " + key);
             DynamicServiceKey<T> serviceTag = (DynamicServiceKey<T>) key;
             return serviceTag.create(provider == null ? this : provider);
         }
