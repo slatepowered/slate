@@ -1,0 +1,33 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+    }
+
+    repositories {
+        mavenCentral()
+        mavenLocal()
+
+        maven { url "https://maven.minecraftforge.net" }
+        maven { url "https://repo.spongepowered.org/repository/maven-public/" }
+        maven { url "https://plugins.gradle.org/m2/" }
+        maven { url "https://jitpack.io" }
+    }
+}
+
+dependencyResolutionManagement {
+    repositories {
+        mavenCentral()
+        mavenLocal()
+
+        maven { url "https://maven.minecraftforge.net" }
+        maven { url "https://repo.spongepowered.org/repository/maven-public/" }
+        maven { url "https://plugins.gradle.org/m2/" }
+        maven { url "https://jitpack.io" }
+    }
+}
+
+rootProject.name = 'slate-v2'
+include 'slate-common'
+include 'application-bootstrap'
+include 'base'
+

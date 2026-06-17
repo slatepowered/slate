@@ -1,0 +1,93 @@
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////
+
+group = 'com.orbyfied'
+version = '0.1.0'
+
+/////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////
+
+subprojects {
+    apply plugin: "java"
+    apply plugin: "maven-publish"
+    apply plugin: "java-library"
+
+    boolean isSlateModule = false
+    if (project.name.startsWith("slate")) {
+        apply plugin: "slate-module"
+        isSlateModule = true
+    }
+
+    configurations {
+        packed
+    }
+
+    dependencies {
+        /* Lombok */
+        compileOnly 'org.projectlombok:lombok:1.18.30'
+        annotationProcessor 'org.projectlombok:lombok:1.18.30'
+
+        // Internal common dependencies
+        packed project(":base")
+        packed "com.google.code.gson:gson:2.10.1"
+
+        // Other common project dependencies
+    }
+
+    /* Java Compile Settings */
+    compileJava.options.encoding = 'UTF-8'
+
+    tasks.withType(JavaCompile) {
+        options.encoding = 'UTF-8'
+    }
+
+    tasks.withType(Javadoc) {
+        enabled = false
+        options.encoding = 'UTF-8'
+    }
+
+    java {
+        // By default, build for java 8
+        sourceCompatibility = 21
+        targetCompatibility = 21
+
+        withSourcesJar()
+        withJavadocJar()
+    }
+
+    // Make build task depend on shadowJar
+    if (plugins.hasPlugin("com.github.johnrengelman.shadow")) {
+        tasks.getByName("build") {
+            dependsOn(tasks.getByName("shadowJar"))
+        }
+    }
+
+    task("install") {
+        dependsOn(tasks.getByName("publishToMavenLocal"))
+    }
+
+    /* Maven Publications */
+    publishing {
+        publications {
+            maven(MavenPublication) {
+                groupId = project.group as String
+                artifactId = project.name
+                version = project.version as String
+                from components.java
+            }
+        }
+    }
+
+    dependencies {
+        testImplementation platform('org.junit:junit-bom:5.10.0')
+        testImplementation 'org.junit.jupiter:junit-jupiter'
+    }
+
+    test {
+        useJUnitPlatform()
+    }
+}

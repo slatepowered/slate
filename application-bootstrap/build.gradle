@@ -1,0 +1,9 @@
+plugins {
+    id 'java'
+}
+
+group = 'com.orbyfied.slate'
+
+dependencies {
+    compileOnly project(":base")
+}
