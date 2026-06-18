@@ -88,7 +88,6 @@ class SlateBuildPlugin implements Plugin<Project> {
 
         /* Task and configuration setup, a lot of iteration over components occurs here */
         project.afterEvaluate { project.plugins.withType(JavaPlugin) {
-            println(packageDef.components)
             // configure dependencies on runtime and compiler classpath
             depExtension.dependencies.each { module ->
                 String configBaseName = module.configurationName != null ? module.configurationName : "compileOnly";

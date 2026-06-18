@@ -12,3 +12,7 @@ slatePackage {
 slateDependencies {
 
 }
+
+dependencies {
+
+}
