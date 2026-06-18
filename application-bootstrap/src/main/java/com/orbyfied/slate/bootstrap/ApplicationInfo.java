@@ -1,15 +1,12 @@
 package com.orbyfied.slate.bootstrap;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import com.eclipsesource.json.JsonObject;
 import lombok.Getter;
 import lombok.ToString;
 
 import java.net.URL;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
 
 /**
  * Publicly exported information about the current application running,
@@ -24,19 +21,27 @@ public class ApplicationInfo {
   protected String name;
   protected String group;
   protected String version;
+  protected String component;
+  protected String packageQualifier;
+  protected String componentQualifier;
   protected String qualifierHash;
   protected String entrypoint;
+  protected String uid;
 
-  protected final List<URL> extractedBundledLibraries = new ArrayList<>();
+  protected final List<URL> providedLibraries = new ArrayList<>();
   protected Object entryInstance;
 
   protected void loadRootMetadata(JsonObject ob) {
-    this.group = ob.get("group").getAsString();
-    this.name = ob.get("name").getAsString();
-    this.version = getStringOrNull(ob, "version");
-    this.qualifierHash = ob.get("qual-hash").getAsString();
+    this.group = ob.getString("group", null);
+    this.name = ob.getString("name", null);
+    this.version = ob.getString("version", null);
+    this.component = ob.getString("component", null);
+    this.packageQualifier = ob.getString("packageQualifier", null);
+    this.componentQualifier = ob.getString("componentQualifier", null);
+    this.qualifierHash = ob.getString("qualifierHash", null);
+    this.uid = ob.getString("uid", null);
 
-    this.entrypoint = getStringOrNull(ob, "entrypoint");
+    this.entrypoint = ob.getString("entrypoint", null);
   }
 
   @SuppressWarnings("unchecked")
@@ -47,14 +52,6 @@ public class ApplicationInfo {
   @SuppressWarnings("unchecked")
   public <T> T entryInstance(Class<T> tClass) {
     return (T) entryInstance;
-  }
-
-  private static <T> T getOrNull(JsonObject ob, String name, Function<JsonElement, T> function) {
-    return ob.has(name) ? function.apply(ob.get(name)) : null;
-  }
-
-  private static String getStringOrNull(JsonObject ob, String name) {
-    return ob.has(name) ? ob.get(name).getAsString() : null;
   }
 
 }

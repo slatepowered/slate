@@ -26,7 +26,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = 'slate-v2'
+rootProject.name = 'slate'
 include 'slate-common'
 include 'application-bootstrap'
 include 'base'

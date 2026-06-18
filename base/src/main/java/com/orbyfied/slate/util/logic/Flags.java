@@ -1,4 +1,4 @@
-package com.orbyfied.slate.util.data;
+package com.orbyfied.slate.util.logic;
 
 public class Flags {
 

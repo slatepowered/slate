@@ -5,14 +5,10 @@ plugins {
 group = 'com.orbyfied.slate'
 version = '0.1.0'
 
-repositories {
+slatePackage {
 
-}
-
-slateModule {
-    entrypoint = "com.orbyfied.slate.Entrypoint"
 }
 
 slateDependencies {
-    dependency("aaa:bbb:1.0")
+
 }

@@ -18,12 +18,8 @@ subprojects {
 
     boolean isSlateModule = false
     if (project.name.startsWith("slate")) {
-        apply plugin: "slate-module"
+        apply plugin: "slate-build"
         isSlateModule = true
-    }
-
-    configurations {
-        packed
     }
 
     dependencies {
@@ -31,23 +27,27 @@ subprojects {
         compileOnly 'org.projectlombok:lombok:1.18.30'
         annotationProcessor 'org.projectlombok:lombok:1.18.30'
 
-        // Internal common dependencies
-        packed project(":base")
-        packed "com.google.code.gson:gson:2.10.1"
+        afterEvaluate {
+            if (configurations.findByName("packed") != null) {
+                // Internal common dependencies
+                packed project(":base")
+            }
+        }
 
         // Other common project dependencies
     }
 
-    /* Java Compile Settings */
-    compileJava.options.encoding = 'UTF-8'
+    afterEvaluate {
+        /* Java Compile Settings */
+        compileJava.options.encoding = 'UTF-8'
 
-    tasks.withType(JavaCompile) {
-        options.encoding = 'UTF-8'
-    }
+        tasks.withType(JavaCompile) {
+            options.encoding = 'UTF-8'
+        }
 
-    tasks.withType(Javadoc) {
-        enabled = false
-        options.encoding = 'UTF-8'
+        tasks.withType(Javadoc) {
+            enabled = false
+        }
     }
 
     java {
@@ -56,7 +56,6 @@ subprojects {
         targetCompatibility = 21
 
         withSourcesJar()
-        withJavadocJar()
     }
 
     // Make build task depend on shadowJar

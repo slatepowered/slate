@@ -137,4 +137,13 @@ public class ArrayUtil {
 
         return false;
     }
+
+    @SuppressWarnings("unchecked")
+    public static <T, T2> T2[] arrayRetype(T[] arr, Class<T2> t2Class) {
+        T2[] arr2 = (T2[]) Array.newInstance(t2Class, arr.length);
+        for (int i = 0, n = arr.length; i < n; i++)
+            arr2[i] = (T2) arr[i];
+        return arr2;
+    }
+
 }

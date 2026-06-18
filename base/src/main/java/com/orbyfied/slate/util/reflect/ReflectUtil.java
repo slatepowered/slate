@@ -190,47 +190,6 @@ public class ReflectUtil {
         }
     }
 
-    /**
-     * Find the loaded class lowest in the chain of class loaders.
-     *
-     * @param loader The loader.
-     * @param name The class name.
-     * @return The loaded class or null if unloaded.
-     */
-    public static Class<?> findLoadedClassInParents(ClassLoader loader, String name) {
-        try {
-            while (loader != null) {
-                Class<?> klass = (Class<?>) ClassLoader_findLoadedClass.invoke(loader, name);
-                if (klass != null) {
-                    return klass;
-                }
-
-                loader = loader.getParent();
-            }
-
-            return null;
-        } catch (Throwable t) {
-            t.printStackTrace();
-            return null;
-        }
-    }
-
-    /**
-     * Try to find a loaded class by the given name in the given loader.
-     *
-     * @param loader The loader.
-     * @param name The class name.
-     * @return The loaded class or null if absent.
-     */
-    public static Class<?> findLoadedClass(ClassLoader loader, String name) {
-        try {
-            return (Class<?>) ClassLoader_findLoadedClass.invoke(loader, name);
-        } catch (Throwable t) {
-            t.printStackTrace();
-            return null;
-        }
-    }
-
     /** Black hole for class objects */
     public static boolean ensureLoaded(Class<?> klass) {
         if (klass == null) return false;
@@ -249,14 +208,6 @@ public class ReflectUtil {
         }
 
         return loader;
-    }
-
-    @SuppressWarnings("unchecked")
-    public static <T, T2> T2[] arrayCast(T[] arr, Class<T2> t2Class) {
-        T2[] arr2 = (T2[]) Array.newInstance(t2Class, arr.length);
-        for (int i = 0, n = arr.length; i < n; i++)
-            arr2[i] = (T2) arr[i];
-        return arr2;
     }
 
     /**

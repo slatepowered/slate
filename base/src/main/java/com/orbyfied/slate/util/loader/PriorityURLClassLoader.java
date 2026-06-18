@@ -1,4 +1,4 @@
-package com.orbyfied.slate.loader;
+package com.orbyfied.slate.util.loader;
 
 import com.orbyfied.slate.util.reflect.ClassLoaders;
 
