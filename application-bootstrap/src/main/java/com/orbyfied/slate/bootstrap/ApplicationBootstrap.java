@@ -3,7 +3,6 @@ package com.orbyfied.slate.bootstrap;
 import com.eclipsesource.json.Json;
 import com.eclipsesource.json.JsonObject;
 import com.orbyfied.slate.util.loader.PriorityURLClassLoader;
-import lombok.SneakyThrows;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -15,13 +14,9 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.CodeSource;
-import java.util.Arrays;
 import java.util.Enumeration;
-import java.util.List;
-import java.util.function.Function;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-import java.util.stream.Collectors;
 
 /**
  * Common boostrap for all standalone applications and such. Responsible for loading
@@ -34,10 +29,8 @@ public final class ApplicationBootstrap {
   public static final String ROOT_MODULE_INFO_RESOURCE = "META-INF/slate-module-metadata/component.json";
   public static final String BUNDLED_LIBRARIES_RESOURCE = "META-INF/bundled-libs/";
 
-  /* Bootstrapper Settings */
-  static boolean DEBUG = true;
-  static Path CACHE_PATH = Path.of(System.getProperty("user.home"), ".slate", "boot.cache");
-  static List<URL> PROVIDED_MODULES = List.of();
+  static boolean DEBUG = true; // initial value, updated by `env` values after load
+  static ApplicationBootstrapEnvironment env;
 
   // Publicly exported current app info
   static ApplicationInfo applicationInfo;
@@ -46,14 +39,9 @@ public final class ApplicationBootstrap {
 
   public static void main(String[] args) throws Throwable {
     log("Bootstrapping slate module, loading env");
-
-    DEBUG = loadEnvOr("slate.boot.debug", Boolean::parseBoolean, DEBUG);
-    CACHE_PATH = loadEnvOr("slate.boot.cache", Path::of, CACHE_PATH);
-    PROVIDED_MODULES = loadEnvOr("slate.boot.providedModules", s -> Arrays.stream(s.split(";"))
-        .map(ApplicationBootstrap::newURL)
-        .toList(), PROVIDED_MODULES);
-
-    log("Loaded env: debug(" + DEBUG + ") cache(" + CACHE_PATH + ") provided(" + PROVIDED_MODULES.size() + ")");
+    env = ApplicationBootstrapEnvironment.current();
+    DEBUG = DEBUG || env.isDebug();
+    log("Loaded env: debug(" + DEBUG + ") deployed(" + env.isDeployed() + ") bundledLibCache(" + env.getBundledLibraryCache() + ") provided(" + env.getProvidedModules().size() + ")");
 
     // create info object to be populated
     ApplicationInfo appInfo = new ApplicationInfo();
@@ -66,7 +54,7 @@ public final class ApplicationBootstrap {
 
     final Checklist checklist = new Checklist();
     try (JarFile jar = new JarFile(selfJarPath.toFile())) {
-      final Path embeddedLibCache = CACHE_PATH.resolve("embedded-libs");
+      final Path embeddedLibCache = env.getBundledLibraryCache();
       log("Embedded library cache: " + embeddedLibCache);
 
       Enumeration<JarEntry> entries = jar.entries();
@@ -120,8 +108,8 @@ public final class ApplicationBootstrap {
         throw new IllegalArgumentException("Invalid application module metadata, no entry point property");
       applicationInfo = appInfo;
 
-      log("Added " + PROVIDED_MODULES.size() + " provided modules to bootstrap classpath");
-      appInfo.providedLibraries.addAll(PROVIDED_MODULES);
+      log("Added " + env.getProvidedModules().size() + " provided modules to bootstrap classpath");
+      appInfo.providedLibraries.addAll(env.getProvidedModules());
 
       log("Creating application class loader with " + appInfo.providedLibraries.size() + " initial libraries");
       URL[] urls = appInfo.providedLibraries.toArray(new URL[0]);
@@ -155,20 +143,6 @@ public final class ApplicationBootstrap {
 
   public static BootstrapInfo bootstrapInfo() {
     return bootstrapInfo;
-  }
-
-  private static <T> T loadEnvOr(String vName, Function<String, T> function, T def) {
-    String s = System.getProperty(vName);
-    if (s == null) {
-      return def;
-    }
-
-    return function.apply(s);
-  }
-
-  @SneakyThrows
-  private static URL newURL(String s) {
-    return new URL(s);
   }
 
   private static void log(Object ob) {

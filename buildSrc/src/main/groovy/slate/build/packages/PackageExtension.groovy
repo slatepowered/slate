@@ -1,8 +1,7 @@
-package slate.build
+package slate.build.packages
 
-import org.gradle.api.Project
-import org.gradle.api.provider.Property;
-import slate.build.module.PackageComponent
+
+import slate.build.component.PackageComponent
 
 class PackageExtension {
 
@@ -16,26 +15,32 @@ class PackageExtension {
   String qualifierHash;
   String trimmedQualifierHash;
 
+  // Whether the package may contain compilable code
+  boolean code = true;
+
   // Package Components
-  List<PackageComponent> components = new ArrayList<>();
+  Map<String, PackageComponent> components = new HashMap<>()
+  Closure<?> allConfig
+
+  Collection<PackageComponent> components() {
+    return components.values()
+  }
 
   PackageComponent component(String name) {
-    def comp = components.find { it.name.equalsIgnoreCase(name) }
+    def comp = components.get(name)
     if (comp != null) {
       return comp
     }
 
     comp = new PackageComponent();
     comp.name = name;
-    components.add(comp)
+    components.put(name, comp);
     return comp;
   }
 
   PackageComponent component(String name, @DelegatesTo(PackageComponent) Closure<?> conf) {
     PackageComponent c = component(name);
-    conf.delegate = c
-    conf.resolveStrategy = Closure.DELEGATE_FIRST;
-    conf(c);
+    c.configure(conf)
     return c;
   }
 
@@ -45,6 +50,22 @@ class PackageExtension {
 
   PackageComponent mainComponent(@DelegatesTo(PackageComponent) Closure<?> conf) {
     return component("main", conf)
+  }
+
+  void forAll(@DelegatesTo(PackageComponent) Closure<?> conf) {
+    allConfig = conf
+  }
+
+  void readyComponents() {
+    for (PackageComponent comp : components.values()) {
+      if (allConfig != null) {
+        allConfig.delegate = comp
+        allConfig.resolveStrategy = Closure.DELEGATE_FIRST
+        allConfig()
+      }
+
+      comp.ready()
+    }
   }
 
 }

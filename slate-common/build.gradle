@@ -6,7 +6,9 @@ group = 'com.orbyfied.slate'
 version = '0.1.0'
 
 slatePackage {
-
+    mainComponent {
+        entrypoint = "com.orbyfied.slate.Connection"
+    }
 }
 
 slateDependencies {

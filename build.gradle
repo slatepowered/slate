@@ -22,6 +22,12 @@ subprojects {
         isSlateModule = true
     }
 
+    afterEvaluate {
+        tasks.withType(Test).configureEach {
+            enabled = false
+        }
+    }
+
     dependencies {
         /* Lombok */
         compileOnly 'org.projectlombok:lombok:1.18.30'

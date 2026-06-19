@@ -100,11 +100,9 @@ public class Connection {
     int readState = 0; // enum: [ANY, FINISHED, INCOMPLETE_HEADER]
     boolean positionedAtFrameHeader = false;
     while (true) {
-//      System.out.println("-> rs: " + readState + ", buf(pos: " + buf.position() + ", lim: " + buf.limit() + "), frame: " + incompleteFrame + ", pafh: " + positionedAtFrameHeader);
       if ((readState != 1 && !positionedAtFrameHeader) || readState == 2) {
         // if the read hasnt finished yet, read from the channel
         int pos = buf.position(); // store read position
-//        System.out.println(ByteBuffers.dumpSurroundingWindow(buf));
         int read = channel.read(buf);
         if (read < 0) {
           TODO.todoEventLogging("Connection", "WARN: Peer disconnected, read status " + read + " from socket");
@@ -112,7 +110,6 @@ public class Connection {
           return;
         }
 
-//        System.out.println(ByteBuffers.dumpSurroundingWindow(buf));
         if (buf.position() - pos == 0) {
           if (incompleteFrame == null) {
             return; // early exit, no more frames left to read
@@ -129,13 +126,11 @@ public class Connection {
         return;
       }
 
-//      System.out.println("<- rs: " + readState + ", buf(pos: " + buf.position() + ", lim: " + buf.limit() + "), frame: " + incompleteFrame + ", pafh: " + positionedAtFrameHeader);
-
       // starting a new frame, allocate buffer etc
       if (incompleteFrame == null) {
         if (buf.remaining() < HEADER_SIZE) {
           // partial header,
-          if (readState == 1 || true /* todo */) {
+          if (readState == 1) {
             TODO.todoEventLogging("Connection", "Partial header: remaining(" + buf.remaining() + ") limit(" + buf.limit() + ")");
             return;
           }
@@ -193,7 +188,7 @@ public class Connection {
     }
   }
 
-  public static final AtomicInteger REC = new AtomicInteger(0);
+  public static final AtomicInteger REC = new AtomicInteger(0); // Temporary for stress testing
 
   /**
    * Called when a completed frame has been read and is ready to be decoded and processed.
