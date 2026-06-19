@@ -172,7 +172,7 @@ public final class ApplicationBootstrap {
   }
 
   private static void log(Object ob) {
-    if (DEBUG) System.out.println("[slate::bootstrap] " + ob);
+    if (DEBUG) System.err.println("[slate::bootstrap] " + ob);
   }
 
 }
