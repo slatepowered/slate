@@ -26,8 +26,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class Connection {
 
-  static final int MAX_FRAME_SIZE = 1024 * 1024 * 128; // 128 MB
-  static final int HEADER_SIZE = 4; // [length+flags: int32]
+  public static final int MAX_FRAME_SIZE = 1024 * 1024 * 128; // 128 MB
+  public static final int HEADER_SIZE = 4; // [length+flags: int32]
 
   /// The connection manager instance
   private final ConnectionManager manager;
@@ -51,7 +51,7 @@ public class Connection {
   protected ConnectionFrame incompleteFrame;
 
   /* Connection authorization state */
-  protected Trust trust = Trust.UNAUTHORIZED;
+  protected Trust trust = Trust.INTERNAL;
 
   Connection(ConnectionManager manager, SocketChannel channel) {
     this.manager = manager;
@@ -92,10 +92,11 @@ public class Connection {
     }
   }
 
+
+
   /// Called by the {@link ConnectionManager} once a readable key was received for this channel
   protected final void readKey(SelectionKey key) throws IOException {
-    ByteBuffer buf = ensureReadBuffer();
-    buf.position(0).limit(buf.capacity() - HEADER_SIZE);
+    ByteBuffer buf = ensureReadBuffer().clear();
 
     int readState = 0; // enum: [ANY, FINISHED, INCOMPLETE_HEADER]
     boolean positionedAtFrameHeader = false;
@@ -103,7 +104,7 @@ public class Connection {
       if ((readState != 1 && !positionedAtFrameHeader) || readState == 2) {
         // if the read hasnt finished yet, read from the channel
         int pos = buf.position(); // store read position
-        int read = channel.read(buf);
+        int read = channel.read(buf.limit(buf.capacity()));
         if (read < 0) {
           TODO.todoEventLogging("Connection", "WARN: Peer disconnected, read status " + read + " from socket");
           close();
@@ -174,7 +175,7 @@ public class Connection {
         // clear buffer as we have exhausted the read buffer
         // at this point, continue to next iteration to see
         // if there is any data remaining
-        buf.position(0).limit(buf.capacity() - HEADER_SIZE);
+        buf.position(0);
       }
 
       // check if we read the entire frame
@@ -197,7 +198,7 @@ public class Connection {
    */
   protected final void completedIncomingFrameGuarded(ConnectionFrame frame) {
     try {
-      System.out.println("Read frame sized " + frame.size() + " with UTF8: " + ByteBuffers.remainingUTF8String(frame.buffer()));
+//      System.out.println("Read frame sized " + frame.size() + " with UTF8: " + ByteBuffers.remainingUTF8String(frame.buffer()));
       REC.incrementAndGet();
     } catch (Exception ex) {
       TODO.todoErrorHandling("An exception occurred while processing Connection frame of size " + frame.size(), ex);

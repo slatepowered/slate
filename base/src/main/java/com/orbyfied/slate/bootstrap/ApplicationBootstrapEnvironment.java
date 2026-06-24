@@ -4,7 +4,6 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 
-import java.net.URI;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -47,7 +46,7 @@ public final class ApplicationBootstrapEnvironment {
   /// The path to the common shared directory including the package repository
   private final @Getter Path clusterSharedDirectory;
   /// The path to the shared bundled library cache
-  private final @Getter Path bundledLibraryCache;
+  private final @Getter Path bundledLibraryRepository;
   /// The modules, provided by the spawning process, to be loaded to the bootstrap loader if applicable
   private final @Getter List<URL> providedModules;
 

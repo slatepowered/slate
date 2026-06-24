@@ -16,7 +16,7 @@ class PackageExtension {
   String trimmedQualifierHash;
 
   // Whether the package may contain compilable code
-  boolean code = true;
+  boolean code = true
 
   // Package Components
   Map<String, PackageComponent> components = new HashMap<>()
