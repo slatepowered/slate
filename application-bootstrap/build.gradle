@@ -7,6 +7,4 @@ group = 'com.orbyfied.slate'
 dependencies {
     compileOnly project(":base")
     compileOnly 'com.eclipsesource.minimal-json:minimal-json:0.9.5'
-
-    implementation project(":base")
 }
